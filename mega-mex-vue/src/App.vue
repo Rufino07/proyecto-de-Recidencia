@@ -6,16 +6,36 @@ import Navbar from './components/Navbar.vue'
 
   <div class="app">
 
-    <Navbar />
+    <!-- ===================================== -->
+    <!-- NAVBAR SOLO PARA EL CLIENTE -->
+    <!-- ===================================== -->
+
+    <Navbar
+      v-if="!$route.meta.ocultarNavegacion"
+    />
+
+
+    <!-- ===================================== -->
+    <!-- CONTENIDO DE LAS PÁGINAS -->
+    <!-- ===================================== -->
 
     <main>
       <RouterView />
     </main>
 
-    <footer class="footer">
+
+    <!-- ===================================== -->
+    <!-- FOOTER SOLO PARA EL CLIENTE -->
+    <!-- ===================================== -->
+
+    <footer
+      v-if="!$route.meta.ocultarNavegacion"
+      class="footer"
+    >
 
       <div class="footer-contenido">
 
+        <!-- LOGO -->
         <div class="footer-logo">
 
           <img
@@ -25,21 +45,43 @@ import Navbar from './components/Navbar.vue'
 
           <div>
             <h3>MEGA-MEX</h3>
-            <p>Abarrotes por mayoreo y menudeo</p>
+
+            <p>
+              Abarrotes por mayoreo y menudeo
+            </p>
           </div>
 
         </div>
 
-        <div>
-          <h4>Enlaces</h4>
 
-          <RouterLink to="/">Inicio</RouterLink>
-          <RouterLink to="/productos">Productos</RouterLink>
-          <RouterLink to="/promociones">Promociones</RouterLink>
+        <!-- ENLACES -->
+        <div>
+
+          <h4>
+            Enlaces
+          </h4>
+
+          <RouterLink to="/inicio">
+            Inicio
+          </RouterLink>
+
+          <RouterLink to="/productos">
+            Productos
+          </RouterLink>
+
+          <RouterLink to="/promociones">
+            Promociones
+          </RouterLink>
+
         </div>
 
+
+        <!-- CONTACTO -->
         <div>
-          <h4>Contacto</h4>
+
+          <h4>
+            Contacto
+          </h4>
 
           <p>
             Heroica Ciudad de Tlaxiaco, Oaxaca
@@ -48,9 +90,11 @@ import Navbar from './components/Navbar.vue'
           <p>
             Síguenos en nuestras redes sociales
           </p>
+
         </div>
 
       </div>
+
 
       <div class="copyright">
         © 2026 Mega-Mex
