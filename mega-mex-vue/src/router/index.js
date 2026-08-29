@@ -1,11 +1,11 @@
-import {
-  createRouter,
-  createWebHistory
-} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
-// =====================================
-// VISTAS DEL CLIENTE
-// =====================================
+// ============================================
+// VISTAS
+// ============================================
+
+import Login from '../views/Login.vue'
+import Registro from '../views/Registro.vue'
 
 import Inicio from '../views/Inicio.vue'
 import Productos from '../views/Productos.vue'
@@ -14,17 +14,12 @@ import Empresa from '../views/Empresa.vue'
 import Marketing from '../views/Marketing.vue'
 import Contacto from '../views/Contacto.vue'
 import Redes from '../views/Redes.vue'
-
-// =====================================
-// LOGIN Y ADMIN
-// =====================================
-
-import Login from '../views/Login.vue'
 import Admin from '../views/Admin.vue'
 
-// =====================================
+
+// ============================================
 // AUTENTICACIÓN
-// =====================================
+// ============================================
 
 import {
   obtenerUsuario,
@@ -32,16 +27,19 @@ import {
 } from '../utils/auth'
 
 
+// ============================================
+// CREAR ROUTER
+// ============================================
+
 const router = createRouter({
 
   history: createWebHistory(),
 
   routes: [
 
-    // =================================
+    // ========================================
     // ENTRADA PRINCIPAL
-    // SIEMPRE MANDA AL LOGIN
-    // =================================
+    // ========================================
 
     {
       path: '/',
@@ -49,15 +47,13 @@ const router = createRouter({
     },
 
 
-    // =================================
+    // ========================================
     // LOGIN
-    // =================================
+    // ========================================
 
     {
       path: '/login',
-
       name: 'login',
-
       component: Login,
 
       meta: {
@@ -66,15 +62,28 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // INICIO DEL CLIENTE
-    // =================================
+    // ========================================
+    // REGISTRO DE USUARIOS
+    // ========================================
+
+    {
+      path: '/registro',
+      name: 'registro',
+      component: Registro,
+
+      meta: {
+        ocultarNavegacion: true
+      }
+    },
+
+
+    // ========================================
+    // CLIENTE
+    // ========================================
 
     {
       path: '/inicio',
-
       name: 'inicio',
-
       component: Inicio,
 
       meta: {
@@ -84,15 +93,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // PRODUCTOS
-    // =================================
-
     {
       path: '/productos',
-
       name: 'productos',
-
       component: Productos,
 
       meta: {
@@ -102,15 +105,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // PROMOCIONES
-    // =================================
-
     {
       path: '/promociones',
-
       name: 'promociones',
-
       component: Promociones,
 
       meta: {
@@ -120,15 +117,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // NOSOTROS
-    // =================================
-
     {
       path: '/empresa',
-
       name: 'empresa',
-
       component: Empresa,
 
       meta: {
@@ -138,15 +129,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // MARKETING
-    // =================================
-
     {
       path: '/marketing',
-
       name: 'marketing',
-
       component: Marketing,
 
       meta: {
@@ -156,15 +141,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // CONTACTO
-    // =================================
-
     {
       path: '/contacto',
-
       name: 'contacto',
-
       component: Contacto,
 
       meta: {
@@ -174,15 +153,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // REDES
-    // =================================
-
     {
       path: '/redes',
-
       name: 'redes',
-
       component: Redes,
 
       meta: {
@@ -192,15 +165,13 @@ const router = createRouter({
     },
 
 
-    // =================================
+    // ========================================
     // ADMINISTRADOR
-    // =================================
+    // ========================================
 
     {
       path: '/admin',
-
       name: 'admin',
-
       component: Admin,
 
       meta: {
@@ -211,9 +182,9 @@ const router = createRouter({
     },
 
 
-    // =================================
-    // RUTA QUE NO EXISTE
-    // =================================
+    // ========================================
+    // RUTA NO ENCONTRADA
+    // ========================================
 
     {
       path: '/:pathMatch(.*)*',
@@ -225,16 +196,15 @@ const router = createRouter({
 })
 
 
-// =====================================
+// ============================================
 // PROTECCIÓN DE RUTAS
-// =====================================
+// ============================================
 
 router.beforeEach((to) => {
 
-  // =================================
-  // SI ENTRA AL LOGIN
-  // CERRAMOS LA SESIÓN ANTERIOR
-  // =================================
+  // ==========================================
+  // LOGIN
+  // ==========================================
 
   if (to.path === '/login') {
 
@@ -245,12 +215,31 @@ router.beforeEach((to) => {
   }
 
 
-  const usuario = obtenerUsuario()
+  // ==========================================
+  // REGISTRO
+  // ==========================================
+
+  // El registro es público.
+  // No necesita que el usuario haya iniciado sesión.
+
+  if (to.path === '/registro') {
+
+    return true
+
+  }
 
 
-  // =================================
-  // NO HAY SESIÓN
-  // =================================
+  // ==========================================
+  // OBTENER USUARIO
+  // ==========================================
+
+  const usuario =
+    obtenerUsuario()
+
+
+  // ==========================================
+  // RUTA PROTEGIDA SIN LOGIN
+  // ==========================================
 
   if (
     to.meta.requiereLogin &&
@@ -262,29 +251,35 @@ router.beforeEach((to) => {
   }
 
 
-  // =================================
-  // PROTEGER ADMIN
-  // =================================
+  // ==========================================
+  // ADMINISTRADOR
+  // ==========================================
 
   if (
     to.meta.rol === 'admin'
   ) {
 
+    if (!usuario) {
+
+      return '/login'
+
+    }
+
+
     if (
-      !usuario ||
       usuario.rol !== 'admin'
     ) {
 
-      return '/login'
+      return '/inicio'
 
     }
 
   }
 
 
-  // =================================
-  // PROTEGER CLIENTE
-  // =================================
+  // ==========================================
+  // CLIENTE
+  // ==========================================
 
   if (
     to.meta.rol === 'cliente'
@@ -297,7 +292,8 @@ router.beforeEach((to) => {
     }
 
 
-    // UN ADMIN NO ENTRA COMO CLIENTE
+    // Si un administrador intenta entrar
+    // a las páginas del cliente
     if (
       usuario.rol === 'admin'
     ) {
@@ -317,6 +313,10 @@ router.beforeEach((to) => {
 
   }
 
+
+  // ==========================================
+  // PERMITIR NAVEGACIÓN
+  // ==========================================
 
   return true
 
