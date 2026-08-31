@@ -1,9 +1,9 @@
 <template>
   <main class="pagina-login">
 
-    <!-- ================================= -->
+    <!-- ===================================== -->
     <!-- FONDO ANIMADO -->
-    <!-- ================================= -->
+    <!-- ===================================== -->
 
     <div class="fondo-luz luz-1"></div>
     <div class="fondo-luz luz-2"></div>
@@ -18,24 +18,24 @@
     </div>
 
 
-    <!-- ================================= -->
-    <!-- TARJETA -->
-    <!-- ================================= -->
+    <!-- ===================================== -->
+    <!-- TARJETA PRINCIPAL -->
+    <!-- ===================================== -->
 
     <section class="login-card">
 
-      <!-- ================================= -->
+      <!-- =================================== -->
       <!-- PANEL IZQUIERDO -->
-      <!-- ================================= -->
+      <!-- =================================== -->
 
       <aside class="presentacion">
 
-        <div class="circulo-decorativo circulo-a"></div>
-        <div class="circulo-decorativo circulo-b"></div>
+        <div class="circulo circulo-a"></div>
+        <div class="circulo circulo-b"></div>
 
         <div class="contenido-presentacion">
 
-          <div class="logo">
+          <div class="logo-login">
             🛒
           </div>
 
@@ -49,10 +49,12 @@
 
           <p class="descripcion">
             Accede al sitio para consultar productos,
-            promociones, flyers y todas las novedades
+            promociones, volantes y todas las novedades
             que Mega-Mex tiene para ti.
           </p>
 
+
+          <!-- VENTAJAS -->
 
           <div class="ventajas">
 
@@ -104,9 +106,9 @@
       </aside>
 
 
-      <!-- ================================= -->
+      <!-- =================================== -->
       <!-- PANEL DERECHO -->
-      <!-- ================================= -->
+      <!-- =================================== -->
 
       <section class="formulario">
 
@@ -116,9 +118,7 @@
 
           <div
             class="icono-usuario"
-            :class="{
-              admin: tipoAcceso === 'admin'
-            }"
+            :class="{ admin: tipoAcceso === 'admin' }"
           >
             <span
               :key="tipoAcceso"
@@ -145,43 +145,33 @@
 
 
         <!-- ================================= -->
-        <!-- SELECTOR -->
+        <!-- SELECTOR USUARIO / ADMIN -->
         <!-- ================================= -->
 
         <div class="selector">
 
           <div
             class="selector-fondo"
-            :class="{
-              mover: tipoAcceso === 'admin'
-            }"
+            :class="{ mover: tipoAcceso === 'admin' }"
           ></div>
 
 
           <button
             type="button"
-            :class="{
-              activo:
-                tipoAcceso === 'usuario'
-            }"
+            :class="{ activo: tipoAcceso === 'usuario' }"
             @click="cambiarTipo('usuario')"
           >
             <span>👤</span>
-
             Usuario
           </button>
 
 
           <button
             type="button"
-            :class="{
-              activo:
-                tipoAcceso === 'admin'
-            }"
+            :class="{ activo: tipoAcceso === 'admin' }"
             @click="cambiarTipo('admin')"
           >
             <span>🔐</span>
-
             Administrador
           </button>
 
@@ -189,7 +179,7 @@
 
 
         <!-- ================================= -->
-        <!-- CONTENIDO ANIMADO -->
+        <!-- CONTENIDO -->
         <!-- ================================= -->
 
         <Transition
@@ -201,6 +191,8 @@
             :key="tipoAcceso"
             class="contenido-login"
           >
+
+            <!-- TIPO -->
 
             <div class="tipo-info">
 
@@ -238,13 +230,11 @@
                   Correo electrónico
                 </label>
 
-
                 <div class="input-contenedor">
 
                   <span class="icono-input">
                     ✉️
                   </span>
-
 
                   <input
                     id="correo"
@@ -253,7 +243,7 @@
                     placeholder="correo@ejemplo.com"
                     autocomplete="username"
                     :disabled="cargando"
-                  />
+                  >
 
                 </div>
 
@@ -268,36 +258,27 @@
                   Contraseña
                 </label>
 
-
                 <div class="input-contenedor">
 
                   <span class="icono-input">
                     🔒
                   </span>
 
-
                   <input
                     id="password"
                     v-model="password"
-                    :type="
-                      mostrarPassword
-                        ? 'text'
-                        : 'password'
-                    "
+                    :type="mostrarPassword ? 'text' : 'password'"
                     placeholder="Ingresa tu contraseña"
                     autocomplete="current-password"
                     :disabled="cargando"
-                  />
+                  >
 
 
                   <button
                     type="button"
                     class="mostrar-password"
                     :disabled="cargando"
-                    @click="
-                      mostrarPassword =
-                        !mostrarPassword
-                    "
+                    @click="mostrarPassword = !mostrarPassword"
                   >
                     {{
                       mostrarPassword
@@ -311,9 +292,7 @@
               </div>
 
 
-              <!-- ================================= -->
               <!-- ERROR -->
-              <!-- ================================= -->
 
               <Transition name="mensaje">
 
@@ -331,9 +310,7 @@
               </Transition>
 
 
-              <!-- ================================= -->
               <!-- MENSAJE -->
-              <!-- ================================= -->
 
               <Transition name="mensaje">
 
@@ -351,9 +328,7 @@
               </Transition>
 
 
-              <!-- ================================= -->
               <!-- BOTÓN LOGIN -->
-              <!-- ================================= -->
 
               <button
                 type="submit"
@@ -376,18 +351,22 @@
 
 
                 <span
-                  v-else-if="
-                    tipoAcceso === 'admin'
-                  "
+                  v-else-if="tipoAcceso === 'admin'"
                 >
                   Iniciar como administrador
-                  <span class="flecha">→</span>
+
+                  <span class="flecha">
+                    →
+                  </span>
                 </span>
 
 
                 <span v-else>
                   Iniciar sesión
-                  <span class="flecha">→</span>
+
+                  <span class="flecha">
+                    →
+                  </span>
                 </span>
 
               </button>
@@ -396,14 +375,12 @@
 
 
             <!-- ================================= -->
-            <!-- OPCIONES USUARIO -->
+            <!-- OPCIONES DEL USUARIO -->
             <!-- ================================= -->
 
-            <template
-              v-if="
-                tipoAcceso === 'usuario'
-              "
-            >
+            <template v-if="tipoAcceso === 'usuario'">
+
+              <!-- SEPARADOR -->
 
               <div class="separador">
 
@@ -418,39 +395,87 @@
               </div>
 
 
+              <!-- ================================= -->
+              <!-- GOOGLE Y FACEBOOK -->
+              <!-- ================================= -->
+
               <div class="login-social">
+
+                <!-- GOOGLE -->
 
                 <button
                   type="button"
-                  class="social google"
-                  @click="
-                    loginSocial('Google')
-                  "
+                  class="social-btn google-btn"
+                  title="Continuar con Google"
+                  aria-label="Continuar con Google"
+                  @click="loginSocial('Google')"
                 >
-                  <span class="google-icon">
-                    G
+
+                  <span class="social-icon google-icon">
+
+                    <!-- LOGO GOOGLE -->
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+
+                      <path
+                        fill="#4285F4"
+                        d="M21.35 12.18c0-.64-.06-1.26-.17-1.86H12v3.52h5.25a4.49 4.49 0 0 1-1.95 2.95v2.29h3.16c1.85-1.7 2.89-4.22 2.89-6.9Z"
+                      />
+
+                      <path
+                        fill="#34A853"
+                        d="M12 21.7c2.64 0 4.86-.87 6.48-2.37l-3.16-2.29c-.88.59-2 .94-3.32.94-2.55 0-4.71-1.72-5.48-4.03H3.26v2.36A9.79 9.79 0 0 0 12 21.7Z"
+                      />
+
+                      <path
+                        fill="#FBBC05"
+                        d="M6.52 13.95A5.9 5.9 0 0 1 6.21 12c0-.68.12-1.34.31-1.95V7.69H3.26A9.8 9.8 0 0 0 2.2 12c0 1.57.38 3.06 1.06 4.31l3.26-2.36Z"
+                      />
+
+                      <path
+                        fill="#EA4335"
+                        d="M12 6.02c1.44 0 2.73.5 3.75 1.47l2.8-2.8A9.39 9.39 0 0 0 12 2.3a9.79 9.79 0 0 0-8.74 5.39l3.26 2.36C7.29 7.74 9.45 6.02 12 6.02Z"
+                      />
+
+                    </svg>
+
                   </span>
 
-                  Google
+
+                  <span class="social-nombre">
+                    Google
+                  </span>
+
                 </button>
 
 
+                <!-- FACEBOOK -->
+
                 <button
                   type="button"
-                  class="social facebook"
-                  @click="
-                    loginSocial('Facebook')
-                  "
+                  class="social-btn facebook-btn"
+                  title="Continuar con Facebook"
+                  aria-label="Continuar con Facebook"
+                  @click="loginSocial('Facebook')"
                 >
-                  <span class="facebook-icon">
+
+                  <span class="social-icon facebook-icon">
                     f
                   </span>
 
-                  Facebook
+                  <span class="social-nombre">
+                    Facebook
+                  </span>
+
                 </button>
 
               </div>
 
+
+              <!-- CREAR CUENTA -->
 
               <div class="crear-cuenta">
 
@@ -513,118 +538,93 @@
 
 <script setup>
 
-import {
-  ref
-} from 'vue'
+import { ref } from 'vue'
 
-import {
-  useRouter
-} from 'vue-router'
+import { useRouter } from 'vue-router'
 
 import {
   iniciarSesion
 } from '../utils/auth'
 
 
-const router =
-  useRouter()
+const router = useRouter()
 
 
-// ==========================================
+// ============================================
 // VARIABLES
-// ==========================================
+// ============================================
 
-const tipoAcceso =
-  ref('usuario')
+const tipoAcceso = ref('usuario')
 
-const correo =
-  ref('')
+const correo = ref('')
 
-const password =
-  ref('')
+const password = ref('')
 
-const mostrarPassword =
-  ref(false)
+const mostrarPassword = ref(false)
 
-const cargando =
-  ref(false)
+const cargando = ref(false)
 
-const error =
-  ref('')
+const error = ref('')
 
-const mensaje =
-  ref('')
+const mensaje = ref('')
 
 
-// ==========================================
+// ============================================
 // CAMBIAR TIPO DE ACCESO
-// ==========================================
+// ============================================
 
 const cambiarTipo = (tipo) => {
 
-  if (
-    tipoAcceso.value === tipo
-  ) {
+  if (tipoAcceso.value === tipo) {
     return
   }
 
 
-  tipoAcceso.value =
-    tipo
+  tipoAcceso.value = tipo
 
+  correo.value = ''
 
-  correo.value =
-    ''
+  password.value = ''
 
-  password.value =
-    ''
+  error.value = ''
 
-  error.value =
-    ''
+  mensaje.value = ''
 
-  mensaje.value =
-    ''
-
-  mostrarPassword.value =
-    false
+  mostrarPassword.value = false
 
 }
 
 
-// ==========================================
-// VALIDACIÓN DE CORREO
-// ==========================================
+// ============================================
+// VALIDAR CORREO
+// ============================================
 
-const correoValido =
-  (correo) => {
+const correoValido = (correoIngresado) => {
 
-    const expresion =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-
-    return expresion.test(
-      correo
-    )
-
-  }
+  const expresion =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 
-// ==========================================
+  return expresion.test(
+    correoIngresado
+  )
+
+}
+
+
+// ============================================
 // LOGIN
-// ==========================================
+// ============================================
 
 const login = async () => {
 
-  error.value =
-    ''
+  error.value = ''
 
-  mensaje.value =
-    ''
+  mensaje.value = ''
 
 
   const correoLimpio =
-    correo.value
-      .trim()
+    correo.value.trim()
 
 
   // CAMPOS VACÍOS
@@ -642,7 +642,7 @@ const login = async () => {
   }
 
 
-  // CORREO
+  // CORREO NO VÁLIDO
 
   if (
     !correoValido(
@@ -658,8 +658,7 @@ const login = async () => {
   }
 
 
-  cargando.value =
-    true
+  cargando.value = true
 
 
   try {
@@ -684,18 +683,16 @@ const login = async () => {
     }
 
 
-    // ======================================
-    // ADMINISTRADOR
-    // ======================================
+    // ========================================
+    // ADMIN
+    // ========================================
 
     if (
-      tipoAcceso.value ===
-      'admin'
+      tipoAcceso.value === 'admin'
     ) {
 
       if (
-        usuario.rol !==
-        'admin'
+        usuario.rol !== 'admin'
       ) {
 
         throw new Error(
@@ -714,18 +711,16 @@ const login = async () => {
     }
 
 
-    // ======================================
-    // USUARIO
-    // ======================================
+    // ========================================
+    // CLIENTE
+    // ========================================
 
     if (
-      tipoAcceso.value ===
-      'usuario'
+      tipoAcceso.value === 'usuario'
     ) {
 
       if (
-        usuario.rol !==
-        'cliente'
+        usuario.rol !== 'cliente'
       ) {
 
         throw new Error(
@@ -750,24 +745,22 @@ const login = async () => {
       'No fue posible iniciar sesión.'
 
 
-    password.value =
-      ''
+    password.value = ''
 
   }
 
   finally {
 
-    cargando.value =
-      false
+    cargando.value = false
 
   }
 
 }
 
 
-// ==========================================
+// ============================================
 // REGISTRO
-// ==========================================
+// ============================================
 
 const irARegistro = () => {
 
@@ -778,29 +771,35 @@ const irARegistro = () => {
 }
 
 
-// ==========================================
+// ============================================
 // GOOGLE / FACEBOOK
-// ==========================================
+// ============================================
 
-const loginSocial =
-  (proveedor) => {
+const loginSocial = (proveedor) => {
 
-    error.value =
-      ''
+  error.value = ''
 
-    mensaje.value =
-      `El acceso con ${proveedor} se conectará al implementar el backend.`
 
-  }
+  mensaje.value =
+    `El acceso con ${proveedor} se conectará al implementar el backend.`
+
+
+  setTimeout(() => {
+
+    mensaje.value = ''
+
+  }, 3500)
+
+}
 
 </script>
 
 
 <style scoped>
 
-/* ==========================================
-   CONFIGURACIÓN
-========================================== */
+/* ========================================== */
+/* CONFIGURACIÓN GENERAL */
+/* ========================================== */
 
 * {
   box-sizing: border-box;
@@ -877,18 +876,15 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   LUCES FLOTANTES
-========================================== */
+/* ========================================== */
+/* LUCES */
+/* ========================================== */
 
 .fondo-luz {
 
   position: absolute;
 
   border-radius: 50%;
-
-  filter:
-    blur(3px);
 
   background:
     rgba(255, 255, 255, 0.09);
@@ -1002,9 +998,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   PARTÍCULAS
-========================================== */
+/* ========================================== */
+/* PARTÍCULAS */
+/* ========================================== */
 
 .particula {
 
@@ -1033,11 +1029,13 @@ const loginSocial =
   animation-delay: 0s;
 }
 
+
 .particula-2 {
   left: 12%;
   bottom: -20px;
   animation-delay: 2s;
 }
+
 
 .particula-3 {
   left: 22%;
@@ -1045,11 +1043,13 @@ const loginSocial =
   animation-delay: 4s;
 }
 
+
 .particula-4 {
   left: 35%;
   bottom: -20px;
   animation-delay: 1s;
 }
+
 
 .particula-5 {
   left: 45%;
@@ -1057,11 +1057,13 @@ const loginSocial =
   animation-delay: 6s;
 }
 
+
 .particula-6 {
   left: 55%;
   bottom: -20px;
   animation-delay: 3s;
 }
+
 
 .particula-7 {
   left: 63%;
@@ -1069,11 +1071,13 @@ const loginSocial =
   animation-delay: 8s;
 }
 
+
 .particula-8 {
   left: 72%;
   bottom: -20px;
   animation-delay: 2.5s;
 }
+
 
 .particula-9 {
   left: 80%;
@@ -1081,17 +1085,20 @@ const loginSocial =
   animation-delay: 5s;
 }
 
+
 .particula-10 {
   left: 88%;
   bottom: -20px;
   animation-delay: 1.5s;
 }
 
+
 .particula-11 {
   left: 94%;
   bottom: -20px;
   animation-delay: 7s;
 }
+
 
 .particula-12 {
   left: 50%;
@@ -1112,18 +1119,18 @@ const loginSocial =
 
   }
 
+
   20% {
 
     opacity: 0.8;
 
   }
 
+
   100% {
 
     transform:
-      translateY(
-        -110vh
-      )
+      translateY(-110vh)
       scale(1.3);
 
     opacity: 0;
@@ -1133,9 +1140,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   TARJETA
-========================================== */
+/* ========================================== */
+/* TARJETA */
+/* ========================================== */
 
 .login-card {
 
@@ -1172,13 +1179,7 @@ const loginSocial =
 
   animation:
     aparecerCard
-    0.8s
-    cubic-bezier(
-      0.2,
-      0.8,
-      0.2,
-      1
-    );
+    0.8s ease;
 
 }
 
@@ -1195,6 +1196,7 @@ const loginSocial =
 
   }
 
+
   to {
 
     opacity: 1;
@@ -1208,9 +1210,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   PANEL IZQUIERDO
-========================================== */
+/* ========================================== */
+/* PANEL IZQUIERDO */
+/* ========================================== */
 
 .presentacion {
 
@@ -1247,7 +1249,7 @@ const loginSocial =
 }
 
 
-.circulo-decorativo {
+.circulo {
 
   position: absolute;
 
@@ -1269,11 +1271,6 @@ const loginSocial =
 
   left: -160px;
 
-  animation:
-    pulsoCirculo
-    7s ease-in-out
-    infinite;
-
 }
 
 
@@ -1287,29 +1284,12 @@ const loginSocial =
 
   right: -80px;
 
-  animation:
-    pulsoCirculo
-    8s ease-in-out
-    infinite reverse;
-
-}
-
-
-@keyframes pulsoCirculo {
-
-  50% {
-
-    transform:
-      scale(1.18);
-
-  }
-
 }
 
 
 /* LOGO */
 
-.logo {
+.logo-login {
 
   width: 82px;
 
@@ -1329,9 +1309,6 @@ const loginSocial =
 
   background:
     rgba(255, 255, 255, 0.13);
-
-  backdrop-filter:
-    blur(10px);
 
   font-size: 42px;
 
@@ -1353,16 +1330,15 @@ const loginSocial =
   100% {
 
     transform:
-      translateY(0)
-      rotate(-2deg);
+      translateY(0);
 
   }
+
 
   50% {
 
     transform:
-      translateY(-10px)
-      rotate(2deg);
+      translateY(-10px);
 
   }
 
@@ -1381,16 +1357,14 @@ const loginSocial =
       50px
     );
 
-  letter-spacing:
-    1px;
+  letter-spacing: 1px;
 
 }
 
 
 .presentacion h1 span {
 
-  color:
-    #e7f7ff;
+  color: #e7f7ff;
 
 }
 
@@ -1418,7 +1392,9 @@ const loginSocial =
 }
 
 
+/* ========================================== */
 /* VENTAJAS */
+/* ========================================== */
 
 .ventajas {
 
@@ -1499,27 +1475,12 @@ const loginSocial =
   background:
     rgba(255, 255, 255, 0.15);
 
-  transition:
-    0.3s ease;
-
 }
 
 
-.ventaja:hover .check {
-
-  transform:
-    scale(1.15)
-    rotate(8deg);
-
-  background:
-    rgba(255, 255, 255, 0.28);
-
-}
-
-
-/* ==========================================
-   FORMULARIO
-========================================== */
+/* ========================================== */
+/* PANEL DERECHO */
+/* ========================================== */
 
 .formulario {
 
@@ -1542,7 +1503,9 @@ const loginSocial =
 }
 
 
+/* ========================================== */
 /* ENCABEZADO */
+/* ========================================== */
 
 .encabezado {
 
@@ -1579,9 +1542,6 @@ const loginSocial =
     0 9px 20px
     rgba(0, 107, 197, 0.10);
 
-  transition:
-    0.4s ease;
-
 }
 
 
@@ -1605,14 +1565,14 @@ const loginSocial =
 
   animation:
     iconoEntrada
-    0.45s ease;
+    0.4s ease;
 
 }
 
 
 @keyframes iconoEntrada {
 
-  0% {
+  from {
 
     opacity: 0;
 
@@ -1622,7 +1582,8 @@ const loginSocial =
 
   }
 
-  100% {
+
+  to {
 
     opacity: 1;
 
@@ -1656,9 +1617,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   SELECTOR
-========================================== */
+/* ========================================== */
+/* SELECTOR */
+/* ========================================== */
 
 .selector {
 
@@ -1772,16 +1733,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   CONTENIDO
-========================================== */
-
-.contenido-login {
-
-  width: 100%;
-
-}
-
+/* ========================================== */
+/* INFORMACIÓN DEL TIPO */
+/* ========================================== */
 
 .tipo-info {
 
@@ -1814,7 +1768,9 @@ const loginSocial =
 }
 
 
-/* TRANSICIÓN USUARIO ADMIN */
+/* ========================================== */
+/* TRANSICIÓN USUARIO / ADMIN */
+/* ========================================== */
 
 .cambio-enter-active,
 .cambio-leave-active {
@@ -1846,9 +1802,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   CAMPOS
-========================================== */
+/* ========================================== */
+/* CAMPOS */
+/* ========================================== */
 
 .campo {
 
@@ -1893,9 +1849,6 @@ const loginSocial =
 
   opacity: 0.7;
 
-  transition:
-    0.3s ease;
-
 }
 
 
@@ -1909,7 +1862,8 @@ const loginSocial =
     0 50px;
 
   border:
-    1px solid #d5dde7;
+    1px solid
+    #d5dde7;
 
   border-radius: 14px;
 
@@ -1922,23 +1876,22 @@ const loginSocial =
   font-size: 14px;
 
   transition:
-    all 0.3s ease;
+    all
+    0.3s ease;
 
 }
 
 
 .input-contenedor input:hover {
 
-  border-color:
-    #a8cce7;
+  border-color: #a8cce7;
 
 }
 
 
 .input-contenedor input:focus {
 
-  border-color:
-    #006bc5;
+  border-color: #006bc5;
 
   box-shadow:
     0 0 0 4px
@@ -1946,17 +1899,6 @@ const loginSocial =
 
   transform:
     translateY(-1px);
-
-}
-
-
-.input-contenedor:focus-within
-.icono-input {
-
-  transform:
-    scale(1.12);
-
-  opacity: 1;
 
 }
 
@@ -1973,23 +1915,14 @@ const loginSocial =
 
   cursor: pointer;
 
-  transition:
-    0.2s ease;
+  font-size: 15px;
 
 }
 
 
-.mostrar-password:hover {
-
-  transform:
-    scale(1.15);
-
-}
-
-
-/* ==========================================
-   BOTÓN LOGIN
-========================================== */
+/* ========================================== */
+/* BOTÓN LOGIN */
+/* ========================================== */
 
 .btn-login {
 
@@ -2033,7 +1966,8 @@ const loginSocial =
     rgba(0, 107, 197, 0.26);
 
   transition:
-    all 0.3s ease;
+    all
+    0.3s ease;
 
 }
 
@@ -2050,11 +1984,11 @@ const loginSocial =
 }
 
 
-.btn-login:active:not(:disabled) {
+.btn-login:disabled {
 
-  transform:
-    translateY(0)
-    scale(0.98);
+  opacity: 0.65;
+
+  cursor: not-allowed;
 
 }
 
@@ -2112,7 +2046,8 @@ const loginSocial =
   margin-left: 5px;
 
   transition:
-    transform 0.3s ease;
+    transform
+    0.3s ease;
 
 }
 
@@ -2125,7 +2060,9 @@ const loginSocial =
 }
 
 
+/* ========================================== */
 /* LOADER */
+/* ========================================== */
 
 .loader {
 
@@ -2162,16 +2099,17 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   MENSAJES
-========================================== */
+/* ========================================== */
+/* MENSAJES */
+/* ========================================== */
 
 .mensaje-error,
 .mensaje-info {
 
   margin-bottom: 15px;
 
-  padding: 12px 14px;
+  padding:
+    12px 14px;
 
   border-radius: 11px;
 
@@ -2185,9 +2123,11 @@ const loginSocial =
   border:
     1px solid #ffcaca;
 
-  background: #fff0f0;
+  background:
+    #fff0f0;
 
-  color: #c62828;
+  color:
+    #c62828;
 
 }
 
@@ -2197,9 +2137,11 @@ const loginSocial =
   border:
     1px solid #b8defa;
 
-  background: #eef8ff;
+  background:
+    #eef8ff;
 
-  color: #1769aa;
+  color:
+    #1769aa;
 
 }
 
@@ -2208,7 +2150,8 @@ const loginSocial =
 .mensaje-leave-active {
 
   transition:
-    all 0.3s ease;
+    all
+    0.3s ease;
 
 }
 
@@ -2224,14 +2167,14 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   SEPARADOR
-========================================== */
+/* ========================================== */
+/* SEPARADOR */
+/* ========================================== */
 
 .separador {
 
   margin:
-    23px 0 16px;
+    23px 0 18px;
 
   display: flex;
 
@@ -2248,7 +2191,8 @@ const loginSocial =
 
   height: 1px;
 
-  background: #dfe5ec;
+  background:
+    #dfe5ec;
 
 }
 
@@ -2257,97 +2201,284 @@ const loginSocial =
 
   margin: 0;
 
-  color: #959eaa;
+  color:
+    #959eaa;
 
   font-size: 11px;
 
+  white-space: nowrap;
+
 }
 
 
-/* ==========================================
-   SOCIAL
-========================================== */
+/* ========================================== */
+/* GOOGLE Y FACEBOOK */
+/* ========================================== */
 
 .login-social {
 
-  display: grid;
+  min-height: 68px;
 
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(0, 1fr)
-    );
+  display: flex;
 
-  gap: 12px;
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 18px;
 
 }
 
 
-.social {
+/* BOTONES CERRADOS */
 
-  height: 48px;
+.social-btn {
+
+  width: 58px;
+
+  height: 58px;
+
+  padding:
+    0 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-start;
+
+  gap: 10px;
+
+  overflow: hidden;
 
   border:
     1px solid #d9e0e8;
 
-  border-radius: 12px;
+  border-radius: 18px;
 
-  background: white;
+  background:
+    white;
 
   cursor: pointer;
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 30, 60, 0.05);
+
+  transition:
+    width 0.38s
+      cubic-bezier(
+        0.2,
+        0.8,
+        0.2,
+        1
+      ),
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+
+}
+
+
+/* ABRIR BOTÓN */
+
+.social-btn:hover,
+.social-btn:focus,
+.social-btn:focus-visible {
+
+  width: 165px;
+
+  transform:
+    translateY(-4px);
+
+  outline: none;
+
+  box-shadow:
+    0 13px 28px
+    rgba(0, 30, 60, 0.14);
+
+}
+
+
+/* ICONO GENERAL */
+
+.social-icon {
+
+  width: 30px;
+
+  height: 30px;
+
+  min-width: 30px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  transition:
+    transform
+    0.3s ease;
+
+}
+
+
+.social-btn:hover .social-icon,
+.social-btn:focus .social-icon {
+
+  transform:
+    scale(1.08);
+
+}
+
+
+/* ========================================== */
+/* GOOGLE */
+/* ========================================== */
+
+.google-icon {
+
+  background:
+    transparent !important;
+
+  color:
+    inherit !important;
+
+  -webkit-text-fill-color:
+    initial !important;
+
+}
+
+
+.google-icon svg {
+
+  width: 27px;
+
+  height: 27px;
+
+  display: block;
+
+}
+
+
+.google-btn:hover,
+.google-btn:focus,
+.google-btn:focus-visible {
+
+  border-color:
+    #4285f4;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f3f7ff
+    );
+
+}
+
+
+/* ========================================== */
+/* FACEBOOK */
+/* ========================================== */
+
+.facebook-icon {
+
+  border-radius: 50%;
+
+  background:
+    #1877f2;
+
+  color:
+    white;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 23px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+}
+
+
+.facebook-btn:hover,
+.facebook-btn:focus,
+.facebook-btn:focus-visible {
+
+  border-color:
+    #1877f2;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f2f7ff
+    );
+
+}
+
+
+/* ========================================== */
+/* NOMBRE SOCIAL */
+/* ========================================== */
+
+.social-nombre {
+
+  opacity: 0;
+
+  max-width: 0;
+
+  overflow: hidden;
+
+  transform:
+    translateX(-8px);
+
+  white-space: nowrap;
+
+  color:
+    #253044;
+
+  font-size: 14px;
 
   font-weight: 700;
 
   transition:
-    all 0.3s ease;
+    opacity 0.25s ease,
+    max-width 0.35s ease,
+    transform 0.35s ease;
 
 }
 
 
-.social:hover {
+.social-btn:hover .social-nombre,
+.social-btn:focus .social-nombre,
+.social-btn:focus-visible .social-nombre {
+
+  opacity: 1;
+
+  max-width: 100px;
 
   transform:
-    translateY(-3px);
-
-  border-color:
-    #b8c9d8;
-
-  box-shadow:
-    0 8px 20px
-    rgba(0, 30, 60, 0.09);
+    translateX(0);
 
 }
 
 
-.google-icon {
-
-  margin-right: 8px;
-
-  color: #4285f4;
-
-  font-size: 18px;
-
-}
-
-
-.facebook-icon {
-
-  margin-right: 8px;
-
-  color: #1877f2;
-
-  font-size: 21px;
-
-}
-
-
-/* ==========================================
-   CREAR CUENTA
-========================================== */
+/* ========================================== */
+/* CREAR CUENTA */
+/* ========================================== */
 
 .crear-cuenta {
 
-  margin-top: 21px;
+  margin-top: 22px;
 
   display: flex;
 
@@ -2357,7 +2488,8 @@ const loginSocial =
 
   gap: 7px;
 
-  color: #7e8997;
+  color:
+    #7e8997;
 
   font-size: 12px;
 
@@ -2370,9 +2502,11 @@ const loginSocial =
 
   border: none;
 
-  background: transparent;
+  background:
+    transparent;
 
-  color: #006bc5;
+  color:
+    #006bc5;
 
   cursor: pointer;
 
@@ -2395,10 +2529,12 @@ const loginSocial =
 
   height: 2px;
 
-  background: #006bc5;
+  background:
+    #006bc5;
 
   transition:
-    width 0.3s ease;
+    width
+    0.3s ease;
 
 }
 
@@ -2410,9 +2546,9 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   ADMIN
-========================================== */
+/* ========================================== */
+/* ADMIN */
+/* ========================================== */
 
 .seguridad-admin {
 
@@ -2450,7 +2586,8 @@ const loginSocial =
 
 .seguridad-admin strong {
 
-  color: #354052;
+  color:
+    #354052;
 
   font-size: 12px;
 
@@ -2462,19 +2599,19 @@ const loginSocial =
   margin:
     4px 0 0;
 
-  color: #8a94a2;
+  color:
+    #8a94a2;
 
   font-size: 11px;
 
 }
 
 
-/* ==========================================
-   TABLET
-========================================== */
+/* ========================================== */
+/* TABLET */
+/* ========================================== */
 
-@media
-(max-width: 900px) {
+@media (max-width: 900px) {
 
   .pagina-login {
 
@@ -2513,30 +2650,32 @@ const loginSocial =
 }
 
 
-/* ==========================================
-   CELULAR
-========================================== */
+/* ========================================== */
+/* CELULAR */
+/* ========================================== */
 
-@media
-(max-width: 520px) {
+@media (max-width: 520px) {
 
   .pagina-login {
 
-    padding: 12px;
+    padding:
+      12px;
 
   }
 
 
   .login-card {
 
-    border-radius: 23px;
+    border-radius:
+      23px;
 
   }
 
 
   .presentacion {
 
-    min-height: auto;
+    min-height:
+      auto;
 
     padding:
       35px 25px;
@@ -2544,27 +2683,32 @@ const loginSocial =
   }
 
 
-  .logo {
+  .logo-login {
 
-    width: 65px;
+    width:
+      65px;
 
-    height: 65px;
+    height:
+      65px;
 
-    font-size: 32px;
+    font-size:
+      32px;
 
   }
 
 
   .presentacion h1 {
 
-    font-size: 35px;
+    font-size:
+      35px;
 
   }
 
 
   .presentacion h2 {
 
-    font-size: 24px;
+    font-size:
+      24px;
 
   }
 
@@ -2579,42 +2723,64 @@ const loginSocial =
 
   .encabezado h2 {
 
-    font-size: 27px;
+    font-size:
+      27px;
 
   }
 
 
   .selector button {
 
-    font-size: 12px;
+    font-size:
+      12px;
 
   }
 
 
   .login-social {
 
-    grid-template-columns:
-      1fr;
+    gap:
+      14px;
+
+  }
+
+
+  .social-btn {
+
+    width:
+      56px;
+
+    height:
+      56px;
+
+  }
+
+
+  .social-btn:hover,
+  .social-btn:focus,
+  .social-btn:focus-visible {
+
+    width:
+      140px;
 
   }
 
 
   .crear-cuenta {
 
-    flex-direction: column;
+    flex-direction:
+      column;
 
   }
 
 }
 
 
-/* ==========================================
-   REDUCIR ANIMACIONES SI EL DISPOSITIVO
-   LO SOLICITA
-========================================== */
+/* ========================================== */
+/* REDUCIR ANIMACIONES */
+/* ========================================== */
 
-@media
-(prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
 
   *,
   *::before,

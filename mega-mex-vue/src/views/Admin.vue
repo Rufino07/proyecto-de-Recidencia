@@ -1,394 +1,445 @@
 <template>
   <div class="admin-layout">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <!-- ===================================== -->
+    <!-- SIDEBAR / BARRA SUPERIOR EN CELULAR -->
+    <!-- ===================================== -->
 
-      <div class="logo-area">
-        <div class="logo-icono">
+    <aside class="admin-sidebar">
+
+      <!-- ENCABEZADO -->
+      <div class="admin-logo-area">
+
+        <div class="admin-logo-icono">
           🛒
         </div>
 
-        <div>
+        <div class="admin-logo-texto">
           <h2>Mega-Mex</h2>
           <p>Administración</p>
         </div>
+
+
+        <!-- ACCIONES SOLO EN CELULAR -->
+        <div class="admin-mobile-actions">
+
+          <!-- CERRAR SESIÓN -->
+          <button
+            type="button"
+            class="admin-btn-salir-movil"
+            title="Cerrar sesión"
+            aria-label="Cerrar sesión"
+            @click="salir"
+          >
+            🚪
+          </button>
+
+
+          <!-- ABRIR MENÚ -->
+          <button
+            type="button"
+            class="admin-menu-toggle"
+            :aria-expanded="menuAbierto"
+            aria-label="Abrir menú administrativo"
+            @click="menuAbierto = !menuAbierto"
+          >
+            {{ menuAbierto ? '✕' : '☰' }}
+          </button>
+
+        </div>
+
       </div>
 
 
+      <!-- =================================== -->
       <!-- MENÚ -->
-      <nav class="menu">
+      <!-- =================================== -->
 
+      <nav
+        class="admin-menu"
+        :class="{ abierto: menuAbierto }"
+      >
+
+        <!-- INICIO -->
         <RouterLink
           to="/admin"
-          class="menu-item activo"
+          class="admin-menu-item"
+          exact-active-class="activo"
+          @click="cerrarMenu"
         >
           <span>🏠</span>
           Inicio
         </RouterLink>
 
 
-        <button
-          class="menu-item"
-          @click="mostrarAviso('Flyers')"
+        <!-- VOLANTES -->
+        <RouterLink
+          to="/admin/flyers"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
         >
           <span>🎨</span>
-          Flyers
-        </button>
+          Volantes
+        </RouterLink>
 
 
-        <button
-          class="menu-item"
-          @click="mostrarAviso('Promociones')"
+        <!-- PROMOCIONES -->
+        <RouterLink
+          to="/admin/promociones"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
         >
           <span>⭐</span>
           Promociones
-        </button>
+        </RouterLink>
 
 
-        <button
-          class="menu-item"
-          @click="mostrarAviso('Productos')"
+        <!-- PRODUCTOS -->
+        <RouterLink
+          to="/admin/productos"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
         >
           <span>🛒</span>
           Productos
-        </button>
+        </RouterLink>
 
 
-        <button
-          class="menu-item"
-          @click="mostrarAviso('Sucursales')"
+        <!-- SUCURSALES -->
+        <RouterLink
+          to="/admin/sucursales"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
         >
           <span>🏪</span>
           Sucursales
-        </button>
+        </RouterLink>
 
 
-        <button
-          class="menu-item"
-          @click="mostrarAviso('Redes sociales')"
+        <!-- REDES -->
+        <RouterLink
+          to="/admin/redes"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
         >
           <span>📱</span>
           Redes
-        </button>
+        </RouterLink>
 
       </nav>
 
 
-      <!-- CERRAR SESIÓN -->
+      <!-- =================================== -->
+      <!-- CERRAR SESIÓN EN COMPUTADORA -->
+      <!-- =================================== -->
+
       <button
-        class="btn-cerrar"
+        type="button"
+        class="admin-btn-cerrar"
         @click="salir"
       >
         <span>🚪</span>
-        Cerrar sesión
+
+        <span>
+          Cerrar sesión
+        </span>
       </button>
 
     </aside>
 
 
+    <!-- ===================================== -->
     <!-- CONTENIDO -->
-    <main class="contenido">
+    <!-- ===================================== -->
 
+    <main class="admin-contenido">
+
+      <!-- =================================== -->
       <!-- HEADER -->
-      <header class="header">
+      <!-- =================================== -->
 
-        <div>
-          <p class="subtitulo">
+      <header class="admin-header">
+
+        <div class="admin-header-texto">
+
+          <p class="admin-subtitulo">
             Panel de administración
           </p>
 
           <h1>
-            Bienvenido, {{ usuario?.nombre }}
+            Bienvenido,
+            {{ usuario?.nombre || 'Administrador Mega-Mex' }}
           </h1>
+
         </div>
 
 
-        <div class="perfil">
+        <!-- PERFIL -->
+        <div class="admin-perfil">
 
-          <div class="avatar">
+          <div class="admin-avatar">
             👨‍💼
           </div>
 
-          <div class="datos-perfil">
+
+          <div class="admin-datos-perfil">
+
             <strong>
               Administrador
             </strong>
 
             <span>
-              {{ usuario?.correo }}
+              {{ usuario?.correo || 'admin@megamex.com' }}
             </span>
+
           </div>
+
+
+          <!-- CERRAR SESIÓN -->
+          <button
+            type="button"
+            class="admin-header-salir"
+            title="Cerrar sesión"
+            @click="salir"
+          >
+            <span>
+              🚪
+            </span>
+
+            <span class="admin-header-salir-texto">
+              Salir
+            </span>
+          </button>
 
         </div>
 
       </header>
 
 
-      <!-- BIENVENIDA -->
-      <section class="bienvenida">
+      <!-- =================================== -->
+      <!-- PANTALLA PRINCIPAL -->
+      <!-- =================================== -->
 
-        <div class="bienvenida-texto">
+      <div v-if="esInicioAdmin">
 
-          <span class="etiqueta">
-            PANEL ADMINISTRATIVO
-          </span>
+        <!-- BIENVENIDA -->
+        <section class="admin-bienvenida">
 
-          <h2>
-            Administración Mega-Mex
-          </h2>
+          <div class="admin-bienvenida-texto">
 
-          <p>
-            Desde este panel podrás administrar el contenido
-            que se mostrará a los usuarios del sitio.
-          </p>
-
-        </div>
-
-
-        <div class="bienvenida-icono">
-          ⚙️
-        </div>
-
-      </section>
-
-
-      <!-- TARJETAS -->
-      <section class="tarjetas">
-
-        <!-- FLYERS -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Flyers')"
-        >
-
-          <div class="tarjeta-icono azul">
-            🎨
-          </div>
-
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Marketing
+            <span class="admin-etiqueta">
+              PANEL ADMINISTRATIVO
             </span>
 
-            <h3>
-              Flyers
-            </h3>
+            <h2>
+              Administración Mega-Mex
+            </h2>
 
             <p>
-              Agrega, edita o elimina flyers
-              publicitarios de productos.
+              Desde este panel podrás administrar el contenido
+              que se mostrará a los usuarios del sitio.
             </p>
 
           </div>
 
-          <div class="flecha">
-            →
+
+          <div class="admin-bienvenida-icono">
+            ⚙️
           </div>
 
-        </article>
+        </section>
 
 
-        <!-- PROMOCIONES -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Promociones')"
-        >
+        <!-- ================================= -->
+        <!-- TARJETAS -->
+        <!-- ================================= -->
 
-          <div class="tarjeta-icono amarillo">
-            ⭐
-          </div>
+        <section class="admin-tarjetas">
 
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Marketing
-            </span>
-
-            <h3>
-              Promociones
-            </h3>
-
-            <p>
-              Administra las promociones
-              que se mostrarán en el sitio.
-            </p>
-
-          </div>
-
-          <div class="flecha">
-            →
-          </div>
-
-        </article>
-
-
-        <!-- PRODUCTOS -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Productos')"
-        >
-
-          <div class="tarjeta-icono verde">
-            🛒
-          </div>
-
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Catálogo
-            </span>
-
-            <h3>
-              Productos
-            </h3>
-
-            <p>
-              Administra los productos
-              mostrados a los clientes.
-            </p>
-
-          </div>
-
-          <div class="flecha">
-            →
-          </div>
-
-        </article>
-
-
-        <!-- SUCURSALES -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Sucursales')"
-        >
-
-          <div class="tarjeta-icono morado">
-            🏪
-          </div>
-
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Empresa
-            </span>
-
-            <h3>
-              Sucursales
-            </h3>
-
-            <p>
-              Administra la información
-              de las sucursales Mega-Mex.
-            </p>
-
-          </div>
-
-          <div class="flecha">
-            →
-          </div>
-
-        </article>
-
-
-        <!-- REDES -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Redes sociales')"
-        >
-
-          <div class="tarjeta-icono rosa">
-            📱
-          </div>
-
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Comunicación
-            </span>
-
-            <h3>
-              Redes sociales
-            </h3>
-
-            <p>
-              Administra los enlaces
-              de las redes sociales.
-            </p>
-
-          </div>
-
-          <div class="flecha">
-            →
-          </div>
-
-        </article>
-
-
-        <!-- CONTACTO -->
-        <article
-          class="tarjeta"
-          @click="mostrarAviso('Contacto')"
-        >
-
-          <div class="tarjeta-icono naranja">
-            📞
-          </div>
-
-          <div class="tarjeta-info">
-
-            <span class="estado">
-              Información
-            </span>
-
-            <h3>
-              Contacto
-            </h3>
-
-            <p>
-              Administra teléfonos,
-              correo y datos de contacto.
-            </p>
-
-          </div>
-
-          <div class="flecha">
-            →
-          </div>
-
-        </article>
-
-      </section>
-
-
-      <!-- AVISO -->
-      <transition name="mensaje">
-
-        <div
-          v-if="mensaje"
-          class="mensaje"
-        >
-          <span>ℹ️</span>
-
-          <div>
-            <strong>
-              {{ mensaje }}
-            </strong>
-
-            <p>
-              Esta sección la construiremos posteriormente.
-            </p>
-          </div>
-
-          <button
-            @click="mensaje = ''"
+          <!-- VOLANTES -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/flyers')"
           >
-            ✕
-          </button>
-        </div>
 
-      </transition>
+            <div class="admin-tarjeta-icono azul">
+              🎨
+            </div>
+
+            <div class="admin-tarjeta-info">
+
+              <span class="admin-estado">
+                Marketing
+              </span>
+
+              <h3>
+                Volantes
+              </h3>
+
+              <p>
+                Agrega, edita o elimina folletos
+                publicitarios de productos.
+              </p>
+
+            </div>
+
+            <div class="admin-flecha">
+              →
+            </div>
+
+          </article>
+
+
+          <!-- PROMOCIONES -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/promociones')"
+          >
+
+            <div class="admin-tarjeta-icono amarillo">
+              ⭐
+            </div>
+
+            <div class="admin-tarjeta-info">
+
+              <span class="admin-estado">
+                Marketing
+              </span>
+
+              <h3>
+                Promociones
+              </h3>
+
+              <p>
+                Administra las promociones que
+                se mostrarán en el sitio.
+              </p>
+
+            </div>
+
+            <div class="admin-flecha">
+              →
+            </div>
+
+          </article>
+
+
+          <!-- PRODUCTOS -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/productos')"
+          >
+
+            <div class="admin-tarjeta-icono verde">
+              🛒
+            </div>
+
+            <div class="admin-tarjeta-info">
+
+              <span class="admin-estado">
+                Catálogo
+              </span>
+
+              <h3>
+                Productos
+              </h3>
+
+              <p>
+                Administra los productos mostrados
+                a los clientes.
+              </p>
+
+            </div>
+
+            <div class="admin-flecha">
+              →
+            </div>
+
+          </article>
+
+
+          <!-- SUCURSALES -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/sucursales')"
+          >
+
+            <div class="admin-tarjeta-icono morado">
+              🏪
+            </div>
+
+            <div class="admin-tarjeta-info">
+
+              <span class="admin-estado">
+                Empresa
+              </span>
+
+              <h3>
+                Sucursales
+              </h3>
+
+              <p>
+                Administra la información de las
+                sucursales Mega-Mex.
+              </p>
+
+            </div>
+
+            <div class="admin-flecha">
+              →
+            </div>
+
+          </article>
+
+
+          <!-- REDES -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/redes')"
+          >
+
+            <div class="admin-tarjeta-icono rosa">
+              📱
+            </div>
+
+            <div class="admin-tarjeta-info">
+
+              <span class="admin-estado">
+                Comunicación
+              </span>
+
+              <h3>
+                Redes sociales
+              </h3>
+
+              <p>
+                Administra los enlaces de las
+                redes sociales.
+              </p>
+
+            </div>
+
+            <div class="admin-flecha">
+              →
+            </div>
+
+          </article>
+
+        </section>
+
+      </div>
+
+
+      <!-- =================================== -->
+      <!-- AQUÍ CARGAN LAS VISTAS HIJAS -->
+      <!-- =================================== -->
+
+      <RouterView />
 
     </main>
 
@@ -398,8 +449,17 @@
 
 <script setup>
 
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import {
+  computed,
+  ref
+} from 'vue'
+
+
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
+
 
 import {
   obtenerUsuario,
@@ -407,41 +467,89 @@ import {
 } from '../utils/auth'
 
 
+// ============================================
+// ROUTER
+// ============================================
+
 const router = useRouter()
+
+const route = useRoute()
+
+
+// ============================================
+// MENÚ CELULAR
+// ============================================
+
+const menuAbierto = ref(false)
+
+
+// ============================================
+// USUARIO ACTUAL
+// ============================================
 
 const usuario = obtenerUsuario()
 
-const mensaje = ref('')
+
+// ============================================
+// SABER SI ESTAMOS EN /admin
+// ============================================
+
+const esInicioAdmin = computed(() => {
+
+  return route.name === 'admin'
+
+})
 
 
-/* ============================== */
-/* MOSTRAR AVISO */
-/* ============================== */
+// ============================================
+// CERRAR MENÚ MÓVIL
+// ============================================
 
-const mostrarAviso = (seccion) => {
+const cerrarMenu = () => {
 
-  mensaje.value =
-    `Administración de ${seccion}`
-
-
-  setTimeout(() => {
-
-    mensaje.value = ''
-
-  }, 3500)
+  menuAbierto.value = false
 
 }
 
 
-/* ============================== */
-/* CERRAR SESIÓN */
-/* ============================== */
+// ============================================
+// NAVEGAR
+// ============================================
+
+const irA = (ruta) => {
+
+  cerrarMenu()
+
+  router.push(ruta)
+
+}
+
+
+// ============================================
+// CERRAR SESIÓN
+// ============================================
 
 const salir = () => {
 
+  const confirmar = window.confirm(
+    '¿Deseas cerrar tu sesión de administrador?'
+  )
+
+
+  if (!confirmar) {
+
+    return
+
+  }
+
+
+  cerrarMenu()
+
+
   cerrarSesion()
 
-  router.push('/login')
+
+  router.replace('/login')
 
 }
 
@@ -450,18 +558,24 @@ const salir = () => {
 
 <style scoped>
 
+/* ========================================== */
+/* GENERAL */
+/* ========================================== */
+
 * {
+
   box-sizing: border-box;
+
 }
 
 
-/* ============================== */
-/* LAYOUT */
-/* ============================== */
-
 .admin-layout {
 
-  min-height: 100vh;
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: 100dvh;
 
   display: flex;
 
@@ -476,15 +590,15 @@ const salir = () => {
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* SIDEBAR */
-/* ============================== */
+/* ========================================== */
 
-.sidebar {
+.admin-sidebar {
 
   width: 270px;
 
-  min-height: 100vh;
+  min-height: 100dvh;
 
   position: fixed;
 
@@ -513,14 +627,16 @@ const salir = () => {
     5px 0 25px
     rgba(0, 0, 0, 0.12);
 
+  z-index: 1000;
+
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* LOGO */
-/* ============================== */
+/* ========================================== */
 
-.logo-area {
+.admin-logo-area {
 
   display: flex;
 
@@ -538,11 +654,13 @@ const salir = () => {
 }
 
 
-.logo-icono {
+.admin-logo-icono {
 
   width: 52px;
 
   height: 52px;
+
+  flex-shrink: 0;
 
   display: flex;
 
@@ -560,16 +678,25 @@ const salir = () => {
 }
 
 
-.logo-area h2 {
+.admin-logo-texto {
+
+  min-width: 0;
+
+}
+
+
+.admin-logo-texto h2 {
 
   margin: 0;
 
   font-size: 22px;
 
+  color: white;
+
 }
 
 
-.logo-area p {
+.admin-logo-texto p {
 
   margin:
     4px 0 0;
@@ -581,11 +708,79 @@ const salir = () => {
 }
 
 
-/* ============================== */
-/* MENÚ */
-/* ============================== */
+/* ========================================== */
+/* ACCIONES CELULAR */
+/* ========================================== */
 
-.menu {
+.admin-mobile-actions {
+
+  display: none;
+
+  margin-left: auto;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.admin-menu-toggle,
+.admin-btn-salir-movil {
+
+  width: 44px;
+
+  height: 44px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.18);
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: white;
+
+  background:
+    rgba(255, 255, 255, 0.12);
+
+  cursor: pointer;
+
+  font-size: 20px;
+
+  transition:
+    0.25s;
+
+}
+
+
+.admin-btn-salir-movil {
+
+  background:
+    rgba(255, 100, 100, 0.16);
+
+}
+
+
+.admin-menu-toggle:hover,
+.admin-btn-salir-movil:hover {
+
+  background:
+    rgba(255, 255, 255, 0.22);
+
+}
+
+
+/* ========================================== */
+/* MENÚ */
+/* ========================================== */
+
+.admin-menu {
 
   margin-top: 30px;
 
@@ -598,14 +793,12 @@ const salir = () => {
 }
 
 
-.menu-item {
+.admin-menu-item {
 
   width: 100%;
 
   padding:
     13px 15px;
-
-  border: none;
 
   border-radius: 12px;
 
@@ -623,11 +816,11 @@ const salir = () => {
 
   text-decoration: none;
 
-  text-align: left;
-
   cursor: pointer;
 
   font-size: 14px;
+
+  font-weight: 600;
 
   transition:
     0.25s;
@@ -635,14 +828,18 @@ const salir = () => {
 }
 
 
-.menu-item span {
+.admin-menu-item > span {
+
+  width: 25px;
+
+  text-align: center;
 
   font-size: 20px;
 
 }
 
 
-.menu-item:hover {
+.admin-menu-item:hover {
 
   background:
     rgba(255, 255, 255, 0.13);
@@ -655,35 +852,44 @@ const salir = () => {
 }
 
 
-.menu-item.activo {
+.admin-menu-item.activo {
 
   background:
     rgba(255, 255, 255, 0.18);
 
   color: white;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
 
-/* ============================== */
-/* CERRAR SESIÓN */
-/* ============================== */
+/* ========================================== */
+/* CERRAR SESIÓN SIDEBAR */
+/* ========================================== */
 
-.btn-cerrar {
+.admin-btn-cerrar {
+
+  width: 100%;
 
   margin-top: auto;
 
   padding:
-    14px;
+    14px 15px;
 
   border:
     1px solid
     rgba(255, 255, 255, 0.20);
 
-  border-radius:
-    12px;
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
 
   background:
     rgba(255, 255, 255, 0.10);
@@ -691,6 +897,10 @@ const salir = () => {
   color: white;
 
   cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 13px;
 
   font-weight: bold;
 
@@ -700,40 +910,49 @@ const salir = () => {
 }
 
 
-.btn-cerrar:hover {
+.admin-btn-cerrar:hover {
 
   background:
-    #ffffff;
+    #dc4141;
 
-  color:
-    #006bc5;
+  border-color:
+    #dc4141;
+
+  color: white;
+
+  transform:
+    translateY(-2px);
 
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* CONTENIDO */
-/* ============================== */
+/* ========================================== */
 
-.contenido {
+.admin-contenido {
 
   width:
     calc(100% - 270px);
 
-  margin-left:
-    270px;
+  min-width: 0;
 
-  padding:
-    35px;
+  min-height: 100dvh;
+
+  margin-left: 270px;
+
+  padding: 35px;
 
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* HEADER */
-/* ============================== */
+/* ========================================== */
 
-.header {
+.admin-header {
+
+  width: 100%;
 
   padding:
     23px 28px;
@@ -743,14 +962,13 @@ const salir = () => {
   justify-content:
     space-between;
 
-  align-items:
-    center;
+  align-items: center;
 
-  background:
-    white;
+  gap: 20px;
 
-  border-radius:
-    20px;
+  background: white;
+
+  border-radius: 20px;
 
   box-shadow:
     0 6px 25px
@@ -759,7 +977,14 @@ const salir = () => {
 }
 
 
-.subtitulo {
+.admin-header-texto {
+
+  min-width: 0;
+
+}
+
+
+.admin-subtitulo {
 
   margin: 0;
 
@@ -771,7 +996,7 @@ const salir = () => {
 }
 
 
-.header h1 {
+.admin-header h1 {
 
   margin:
     5px 0 0;
@@ -780,16 +1005,23 @@ const salir = () => {
     #1f2937;
 
   font-size:
-    27px;
+    clamp(
+      21px,
+      3vw,
+      27px
+    );
+
+  overflow-wrap:
+    anywhere;
 
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* PERFIL */
-/* ============================== */
+/* ========================================== */
 
-.perfil {
+.admin-perfil {
 
   display: flex;
 
@@ -797,10 +1029,12 @@ const salir = () => {
 
   gap: 12px;
 
+  flex-shrink: 0;
+
 }
 
 
-.avatar {
+.admin-avatar {
 
   width: 50px;
 
@@ -815,15 +1049,14 @@ const salir = () => {
   background:
     #eaf5ff;
 
-  border-radius:
-    15px;
+  border-radius: 15px;
 
   font-size: 26px;
 
 }
 
 
-.datos-perfil {
+.admin-datos-perfil {
 
   display: flex;
 
@@ -832,7 +1065,7 @@ const salir = () => {
 }
 
 
-.datos-perfil strong {
+.admin-datos-perfil strong {
 
   color:
     #29313d;
@@ -842,28 +1075,87 @@ const salir = () => {
 }
 
 
-.datos-perfil span {
+.admin-datos-perfil span {
 
-  margin-top:
-    4px;
+  margin-top: 4px;
 
   color:
     #8a929c;
 
-  font-size:
-    11px;
+  font-size: 11px;
+
+  overflow-wrap:
+    anywhere;
 
 }
 
 
-/* ============================== */
+/* ========================================== */
+/* BOTÓN SALIR HEADER */
+/* ========================================== */
+
+.admin-header-salir {
+
+  min-height: 44px;
+
+  padding:
+    10px 13px;
+
+  border:
+    1px solid
+    #ffd0d0;
+
+  border-radius: 11px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  background:
+    #fff5f5;
+
+  color:
+    #d43b3b;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  transition:
+    0.25s;
+
+}
+
+
+.admin-header-salir:hover {
+
+  background:
+    #dc4141;
+
+  border-color:
+    #dc4141;
+
+  color: white;
+
+  transform:
+    translateY(-2px);
+
+}
+
+
+/* ========================================== */
 /* BIENVENIDA */
-/* ============================== */
+/* ========================================== */
 
-.bienvenida {
+.admin-bienvenida {
 
-  margin-top:
-    30px;
+  margin-top: 30px;
 
   padding:
     35px 40px;
@@ -873,14 +1165,13 @@ const salir = () => {
   justify-content:
     space-between;
 
-  align-items:
-    center;
+  align-items: center;
 
-  overflow:
-    hidden;
+  gap: 25px;
 
-  border-radius:
-    25px;
+  overflow: hidden;
+
+  border-radius: 25px;
 
   color: white;
 
@@ -899,15 +1190,17 @@ const salir = () => {
 }
 
 
-.bienvenida-texto {
+.admin-bienvenida-texto {
 
-  max-width:
-    600px;
+  max-width: 600px;
 
 }
 
 
-.etiqueta {
+.admin-etiqueta {
+
+  display:
+    inline-block;
 
   padding:
     7px 14px;
@@ -930,18 +1223,22 @@ const salir = () => {
 }
 
 
-.bienvenida h2 {
+.admin-bienvenida h2 {
 
   margin:
     18px 0 10px;
 
   font-size:
-    31px;
+    clamp(
+      26px,
+      4vw,
+      31px
+    );
 
 }
 
 
-.bienvenida p {
+.admin-bienvenida p {
 
   margin: 0;
 
@@ -954,7 +1251,9 @@ const salir = () => {
 }
 
 
-.bienvenida-icono {
+.admin-bienvenida-icono {
+
+  flex-shrink: 0;
 
   font-size:
     90px;
@@ -963,41 +1262,49 @@ const salir = () => {
     0.8;
 
   animation:
-    girar 8s
-    linear
+    admin-girar
+    8s linear
     infinite;
 
 }
 
 
-@keyframes girar {
+@keyframes admin-girar {
 
   from {
+
     transform:
       rotate(0deg);
+
   }
 
   to {
+
     transform:
       rotate(360deg);
+
   }
 
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* TARJETAS */
-/* ============================== */
+/* ========================================== */
 
-.tarjetas {
+.admin-tarjetas {
 
   margin-top:
     30px;
 
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
-    repeat(3, 1fr);
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
 
   gap:
     22px;
@@ -1005,12 +1312,23 @@ const salir = () => {
 }
 
 
-.tarjeta {
+.admin-tarjeta {
 
-  position: relative;
+  position:
+    relative;
+
+  min-width:
+    0;
+
+  min-height:
+    245px;
 
   padding:
     27px;
+
+  border:
+    1px solid
+    #edf1f5;
 
   border-radius:
     20px;
@@ -1027,15 +1345,19 @@ const salir = () => {
 
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 
 }
 
 
-.tarjeta:hover {
+.admin-tarjeta:hover {
 
   transform:
     translateY(-7px);
+
+  border-color:
+    rgba(0, 107, 197, 0.18);
 
   box-shadow:
     0 17px 35px
@@ -1044,21 +1366,26 @@ const salir = () => {
 }
 
 
-/* ============================== */
+/* ========================================== */
 /* ICONOS */
-/* ============================== */
+/* ========================================== */
 
-.tarjeta-icono {
+.admin-tarjeta-icono {
 
-  width: 62px;
+  width:
+    62px;
 
-  height: 62px;
+  height:
+    62px;
 
-  display: flex;
+  display:
+    flex;
 
-  justify-content: center;
+  justify-content:
+    center;
 
-  align-items: center;
+  align-items:
+    center;
 
   border-radius:
     18px;
@@ -1069,41 +1396,51 @@ const salir = () => {
 }
 
 
-.azul {
-  background: #eaf5ff;
+.admin-tarjeta-icono.azul {
+
+  background:
+    #eaf5ff;
+
 }
 
 
-.amarillo {
-  background: #fff8df;
+.admin-tarjeta-icono.amarillo {
+
+  background:
+    #fff8df;
+
 }
 
 
-.verde {
-  background: #e9f9f0;
+.admin-tarjeta-icono.verde {
+
+  background:
+    #e9f9f0;
+
 }
 
 
-.morado {
-  background: #f2eaff;
+.admin-tarjeta-icono.morado {
+
+  background:
+    #f2eaff;
+
 }
 
 
-.rosa {
-  background: #ffeaf1;
+.admin-tarjeta-icono.rosa {
+
+  background:
+    #ffeaf1;
+
 }
 
 
-.naranja {
-  background: #fff0df;
-}
+/* ========================================== */
+/* INFORMACIÓN */
+/* ========================================== */
 
-
-/* ============================== */
-/* INFO TARJETA */
-/* ============================== */
-
-.tarjeta-info {
+.admin-tarjeta-info {
 
   margin-top:
     20px;
@@ -1111,7 +1448,7 @@ const salir = () => {
 }
 
 
-.estado {
+.admin-estado {
 
   color:
     #006bc5;
@@ -1128,7 +1465,7 @@ const salir = () => {
 }
 
 
-.tarjeta h3 {
+.admin-tarjeta h3 {
 
   margin:
     8px 0;
@@ -1142,9 +1479,13 @@ const salir = () => {
 }
 
 
-.tarjeta p {
+.admin-tarjeta p {
 
-  margin: 0;
+  margin:
+    0;
+
+  padding-right:
+    20px;
 
   color:
     #777f8a;
@@ -1158,7 +1499,11 @@ const salir = () => {
 }
 
 
-.flecha {
+/* ========================================== */
+/* FLECHA */
+/* ========================================== */
+
+.admin-flecha {
 
   position:
     absolute;
@@ -1181,7 +1526,8 @@ const salir = () => {
 }
 
 
-.tarjeta:hover .flecha {
+.admin-tarjeta:hover
+.admin-flecha {
 
   transform:
     translateX(5px);
@@ -1189,170 +1535,60 @@ const salir = () => {
 }
 
 
-/* ============================== */
-/* MENSAJE */
-/* ============================== */
-
-.mensaje {
-
-  position:
-    fixed;
-
-  z-index:
-    9999;
-
-  right:
-    30px;
-
-  bottom:
-    30px;
-
-  width:
-    360px;
-
-  padding:
-    18px;
-
-  display:
-    flex;
-
-  align-items:
-    flex-start;
-
-  gap:
-    12px;
-
-  border-radius:
-    16px;
-
-  background:
-    white;
-
-  box-shadow:
-    0 15px 40px
-    rgba(0, 0, 0, 0.20);
-
-}
-
-
-.mensaje > span {
-
-  font-size:
-    25px;
-
-}
-
-
-.mensaje strong {
-
-  color:
-    #202938;
-
-}
-
-
-.mensaje p {
-
-  margin:
-    5px 0 0;
-
-  color:
-    #777;
-
-  font-size:
-    12px;
-
-}
-
-
-.mensaje button {
-
-  margin-left:
-    auto;
-
-  border:
-    none;
-
-  background:
-    transparent;
-
-  color:
-    #777;
-
-  cursor:
-    pointer;
-
-}
-
-
-/* ============================== */
-/* ANIMACIÓN */
-/* ============================== */
-
-.mensaje-enter-active,
-.mensaje-leave-active {
-
-  transition:
-    0.3s;
-
-}
-
-
-.mensaje-enter-from {
-
-  opacity:
-    0;
-
-  transform:
-    translateY(20px);
-
-}
-
-
-.mensaje-leave-to {
-
-  opacity:
-    0;
-
-  transform:
-    translateY(20px);
-
-}
-
-
-/* ============================== */
+/* ========================================== */
 /* TABLET */
-/* ============================== */
+/* ========================================== */
 
-@media
-(max-width: 1000px) {
+@media (max-width: 1100px) {
 
-  .tarjetas {
+  .admin-contenido {
+
+    padding:
+      25px;
+
+  }
+
+
+  .admin-tarjetas {
 
     grid-template-columns:
-      repeat(2, 1fr);
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+  }
+
+
+  .admin-datos-perfil {
+
+    display:
+      none;
 
   }
 
 }
 
 
-/* ============================== */
-/* RESPONSIVE */
-/* ============================== */
+/* ========================================== */
+/* CELULAR */
+/* ========================================== */
 
-@media
-(max-width: 750px) {
+@media (max-width: 750px) {
 
   .admin-layout {
 
-    flex-direction:
-      column;
+    display:
+      block;
 
   }
 
 
-  .sidebar {
+  /* ======================================== */
+  /* BARRA SUPERIOR */
+  /* ======================================== */
+
+  .admin-sidebar {
 
     width:
       100%;
@@ -1361,31 +1597,198 @@ const salir = () => {
       auto;
 
     position:
-      relative;
+      sticky;
+
+    top:
+      0;
+
+    padding:
+      12px 14px;
+
+    box-shadow:
+      0 6px 25px
+      rgba(0, 40, 80, 0.18);
 
   }
 
 
-  .menu {
+  .admin-logo-area {
+
+    width:
+      100%;
+
+    padding:
+      0;
+
+    border-bottom:
+      none;
+
+    gap:
+      10px;
+
+  }
+
+
+  .admin-logo-icono {
+
+    width:
+      45px;
+
+    height:
+      45px;
+
+    border-radius:
+      13px;
+
+    font-size:
+      23px;
+
+  }
+
+
+  .admin-logo-texto h2 {
+
+    font-size:
+      18px;
+
+  }
+
+
+  .admin-logo-texto p {
+
+    font-size:
+      10px;
+
+  }
+
+
+  /* ======================================== */
+  /* BOTONES CELULAR */
+  /* ======================================== */
+
+  .admin-mobile-actions {
+
+    display:
+      flex;
+
+  }
+
+
+  /* ======================================== */
+  /* MENÚ DESPLEGABLE */
+  /* ======================================== */
+
+  .admin-menu {
+
+    display:
+      none;
+
+    width:
+      100%;
+
+    margin-top:
+      13px;
+
+    padding-top:
+      13px;
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap:
+      8px;
+
+    border-top:
+      1px solid
+      rgba(255, 255, 255, 0.15);
+
+  }
+
+
+  .admin-menu.abierto {
 
     display:
       grid;
 
-    grid-template-columns:
-      repeat(2, 1fr);
+    animation:
+      admin-menu-entrada
+      0.25s ease;
 
   }
 
 
-  .btn-cerrar {
+  @keyframes admin-menu-entrada {
 
-    margin-top:
-      25px;
+    from {
+
+      opacity:
+        0;
+
+      transform:
+        translateY(-8px);
+
+    }
+
+
+    to {
+
+      opacity:
+        1;
+
+      transform:
+        translateY(0);
+
+    }
 
   }
 
 
-  .contenido {
+  .admin-menu-item {
+
+    min-height:
+      48px;
+
+    padding:
+      11px 10px;
+
+    justify-content:
+      flex-start;
+
+    font-size:
+      12px;
+
+  }
+
+
+  .admin-menu-item > span {
+
+    width:
+      22px;
+
+    font-size:
+      17px;
+
+  }
+
+
+  /* OCULTAMOS CERRAR SESIÓN DEL SIDEBAR */
+
+  .admin-btn-cerrar {
+
+    display:
+      none;
+
+  }
+
+
+  /* ======================================== */
+  /* CONTENIDO */
+  /* ======================================== */
+
+  .admin-contenido {
 
     width:
       100%;
@@ -1394,34 +1797,63 @@ const salir = () => {
       0;
 
     padding:
-      20px;
+      18px 14px 35px;
 
   }
 
 
-  .header {
+  /* ======================================== */
+  /* HEADER */
+  /* ======================================== */
 
-    flex-direction:
-      column;
+  .admin-header {
+
+    padding:
+      18px;
 
     align-items:
       flex-start;
 
-    gap:
+    border-radius:
+      17px;
+
+  }
+
+
+  .admin-header h1 {
+
+    font-size:
       20px;
 
   }
 
 
-  .bienvenida {
+  .admin-perfil {
 
-    padding:
-      30px 25px;
+    gap:
+      7px;
 
   }
 
 
-  .bienvenida-icono {
+  .admin-avatar {
+
+    width:
+      43px;
+
+    height:
+      43px;
+
+    border-radius:
+      12px;
+
+    font-size:
+      22px;
+
+  }
+
+
+  .admin-datos-perfil {
 
     display:
       none;
@@ -1429,7 +1861,107 @@ const salir = () => {
   }
 
 
-  .tarjetas {
+  /* Ya existe el botón 🚪 arriba */
+
+  .admin-header-salir {
+
+    display:
+      none;
+
+  }
+
+
+  /* ======================================== */
+  /* BIENVENIDA */
+  /* ======================================== */
+
+  .admin-bienvenida {
+
+    margin-top:
+      18px;
+
+    padding:
+      27px 22px;
+
+    border-radius:
+      19px;
+
+  }
+
+
+  .admin-bienvenida h2 {
+
+    font-size:
+      25px;
+
+  }
+
+
+  .admin-bienvenida p {
+
+    font-size:
+      14px;
+
+  }
+
+
+  .admin-bienvenida-icono {
+
+    display:
+      none;
+
+  }
+
+
+  /* ======================================== */
+  /* TARJETAS */
+  /* ======================================== */
+
+  .admin-tarjetas {
+
+    margin-top:
+      18px;
+
+    grid-template-columns:
+      1fr;
+
+    gap:
+      15px;
+
+  }
+
+
+  .admin-tarjeta {
+
+    min-height:
+      200px;
+
+    padding:
+      23px;
+
+    border-radius:
+      18px;
+
+  }
+
+}
+
+
+/* ========================================== */
+/* CELULAR PEQUEÑO */
+/* ========================================== */
+
+@media (max-width: 420px) {
+
+  .admin-logo-texto p {
+
+    display:
+      none;
+
+  }
+
+
+  .admin-menu {
 
     grid-template-columns:
       1fr;
@@ -1437,19 +1969,85 @@ const salir = () => {
   }
 
 
-  .mensaje {
+  .admin-header {
 
-    width:
-      auto;
+    padding:
+      16px;
 
-    left:
-      15px;
+  }
 
-    right:
-      15px;
 
-    bottom:
-      15px;
+  .admin-header h1 {
+
+    font-size:
+      18px;
+
+  }
+
+
+  .admin-subtitulo {
+
+    font-size:
+      11px;
+
+  }
+
+
+  .admin-avatar {
+
+    display:
+      none;
+
+  }
+
+
+  .admin-bienvenida {
+
+    padding:
+      23px 18px;
+
+  }
+
+
+  .admin-bienvenida h2 {
+
+    font-size:
+      22px;
+
+  }
+
+
+  .admin-tarjeta {
+
+    min-height:
+      190px;
+
+  }
+
+}
+
+
+/* ========================================== */
+/* DISPOSITIVOS TÁCTILES */
+/* ========================================== */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .admin-menu-item,
+  .admin-menu-toggle,
+  .admin-btn-salir-movil,
+  .admin-header-salir {
+
+    min-height:
+      44px;
+
+  }
+
+
+  .admin-tarjeta:hover {
+
+    transform:
+      none;
 
   }
 
