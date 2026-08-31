@@ -3565,3 +3565,625 @@ nav a.router-link-active {
   }
 
 }
+/* =========================================================
+   RESPONSIVE GLOBAL MEGA-MEX
+   Ajustes finales para computadora, tablet y celular.
+   Este bloque va al final para complementar los estilos
+   existentes sin cambiar el diseño de escritorio.
+========================================================= */
+
+/* BASE RESPONSIVE */
+html {
+  width: 100%;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+#app,
+.app {
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+}
+
+main,
+section,
+article,
+aside,
+header,
+footer,
+nav,
+div {
+  min-width: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Evita zoom automático de Safari/iPhone al escribir */
+@media (max-width: 700px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+   NAVBAR DEL CLIENTE
+========================================================= */
+
+.navbar {
+  width: min(1250px, 100%);
+  max-width: 1250px;
+  min-height: 85px;
+  height: auto;
+}
+
+@media (max-width: 1100px) {
+
+  .navbar {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .logo img {
+    width: 58px;
+    height: 58px;
+  }
+
+  .nombre-empresa strong {
+    font-size: 19px;
+  }
+
+  nav a {
+    padding: 10px 9px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+
+  .header {
+    position: sticky;
+    top: 0;
+  }
+
+  .navbar {
+    min-height: 76px;
+    position: relative;
+  }
+
+  .menu-movil {
+    min-width: 44px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .header .navbar > nav {
+    top: calc(100% + 8px);
+    left: 12px;
+    right: 12px;
+
+    max-height: calc(100dvh - 100px);
+    overflow-y: auto;
+
+    border: 1px solid #e5edf5;
+  }
+
+  .header .navbar > nav a {
+    width: 100%;
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .navbar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .logo {
+    gap: 8px;
+  }
+
+  .logo img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .nombre-empresa strong {
+    font-size: 17px;
+  }
+
+  .nombre-empresa span {
+    font-size: 11px;
+  }
+}
+
+/* =========================================================
+   INICIO / HERO
+========================================================= */
+
+.hero {
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-contenido {
+    width: min(100%, 94%);
+    gap: 35px;
+    padding: 55px 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 8vw, 54px);
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .hero-botones {
+    flex-wrap: wrap;
+  }
+
+  .categorias,
+  .promociones-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mayoreo-contenido {
+    gap: 30px;
+  }
+
+  .mayoreo-icono {
+    font-size: 105px;
+  }
+
+  .footer-contenido {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+
+  .hero-contenido {
+    padding: 42px 0;
+  }
+
+  .hero h1 {
+    margin: 16px 0;
+    font-size: clamp(32px, 10vw, 44px);
+  }
+
+  .hero p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .hero-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-botones .boton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .circulo-logo {
+    width: min(240px, 72vw);
+    height: min(240px, 72vw);
+  }
+
+  .circulo-logo::before {
+    width: calc(min(240px, 72vw) + 15px);
+    height: calc(min(240px, 72vw) + 15px);
+  }
+
+  .seccion {
+    padding: 60px 0;
+  }
+
+  .titulo-seccion {
+    margin-bottom: 32px;
+  }
+
+  .titulo-seccion h2 {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .categorias,
+  .promociones-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjeta,
+  .promo {
+    padding: 25px;
+  }
+
+  .mayoreo {
+    padding: 60px 0;
+  }
+
+  .mayoreo h2 {
+    font-size: clamp(29px, 8vw, 36px);
+  }
+
+  .mayoreo p {
+    font-size: 16px;
+  }
+
+  .mayoreo-icono {
+    font-size: 90px;
+  }
+
+  .footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .footer-contenido {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .footer-logo {
+    align-items: flex-start;
+  }
+
+  .footer-logo img {
+    width: 68px;
+  }
+}
+
+/* =========================================================
+   REDES SOCIALES
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .redes-hero {
+    padding-top: 65px;
+  }
+
+  .redes-hero-contenido {
+    width: min(100%, 94%);
+  }
+
+  .redes-texto h1 {
+    font-size: clamp(36px, 8vw, 52px);
+  }
+
+  .redes-texto p {
+    font-size: 16px;
+  }
+
+  .facebook-card-moderna {
+    width: min(94%, 1050px);
+  }
+
+  .facebook-datos {
+    gap: 20px;
+  }
+
+  .redes-sociales-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .redes-pagina {
+    padding: 60px 15px;
+  }
+
+  .descripcion-redes {
+    margin-bottom: 30px;
+    font-size: 16px;
+  }
+
+  .facebook-card {
+    width: 100%;
+  }
+
+  .redes-hero {
+    padding: 55px 15px 100px;
+  }
+
+  .redes-contenido {
+    margin-top: -55px;
+    padding-bottom: 65px;
+  }
+
+  .facebook-card-moderna {
+    width: calc(100% - 24px);
+  }
+
+  .facebook-card-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .facebook-datos h2 {
+    font-size: clamp(27px, 8vw, 34px);
+  }
+
+  .facebook-cta {
+    padding: 20px 16px;
+  }
+
+  .red-social-card {
+    width: 100%;
+    padding: 25px 18px;
+  }
+
+  .red-info h3 {
+    font-size: 27px;
+  }
+}
+
+/* =========================================================
+   CONTACTO
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .contacto-pagina {
+    padding: 65px 0;
+  }
+
+  .contacto-grid {
+    gap: 22px;
+  }
+
+  .contacto-info,
+  .formulario-contacto {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .contacto-pagina {
+    padding: 50px 0;
+  }
+
+  .contacto-info,
+  .formulario-contacto {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+
+  .dato-contacto {
+    gap: 12px;
+  }
+
+  .dato-icono {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+}
+
+/* =========================================================
+   PRODUCTOS
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .productos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+
+  .productos-hero {
+    padding: 65px 16px 75px;
+  }
+
+  .productos-hero-contenido {
+    width: min(100%, 94%);
+    gap: 35px;
+  }
+
+  .productos-hero-texto h1 {
+    font-size: clamp(36px, 8vw, 52px);
+  }
+
+  .productos-hero-texto > p {
+    font-size: 16px;
+  }
+
+  .productos-hero-visual {
+    min-height: 260px;
+  }
+
+  .productos-contenedor {
+    padding: 65px 16px;
+  }
+
+  .tipo-productos {
+    gap: 16px;
+    margin-bottom: 45px;
+  }
+
+  .productos-cta {
+    width: calc(100% - 32px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 560px) {
+
+  .productos-hero {
+    padding-top: 50px;
+  }
+
+  .productos-hero-texto h1 {
+    margin: 16px 0;
+    font-size: clamp(32px, 10vw, 43px);
+  }
+
+  .productos-estadisticas {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .productos-estadisticas > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .productos-hero-visual {
+    min-height: 235px;
+  }
+
+  .caja-principal {
+    width: min(180px, 55vw);
+    height: min(180px, 55vw);
+    font-size: 85px;
+  }
+
+  .tipo-card {
+    padding: 24px 20px;
+  }
+
+  .tipo-icono {
+    width: 68px;
+    height: 68px;
+    font-size: 32px;
+  }
+
+  .tipo-card h3 {
+    font-size: 23px;
+  }
+
+  .productos-herramientas h3 {
+    font-size: 23px;
+  }
+
+  .productos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .producto-card-contenido {
+    padding: 19px;
+  }
+
+  .productos-cta {
+    padding: 30px 20px;
+  }
+
+  .productos-cta h2 {
+    font-size: 27px;
+  }
+
+  .productos-cta-boton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   AJUSTES PARA PANTALLAS MUY PEQUEÑAS
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .navbar {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .nombre-empresa strong {
+    font-size: 15px;
+  }
+
+  .nombre-empresa span {
+    display: none;
+  }
+
+  .hero h1,
+  .redes-texto h1,
+  .productos-hero-texto h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .boton,
+  .boton-facebook,
+  .productos-cta-boton {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   DISPOSITIVOS TÁCTILES
+========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .boton,
+  .menu-movil,
+  nav a,
+  .boton-facebook,
+  .productos-cta-boton {
+    min-height: 44px;
+  }
+
+  .tarjeta:hover,
+  .promo:hover,
+  .producto-card:hover,
+  .red-social-card:hover,
+  .facebook-card:hover {
+    transform: none;
+  }
+}
+

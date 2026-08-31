@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // ============================================
-// VISTAS
+// VISTAS PRINCIPALES
 // ============================================
 
 import Login from '../views/Login.vue'
@@ -14,8 +14,18 @@ import Empresa from '../views/Empresa.vue'
 import Marketing from '../views/Marketing.vue'
 import Contacto from '../views/Contacto.vue'
 import Redes from '../views/Redes.vue'
+
+// ============================================
+// ADMINISTRADOR
+// ============================================
+
 import Admin from '../views/Admin.vue'
 
+import AdminFlyers from '../views/admin/AdminFlyers.vue'
+import AdminPromociones from '../views/admin/AdminPromociones.vue'
+import AdminProductos from '../views/admin/AdminProductos.vue'
+import AdminSucursales from '../views/admin/AdminSucursales.vue'
+import AdminRedes from '../views/admin/AdminRedes.vue'
 
 // ============================================
 // AUTENTICACIÓN
@@ -25,7 +35,6 @@ import {
   obtenerUsuario,
   cerrarSesion
 } from '../utils/auth'
-
 
 // ============================================
 // CREAR ROUTER
@@ -46,7 +55,6 @@ const router = createRouter({
       redirect: '/login'
     },
 
-
     // ========================================
     // LOGIN
     // ========================================
@@ -61,9 +69,8 @@ const router = createRouter({
       }
     },
 
-
     // ========================================
-    // REGISTRO DE USUARIOS
+    // REGISTRO
     // ========================================
 
     {
@@ -75,7 +82,6 @@ const router = createRouter({
         ocultarNavegacion: true
       }
     },
-
 
     // ========================================
     // CLIENTE
@@ -92,7 +98,6 @@ const router = createRouter({
       }
     },
 
-
     {
       path: '/productos',
       name: 'productos',
@@ -103,7 +108,6 @@ const router = createRouter({
         rol: 'cliente'
       }
     },
-
 
     {
       path: '/promociones',
@@ -116,7 +120,6 @@ const router = createRouter({
       }
     },
 
-
     {
       path: '/empresa',
       name: 'empresa',
@@ -127,7 +130,6 @@ const router = createRouter({
         rol: 'cliente'
       }
     },
-
 
     {
       path: '/marketing',
@@ -140,7 +142,6 @@ const router = createRouter({
       }
     },
 
-
     {
       path: '/contacto',
       name: 'contacto',
@@ -152,7 +153,6 @@ const router = createRouter({
       }
     },
 
-
     {
       path: '/redes',
       name: 'redes',
@@ -163,7 +163,6 @@ const router = createRouter({
         rol: 'cliente'
       }
     },
-
 
     // ========================================
     // ADMINISTRADOR
@@ -178,9 +177,42 @@ const router = createRouter({
         requiereLogin: true,
         rol: 'admin',
         ocultarNavegacion: true
-      }
-    },
+      },
 
+      children: [
+
+        {
+          path: 'flyers',
+          name: 'admin-flyers',
+          component: AdminFlyers
+        },
+
+        {
+          path: 'promociones',
+          name: 'admin-promociones',
+          component: AdminPromociones
+        },
+
+        {
+          path: 'productos',
+          name: 'admin-productos',
+          component: AdminProductos
+        },
+
+        {
+          path: 'sucursales',
+          name: 'admin-sucursales',
+          component: AdminSucursales
+        },
+
+        {
+          path: 'redes',
+          name: 'admin-redes',
+          component: AdminRedes
+        }
+
+      ]
+    },
 
     // ========================================
     // RUTA NO ENCONTRADA
@@ -194,7 +226,6 @@ const router = createRouter({
   ]
 
 })
-
 
 // ============================================
 // PROTECCIÓN DE RUTAS
@@ -214,13 +245,9 @@ router.beforeEach((to) => {
 
   }
 
-
   // ==========================================
   // REGISTRO
   // ==========================================
-
-  // El registro es público.
-  // No necesita que el usuario haya iniciado sesión.
 
   if (to.path === '/registro') {
 
@@ -228,14 +255,11 @@ router.beforeEach((to) => {
 
   }
 
-
   // ==========================================
   // OBTENER USUARIO
   // ==========================================
 
-  const usuario =
-    obtenerUsuario()
-
+  const usuario = obtenerUsuario()
 
   // ==========================================
   // RUTA PROTEGIDA SIN LOGIN
@@ -250,14 +274,11 @@ router.beforeEach((to) => {
 
   }
 
-
   // ==========================================
   // ADMINISTRADOR
   // ==========================================
 
-  if (
-    to.meta.rol === 'admin'
-  ) {
+  if (to.meta.rol === 'admin') {
 
     if (!usuario) {
 
@@ -265,10 +286,7 @@ router.beforeEach((to) => {
 
     }
 
-
-    if (
-      usuario.rol !== 'admin'
-    ) {
+    if (usuario.rol !== 'admin') {
 
       return '/inicio'
 
@@ -276,14 +294,11 @@ router.beforeEach((to) => {
 
   }
 
-
   // ==========================================
   // CLIENTE
   // ==========================================
 
-  if (
-    to.meta.rol === 'cliente'
-  ) {
+  if (to.meta.rol === 'cliente') {
 
     if (!usuario) {
 
@@ -291,21 +306,13 @@ router.beforeEach((to) => {
 
     }
 
-
-    // Si un administrador intenta entrar
-    // a las páginas del cliente
-    if (
-      usuario.rol === 'admin'
-    ) {
+    if (usuario.rol === 'admin') {
 
       return '/admin'
 
     }
 
-
-    if (
-      usuario.rol !== 'cliente'
-    ) {
+    if (usuario.rol !== 'cliente') {
 
       return '/login'
 
@@ -313,14 +320,8 @@ router.beforeEach((to) => {
 
   }
 
-
-  // ==========================================
-  // PERMITIR NAVEGACIÓN
-  // ==========================================
-
   return true
 
 })
-
 
 export default router
