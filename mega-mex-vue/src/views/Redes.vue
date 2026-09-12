@@ -164,7 +164,7 @@
 
             <!-- INSTAGRAM -->
             <a
-              href="#"
+              href="https://www.instagram.com/mega_mex_0102?stkn=MXY2NTdhYjE3b2E2aA=="
               class="red-social-card instagram-red"
               @click.prevent
             >
