@@ -196,7 +196,7 @@
                 </h3>
 
                 <p>
-                  Conoce nuestras fotografías, productos
+                  Conoce nuestros productos
                   y contenido de Mega-Mex.
                 </p>
 
