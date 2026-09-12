@@ -166,7 +166,8 @@
             <a
               href="https://www.instagram.com/mega_mex_0102?stkn=MXY2NTdhYjE3b2E2aA=="
               class="red-social-card instagram-red"
-              @click.prevent
+              target="_blank"
+              rel="noopener noreferrer"
             >
 
               <div class="red-icono instagram-icono-red">
