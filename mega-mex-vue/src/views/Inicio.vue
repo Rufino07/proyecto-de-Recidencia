@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import heroProductos from '../assets/img22.png'
+import img22 from '../assets/img22.png'
 
 const mostrarPresentacion = ref(false)
 const abrirCortina = ref(false)
@@ -376,7 +376,7 @@ onBeforeUnmount(() => {
         <div class="productos-imagen">
 
           <img
-            :src="heroProductos"
+            :src="img22"
             alt="Productos disponibles en Mega-Mex"
           />
 
@@ -523,7 +523,7 @@ onBeforeUnmount(() => {
 
         <RouterLink
           to="/promociones"
-          class="tarjeta revelar"
+          class="tarjeta tarjeta-promociones revelar"
         >
 
           <div class="linea linea-amarilla"></div>
@@ -571,7 +571,7 @@ onBeforeUnmount(() => {
 
         <RouterLink
           to="/empresa"
-          class="tarjeta revelar"
+          class="tarjeta tarjeta-nosotros revelar"
         >
 
           <div class="linea linea-roja"></div>
@@ -782,7 +782,6 @@ onBeforeUnmount(() => {
       </div>
 
 
-
       <div class="promociones-grid">
 
 
@@ -792,6 +791,9 @@ onBeforeUnmount(() => {
 
           <div class="promo-linea promo-linea-azul"></div>
 
+          <div class="promo-media">
+            <img src="/productos.png" alt="Productos seleccionados" />
+          </div>
 
           <div class="promo-superior">
 
@@ -829,6 +831,9 @@ onBeforeUnmount(() => {
 
           <div class="promo-linea promo-linea-roja"></div>
 
+          <div class="promo-media">
+            <img src="/mayore02.png" alt="Precios especiales de mayoreo" />
+          </div>
 
           <div class="promo-superior">
 
@@ -866,6 +871,9 @@ onBeforeUnmount(() => {
 
           <div class="promo-linea promo-linea-amarilla"></div>
 
+          <div class="promo-media">
+            <img src="/descarga06.png" alt="Nuevos productos" />
+          </div>
 
           <div class="promo-superior">
 
@@ -1455,13 +1463,7 @@ onBeforeUnmount(() => {
 
   overflow: hidden;
 
-  background:
-    linear-gradient(
-      115deg,
-      #f7fbff 0%,
-      #ffffff 55%,
-      #f3f8fc 100%
-    );
+  background: url('/menu09.jpeg') center/cover no-repeat;
 }
 
 .hero-contenido {
@@ -1493,6 +1495,17 @@ onBeforeUnmount(() => {
 /* ================================================= */
 
 .hero-texto {
+  padding: 26px;
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.88);
+
+  box-shadow:
+    0 18px 38px
+    rgba(15, 23, 42, 0.14);
+
   animation:
     entradaIzquierda
     0.8s ease both;
@@ -1773,7 +1786,11 @@ onBeforeUnmount(() => {
 
   object-fit: contain;
 
+  opacity: 1;
+
   filter:
+    saturate(1.08)
+    contrast(1.05)
     drop-shadow(
       0 25px 28px
       rgba(15, 23, 42, 0.16)
@@ -1866,7 +1883,7 @@ onBeforeUnmount(() => {
 
   margin-top: 2px;
 
-  color: #94a3b8;
+  color: #475569;
 
   font-size: 0.63rem;
 }
@@ -1944,7 +1961,7 @@ onBeforeUnmount(() => {
 
   margin-top: 2px;
 
-  color: #94a3b8;
+  color: #475569;
 
   font-size: 0.62rem;
 }
@@ -2131,7 +2148,12 @@ onBeforeUnmount(() => {
 
   border-radius: 12px;
 
-  background: white;
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.2)
+    ),
+    url('/productos.png') center/contain no-repeat;
 
   color: inherit;
 
@@ -2141,6 +2163,30 @@ onBeforeUnmount(() => {
     transform 0.3s ease,
     box-shadow 0.3s ease,
     border-color 0.3s ease;
+}
+
+.tarjeta > * {
+  position: relative;
+
+  z-index: 1;
+}
+
+.tarjeta-promociones {
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.2)
+    ),
+    url('/promociones.PNG') center/contain no-repeat;
+}
+
+.tarjeta-nosotros {
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.2)
+    ),
+    url('/super.png') center/contain no-repeat;
 }
 
 .tarjeta:hover {
@@ -2238,7 +2284,13 @@ onBeforeUnmount(() => {
 }
 
 .numero {
-  color: #dce4ec;
+  padding: 2px 7px;
+
+  border-radius: 5px;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  color: #b42335;
 
   font-size: 2rem;
 
@@ -2246,8 +2298,18 @@ onBeforeUnmount(() => {
 }
 
 .tarjeta h3 {
+  width: fit-content;
+
   margin:
     0 0 12px;
+
+  padding: 2px 7px;
+
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  color: #006bc5;
 
   font-size: 1.2rem;
 }
@@ -2258,7 +2320,13 @@ onBeforeUnmount(() => {
   margin:
     0 0 23px;
 
-  color: #64748b;
+  padding: 5px 7px;
+
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  color: #334155;
 
   font-size: 0.88rem;
 
@@ -2271,6 +2339,14 @@ onBeforeUnmount(() => {
   align-items: center;
 
   gap: 8px;
+
+  width: fit-content;
+
+  padding: 4px 7px;
+
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.92);
 
   color: #006bc5;
 
@@ -2306,11 +2382,15 @@ onBeforeUnmount(() => {
   background:
     linear-gradient(
       120deg,
-      #00549d,
-      #0073ca
-    );
+      rgba(0, 84, 157, 0.68),
+      rgba(0, 115, 202, 0.48)
+    ),
+    url('/mayoreo.jpg') center/cover no-repeat;
 
   color: white;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .mayoreo-decoracion {
@@ -2511,11 +2591,44 @@ onBeforeUnmount(() => {
 
   border-radius: 12px;
 
-  background: white;
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.96),
+      rgba(255, 255, 255, 0.96)
+    );
 
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
+}
+
+.promo-media {
+  margin:
+    -31px -31px 18px;
+
+  height: 160px;
+
+  overflow: hidden;
+
+  border-radius:
+    12px 12px 0 0;
+
+  background: #eef4fb;
+}
+
+.promo-media img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.promo > * {
+  position: relative;
+
+  z-index: 1;
 }
 
 .promo:hover {

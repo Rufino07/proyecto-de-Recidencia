@@ -164,14 +164,10 @@ const cambiarTipo = nuevoTipo => {
 
           <div class="hero-circulo">
 
-            <div class="caja-central">
-              📦
-            </div>
-
-            <div class="burbuja b1">🥤</div>
-            <div class="burbuja b2">🥛</div>
-            <div class="burbuja b3">🛒</div>
-            <div class="burbuja b4">🍚</div>
+            <img
+              src="/productos.png"
+              alt="Productos de Mega-Mex"
+            />
 
           </div>
 
