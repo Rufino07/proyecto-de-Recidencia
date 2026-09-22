@@ -36,15 +36,16 @@ import Navbar from './components/Navbar.vue'
 
       <div class="footer-contenido">
 
-        <!-- LOGO -->
         <div class="footer-logo">
 
-          <img
-            src="/logo-mega-mex.png"
-            alt="Mega-Mex"
-          >
+          <div class="footer-logo-icono">
+            <img
+              src="/logo-mega-mex.png"
+              alt="Mega-Mex"
+            >
+          </div>
 
-          <div>
+          <div class="footer-logo-texto">
 
             <h3>
               MEGA-MEX
@@ -59,7 +60,6 @@ import Navbar from './components/Navbar.vue'
         </div>
 
 
-        <!-- ENLACES -->
         <div class="footer-seccion">
 
           <h4>
@@ -85,7 +85,6 @@ import Navbar from './components/Navbar.vue'
         </div>
 
 
-        <!-- CONTACTO -->
         <div class="footer-seccion">
 
           <h4>
@@ -93,22 +92,21 @@ import Navbar from './components/Navbar.vue'
           </h4>
 
           <p>
-            📍 Heroica Ciudad de Tlaxiaco, Oaxaca
+            <span class="footer-icono">📍</span>
+            Heroica Ciudad de Tlaxiaco, Oaxaca
           </p>
 
           <RouterLink to="/redes">
-            📱 Redes sociales
+            <span class="footer-icono">📱</span>
+            Redes sociales
           </RouterLink>
 
         </div>
 
       </div>
 
-
       <div class="copyright">
-
         © 2026 Mega-Mex
-
       </div>
 
     </footer>
@@ -146,11 +144,15 @@ import Navbar from './components/Navbar.vue'
   background:
     linear-gradient(
       135deg,
-      #003f7d,
+      #003b73,
+      #005fb3,
       #006bc5
     );
 
   color: white;
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.12);
 }
 
 
@@ -159,7 +161,7 @@ import Navbar from './components/Navbar.vue'
 
   margin: auto;
 
-  padding: 45px 0;
+  padding: 56px 0 40px;
 
   display: grid;
 
@@ -167,60 +169,67 @@ import Navbar from './components/Navbar.vue'
     1.5fr 1fr 1fr;
 
   gap: 50px;
+  align-items: start;
 }
 
-
-/* ========================================== */
-/* LOGO */
-/* ========================================== */
 
 .footer-logo {
   display: flex;
 
-  align-items: flex-start;
+  align-items: center;
 
-  gap: 15px;
+  gap: 18px;
 }
 
+.footer-logo-icono {
+  width: 76px;
+  height: 76px;
 
-.footer-logo img {
-  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  height: 70px;
-
-  object-fit: contain;
-
-  padding: 7px;
-
-  border-radius: 15px;
+  border-radius: 18px;
 
   background:
-    rgba(255, 255, 255, 0.10);
+    rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 10px 18px
+    rgba(0, 0, 0, 0.12);
 }
 
+.footer-logo img {
+  width: 58px;
+  height: 58px;
+
+  object-fit: contain;
+}
+
+.footer-logo-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .footer-logo h3 {
-  margin: 5px 0 5px;
+  margin: 0;
 
-  font-size: 22px;
+  font-size: 2rem;
 
-  letter-spacing: 1px;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
 }
-
 
 .footer-logo p {
   margin: 0;
 
   color:
-    rgba(255, 255, 255, 0.75);
+    rgba(255, 255, 255, 0.78);
 
-  font-size: 13px;
+  font-size: 0.82rem;
 }
 
-
-/* ========================================== */
-/* SECCIONES */
-/* ========================================== */
 
 .footer-seccion {
   display: flex;
@@ -232,25 +241,25 @@ import Navbar from './components/Navbar.vue'
   gap: 10px;
 }
 
-
 .footer-seccion h4 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 
-  font-size: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
-
-.footer-seccion a {
+.footer-seccion a,
+.footer-seccion p {
   color:
-    rgba(255, 255, 255, 0.78);
+    rgba(255, 255, 255, 0.8);
 
   text-decoration: none;
 
-  font-size: 13px;
+  font-size: 0.95rem;
+  line-height: 1.7;
 
-  transition: 0.25s;
+  transition: 0.25s ease;
 }
-
 
 .footer-seccion a:hover {
   color: white;
@@ -259,25 +268,15 @@ import Navbar from './components/Navbar.vue'
     translateX(4px);
 }
 
+.footer-icono {
+  display: inline-block;
 
-.footer-seccion p {
-  margin: 0;
-
-  color:
-    rgba(255, 255, 255, 0.78);
-
-  font-size: 13px;
-
-  line-height: 1.6;
+  margin-right: 6px;
 }
 
 
-/* ========================================== */
-/* COPYRIGHT */
-/* ========================================== */
-
 .copyright {
-  padding: 18px;
+  padding: 18px 16px 22px;
 
   border-top:
     1px solid
@@ -286,9 +285,9 @@ import Navbar from './components/Navbar.vue'
   text-align: center;
 
   color:
-    rgba(255, 255, 255, 0.65);
+    rgba(255, 255, 255, 0.7);
 
-  font-size: 12px;
+  font-size: 0.8rem;
 }
 
 

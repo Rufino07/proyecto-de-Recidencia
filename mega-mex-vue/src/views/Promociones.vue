@@ -130,19 +130,12 @@ onUnmounted(() => {
 
             <div class="circulo-medio">
 
-              <div class="ticket-principal">
+              <div class="ticket-principal promo-imagen">
 
-                <span class="ticket-mini">
-                  MEGA-MEX
-                </span>
-
-                <div class="ticket-icono">
-                  🏷️
-                </div>
-
-                <strong>
-                  PROMO
-                </strong>
+                <img
+                  src="/PROMOCIONES02.png"
+                  alt="Promociones Mega-Mex"
+                />
 
               </div>
 
@@ -1106,6 +1099,22 @@ onUnmounted(() => {
     4s ease-in-out infinite;
 
 }
+
+.promo-imagen {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: #dfeefb;
+}
+
+.promo-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 30px;
+}
+
 
 
 @keyframes ticketFlota {
