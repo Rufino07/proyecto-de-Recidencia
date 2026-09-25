@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // ============================================
 // VISTAS PRINCIPALES
 // ============================================
-
+ 
 import Login from '../views/Login.vue'
 import Registro from '../views/Registro.vue'
 

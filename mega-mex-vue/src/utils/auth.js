@@ -2,131 +2,15 @@
 // CONFIGURACIÓN GENERAL
 // =====================================================
 
-// true  = trabajamos temporalmente solo con Vue
-// false = utilizará Node.js + Express
-//
-// Cuando hagamos el backend solamente cambiaremos
-// este valor a false.
-const USAR_MODO_PRUEBA = true
-
-
-// URL que tendrá nuestro backend
+// URL del backend (Node.js + Express)
 const API_URL = 'http://localhost:3000/api'
 
 
 // =====================================================
-// CLAVES DE LOCALSTORAGE
+// CLAVE DE LOCALSTORAGE
 // =====================================================
 
 const CLAVE_SESION = 'sesionMegaMex'
-
-const CLAVE_USUARIOS = 'usuariosRegistradosMegaMex'
-
-
-// =====================================================
-// USUARIOS TEMPORALES
-// =====================================================
-//
-// Estos usuarios solamente existen mientras
-// estamos desarrollando el frontend.
-//
-// Cuando conectemos PostgreSQL se eliminarán.
-// =====================================================
-
-const usuariosDemo = [
-
-  {
-    id: 1,
-
-    nombre: 'Administrador Mega-Mex',
-
-    correo: 'admin@megamex.com',
-
-    password: 'Admin123',
-
-    rol: 'admin'
-  },
-
-  {
-    id: 2,
-
-    nombre: 'Cliente Mega-Mex',
-
-    correo: 'cliente@megamex.com',
-
-    password: 'Cliente123',
-
-    rol: 'cliente'
-  }
-
-]
-
-
-// =====================================================
-// SIMULAR RESPUESTA DEL SERVIDOR
-// =====================================================
-
-const esperar = (ms) => {
-
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  )
-
-}
-
-
-// =====================================================
-// OBTENER USUARIOS REGISTRADOS
-// =====================================================
-
-const obtenerUsuariosRegistrados = () => {
-
-  const datos =
-    localStorage.getItem(CLAVE_USUARIOS)
-
-
-  if (!datos) {
-
-    return []
-
-  }
-
-
-  try {
-
-    const usuarios =
-      JSON.parse(datos)
-
-
-    return Array.isArray(usuarios)
-      ? usuarios
-      : []
-
-  }
-
-  catch {
-
-    localStorage.removeItem(CLAVE_USUARIOS)
-
-    return []
-
-  }
-
-}
-
-
-// =====================================================
-// GUARDAR USUARIOS REGISTRADOS
-// =====================================================
-
-const guardarUsuariosRegistrados = (usuarios) => {
-
-  localStorage.setItem(
-    CLAVE_USUARIOS,
-    JSON.stringify(usuarios)
-  )
-
-}
 
 
 // =====================================================
@@ -147,184 +31,57 @@ const guardarSesion = (sesion) => {
 // INICIAR SESIÓN
 // =====================================================
 
-export const iniciarSesion = async (
-  correo,
-  password
-) => {
+export const iniciarSesion = async (correo, password) => {
 
-  // Limpiar correo
-  const correoLimpio =
-    correo.trim().toLowerCase()
+  const correoLimpio = correo.trim().toLowerCase()
 
+  try {
 
-  // ===================================================
-  // MODO DE PRUEBA
-  // ===================================================
-
-  if (USAR_MODO_PRUEBA) {
-
-    // Simular que estamos consultando un servidor
-    await esperar(500)
-
-
-    // Obtener usuarios creados desde Registro.vue
-    const usuariosRegistrados =
-      obtenerUsuariosRegistrados()
-
-
-    // Juntar usuarios de prueba + registrados
-    const todosLosUsuarios = [
-
-      ...usuariosDemo,
-
-      ...usuariosRegistrados
-
-    ]
-
-
-    // Buscar usuario
-    const usuario =
-      todosLosUsuarios.find(
-
-        item =>
-
-          item.correo.toLowerCase()
-            === correoLimpio
-
-          &&
-
-          item.password
-            === password
-
-      )
-
-
-    // Si no existe
-    if (!usuario) {
-
-      throw new Error(
-        'Correo o contraseña incorrectos.'
-      )
-
-    }
-
-
-    // =================================================
-    // USUARIO QUE GUARDAREMOS EN LA SESIÓN
-    // =================================================
-    //
-    // No guardamos la contraseña dentro de la sesión.
-    // =================================================
-
-    const usuarioSeguro = {
-
-      id:
-        usuario.id,
-
-      nombre:
-        usuario.nombre,
-
-      correo:
-        usuario.correo,
-
-      rol:
-        usuario.rol
-
-    }
-
-
-    // =================================================
-    // CREAR SESIÓN TEMPORAL
-    // =================================================
-
-    const sesion = {
-
-      token:
-        'token-temporal-frontend',
-
-      usuario:
-        usuarioSeguro
-
-    }
-
-
-    // Guardar sesión
-    guardarSesion(sesion)
-
-
-    // Devolver sesión a Login.vue
-    return sesion
-
-  }
-
-
-  // ===================================================
-  // FUTURO BACKEND NODE.JS + EXPRESS
-  // ===================================================
-
-  const respuesta =
-    await fetch(
+    const respuesta = await fetch(
       `${API_URL}/auth/login`,
       {
-
-        method:
-          'POST',
+        method: 'POST',
 
         headers: {
-
-          'Content-Type':
-            'application/json'
-
+          'Content-Type': 'application/json'
         },
 
-        body:
-          JSON.stringify({
-
-            correo:
-              correoLimpio,
-
-            password:
-              password
-
-          })
-
+        body: JSON.stringify({
+          correo: correoLimpio,
+          password: password
+        })
       }
     )
 
+    const datos = await respuesta.json()
 
-  // ===================================================
-  // LEER RESPUESTA
-  // ===================================================
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.mensaje || 'No fue posible iniciar sesión.'
+      )
+    }
 
-  const datos =
-    await respuesta.json()
+    // Guardar sesión con token JWT real
+    guardarSesion({
+      token: datos.token,
+      usuario: datos.usuario
+    })
 
-
-  // ===================================================
-  // ERROR DEL BACKEND
-  // ===================================================
-
-  if (!respuesta.ok) {
-
-    throw new Error(
-
-      datos.mensaje ||
-
-      'No fue posible iniciar sesión.'
-
-    )
+    return datos
 
   }
 
+  catch (err) {
 
-  // ===================================================
-  // GUARDAR SESIÓN REAL
-  // ===================================================
+    if (err.message === 'Failed to fetch') {
+      throw new Error(
+        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+      )
+    }
 
-  guardarSesion(datos)
+    throw err
 
-
-  return datos
+  }
 
 }
 
@@ -333,214 +90,61 @@ export const iniciarSesion = async (
 // REGISTRAR NUEVO USUARIO
 // =====================================================
 
-export const registrarUsuario = async ({
-  nombre,
-  correo,
-  password
-}) => {
+export const registrarUsuario = async ({ nombre, correo, password }) => {
 
-  const nombreLimpio =
-    nombre.trim()
+  const nombreLimpio = nombre.trim()
+  const correoLimpio = correo.trim().toLowerCase()
 
+  try {
 
-  const correoLimpio =
-    correo.trim().toLowerCase()
-
-
-  // ===================================================
-  // MODO FRONTEND
-  // ===================================================
-
-  if (USAR_MODO_PRUEBA) {
-
-    await esperar(500)
-
-
-    // =================================================
-    // OBTENER USUARIOS EXISTENTES
-    // =================================================
-
-    const usuariosRegistrados =
-      obtenerUsuariosRegistrados()
-
-
-    // =================================================
-    // REVISAR USUARIOS DEMO
-    // =================================================
-
-    const existeDemo =
-      usuariosDemo.some(
-
-        usuario =>
-
-          usuario.correo.toLowerCase()
-            === correoLimpio
-
-      )
-
-
-    // =================================================
-    // REVISAR USUARIOS REGISTRADOS
-    // =================================================
-
-    const existeRegistrado =
-      usuariosRegistrados.some(
-
-        usuario =>
-
-          usuario.correo.toLowerCase()
-            === correoLimpio
-
-      )
-
-
-    // =================================================
-    // CORREO REPETIDO
-    // =================================================
-
-    if (
-      existeDemo ||
-      existeRegistrado
-    ) {
-
-      throw new Error(
-        'Ya existe una cuenta con este correo.'
-      )
-
-    }
-
-
-    // =================================================
-    // CREAR USUARIO
-    // =================================================
-
-    const nuevoUsuario = {
-
-      id:
-        Date.now(),
-
-      nombre:
-        nombreLimpio,
-
-      correo:
-        correoLimpio,
-
-      password:
-        password,
-
-      // Todos los usuarios que se registran
-      // desde la página serán clientes.
-      //
-      // Nunca podrán registrarse como admin.
-      rol:
-        'cliente'
-
-    }
-
-
-    // =================================================
-    // AGREGAR USUARIO
-    // =================================================
-
-    usuariosRegistrados.push(
-      nuevoUsuario
-    )
-
-
-    // =================================================
-    // GUARDAR
-    // =================================================
-
-    guardarUsuariosRegistrados(
-      usuariosRegistrados
-    )
-
-
-    // =================================================
-    // RESPUESTA
-    // =================================================
-
-    return {
-
-      mensaje:
-        'Usuario registrado correctamente.',
-
-      usuario: {
-
-        id:
-          nuevoUsuario.id,
-
-        nombre:
-          nuevoUsuario.nombre,
-
-        correo:
-          nuevoUsuario.correo,
-
-        rol:
-          nuevoUsuario.rol
-
-      }
-
-    }
-
-  }
-
-
-  // ===================================================
-  // FUTURO BACKEND
-  // ===================================================
-
-  const respuesta =
-    await fetch(
+    const respuesta = await fetch(
       `${API_URL}/auth/registro`,
       {
-
-        method:
-          'POST',
+        method: 'POST',
 
         headers: {
-
-          'Content-Type':
-            'application/json'
-
+          'Content-Type': 'application/json'
         },
 
-        body:
-          JSON.stringify({
-
-            nombre:
-              nombreLimpio,
-
-            correo:
-              correoLimpio,
-
-            password:
-              password
-
-          })
-
+        body: JSON.stringify({
+          nombre: nombreLimpio,
+          correo: correoLimpio,
+          password: password
+        })
       }
     )
 
+    const datos = await respuesta.json()
 
-  const datos =
-    await respuesta.json()
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.mensaje || 'No fue posible crear la cuenta.'
+      )
+    }
 
+    // Guardar sesión automáticamente después del registro
+    if (datos.token) {
+      guardarSesion({
+        token: datos.token,
+        usuario: datos.usuario
+      })
+    }
 
-  if (!respuesta.ok) {
-
-    throw new Error(
-
-      datos.mensaje ||
-
-      'No fue posible crear la cuenta.'
-
-    )
+    return datos
 
   }
 
+  catch (err) {
 
-  return datos
+    if (err.message === 'Failed to fetch') {
+      throw new Error(
+        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+      )
+    }
+
+    throw err
+
+  }
 
 }
 
@@ -551,29 +155,19 @@ export const registrarUsuario = async ({
 
 export const obtenerSesion = () => {
 
-  const datos =
-    localStorage.getItem(CLAVE_SESION)
-
+  const datos = localStorage.getItem(CLAVE_SESION)
 
   if (!datos) {
-
     return null
-
   }
 
-
   try {
-
     return JSON.parse(datos)
-
   }
 
   catch {
-
     localStorage.removeItem(CLAVE_SESION)
-
     return null
-
   }
 
 }
@@ -585,9 +179,7 @@ export const obtenerSesion = () => {
 
 export const obtenerUsuario = () => {
 
-  const sesion =
-    obtenerSesion()
-
+  const sesion = obtenerSesion()
 
   return sesion?.usuario || null
 
@@ -600,9 +192,7 @@ export const obtenerUsuario = () => {
 
 export const obtenerToken = () => {
 
-  const sesion =
-    obtenerSesion()
-
+  const sesion = obtenerSesion()
 
   return sesion?.token || null
 
@@ -626,9 +216,7 @@ export const estaAutenticado = () => {
 
 export const tieneRol = (rol) => {
 
-  const usuario =
-    obtenerUsuario()
-
+  const usuario = obtenerUsuario()
 
   return usuario?.rol === rol
 
@@ -663,8 +251,6 @@ export const esCliente = () => {
 
 export const cerrarSesion = () => {
 
-  localStorage.removeItem(
-    CLAVE_SESION
-  )
+  localStorage.removeItem(CLAVE_SESION)
 
 }
