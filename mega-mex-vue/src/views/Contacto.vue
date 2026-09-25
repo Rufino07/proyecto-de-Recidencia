@@ -1,18 +1,28 @@
+<script setup>
+import { ref } from 'vue'
+
+const mensajeEnviado = ref(false)
+
+const enviarMensaje = () => {
+  mensajeEnviado.value = true
+}
+</script>
+
 <template>
   <section class="contacto-pagina">
 
     <div class="contenedor">
 
       <div class="titulo-seccion">
-        <span>CONTACTO</span>
+        <span class="contacto-etiqueta">ATENCIÓN MEGA-MEX</span>
 
         <h1>
-          Estamos para ayudarte
+          Hablemos de lo que necesitas
         </h1>
 
         <p>
-          Comunícate con Mega-Mex para solicitar información
-          sobre productos, promociones y disponibilidad.
+          Estamos listos para orientarte sobre productos, promociones
+          y disponibilidad en nuestra tienda.
         </p>
       </div>
 
@@ -22,12 +32,21 @@
         <!-- INFORMACIÓN -->
         <div class="contacto-info">
 
-          <h2>
-            Información de contacto
-          </h2>
+          <div class="contacto-info-encabezado">
+            <span class="contacto-indicador">Estamos aquí para ayudarte</span>
+
+            <h2>
+              Información de contacto
+            </h2>
+
+            <p class="contacto-intro">
+              Visítanos o escríbenos por Facebook. Nuestro equipo te ayudará
+              a encontrar lo que necesitas para tu hogar o negocio.
+            </p>
+          </div>
 
           <div class="dato-contacto">
-            <div class="dato-icono">📍</div>
+            <div class="dato-icono" aria-hidden="true">⌖</div>
 
             <div>
               <strong>Ubicación</strong>
@@ -40,39 +59,39 @@
 
 
           <div class="dato-contacto">
-            <div class="dato-icono"></div>
+            <div class="dato-icono" aria-hidden="true">↗</div>
 
             <div>
-              <strong>Teléfono</strong>
+              <strong>Atención en línea</strong>
 
               <p>
-                Agrega aquí el número de Mega-Mex
+                Resolvemos tus dudas y consultas a través de Facebook.
               </p>
             </div>
           </div>
 
 
           <div class="dato-contacto">
-            <div class="dato-icono">✉️</div>
+            <div class="dato-icono" aria-hidden="true">✉</div>
 
             <div>
-              <strong>Correo electrónico</strong>
+              <strong>Compra con confianza</strong>
 
               <p>
-                Agrega aquí el correo de la empresa
+                Pregunta por promociones, marcas y disponibilidad antes de visitarnos.
               </p>
             </div>
           </div>
 
 
           <div class="dato-contacto">
-            <div class="dato-icono">🕐</div>
+            <div class="dato-icono" aria-hidden="true">◷</div>
 
             <div>
-              <strong>Horario de atención</strong>
+              <strong>Servicio cercano</strong>
 
               <p>
-                Agrega aquí los horarios reales
+                Abarrotes por mayoreo y menudeo para la comunidad de Tlaxiaco.
               </p>
             </div>
           </div>
@@ -84,7 +103,8 @@
             rel="noopener noreferrer"
             class="boton boton-azul"
           >
-            Visitar Facebook
+            <span aria-hidden="true">f</span>
+            Visitar página de Facebook
           </a>
 
         </div>
@@ -93,17 +113,28 @@
         <!-- FORMULARIO -->
         <div class="formulario-contacto">
 
-          <h2>
-            Envíanos un mensaje
-          </h2>
+          <div class="formulario-encabezado">
+            <span class="contacto-indicador">Respuesta personalizada</span>
 
-          <form>
+            <h2>
+              Envíanos un mensaje
+            </h2>
+
+            <p>
+              Completa el formulario y cuéntanos cómo podemos ayudarte.
+            </p>
+          </div>
+
+          <form @submit.prevent="enviarMensaje">
 
             <label>
-              Nombre
+              Nombre completo
               <input
                 type="text"
+                name="nombre"
                 placeholder="Escribe tu nombre"
+                autocomplete="name"
+                required
               />
             </label>
 
@@ -112,7 +143,9 @@
               Teléfono
               <input
                 type="tel"
+                name="telefono"
                 placeholder="Tu número de teléfono"
+                autocomplete="tel"
               />
             </label>
 
@@ -121,7 +154,10 @@
               Correo
               <input
                 type="email"
+                name="correo"
                 placeholder="Tu correo electrónico"
+                autocomplete="email"
+                required
               />
             </label>
 
@@ -129,8 +165,10 @@
             <label>
               Mensaje
               <textarea
+                name="mensaje"
                 rows="5"
                 placeholder="¿En qué podemos ayudarte?"
+                required
               ></textarea>
             </label>
 
@@ -141,6 +179,14 @@
             >
               Enviar mensaje
             </button>
+
+            <p
+              v-if="mensajeEnviado"
+              class="mensaje-enviado"
+              role="status"
+            >
+              Gracias. Recibimos tu mensaje y pronto nos pondremos en contacto.
+            </p>
 
           </form>
 

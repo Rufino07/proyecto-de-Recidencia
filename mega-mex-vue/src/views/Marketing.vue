@@ -5,7 +5,12 @@
     <!-- ENCABEZADO -->
     <!-- ======================================= -->
     <div class="encabezado">
-      <div class="megafono">📣</div>
+      <div class="megafono">
+        <img
+          src="/MARKETING.png"
+          alt="Marketing Mega-Mex"
+        />
+      </div>
 
       <h1>Marketing Mega-Mex</h1>
 
@@ -327,22 +332,70 @@ const cerrarFlyer = () => {
 
 .marketing {
 
+  position: relative;
+
   min-height: 100vh;
 
-  padding: 60px 6%;
+  padding: 60px 6% 80px;
 
   background:
+    radial-gradient(
+      circle at top left,
+      rgba(255,255,255,0.22),
+      transparent 28%
+    ),
     linear-gradient(
       135deg,
-      #006bc5 0%,
-      #0785d8 50%,
-      #19a1eb 100%
+      #0a3c72,
+      #0b5da8 38%,
+      #0ea5e9 100%
     );
 
   font-family:
     Arial,
     Helvetica,
     sans-serif;
+
+}
+
+.marketing::before,
+.marketing::after {
+
+  content: "";
+
+  position: absolute;
+
+  border-radius: 50%;
+
+  filter: blur(18px);
+
+  opacity: 0.35;
+
+}
+
+.marketing::before {
+
+  width: 280px;
+  height: 280px;
+
+  top: 60px;
+  right: 8%;
+
+  background:
+    rgba(255, 194, 80, 0.42);
+
+}
+
+.marketing::after {
+
+  width: 220px;
+  height: 220px;
+
+  left: 9%;
+  bottom: 120px;
+
+  background:
+    rgba(255, 255, 255, 0.18);
 
 }
 
@@ -353,28 +406,50 @@ const cerrarFlyer = () => {
 
 .encabezado {
 
-  text-align:
-    center;
+  position: relative;
 
-  color:
-    white;
+  z-index: 1;
 
-  margin-bottom:
-    45px;
+  max-width: 900px;
+
+  margin: 0 auto 48px;
+
+  text-align: center;
+
+  color: white;
 
 }
 
 
 .megafono {
 
-  font-size:
-    65px;
+  margin-bottom: 18px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
 
   animation:
     moverMegafono
     2.5s
     infinite
     ease-in-out;
+
+}
+
+
+.megafono img {
+
+  width: 120px;
+  height: 120px;
+
+  object-fit:
+    contain;
+
+  filter:
+    drop-shadow(0 16px 28px rgba(10, 35, 66, 0.35));
 
 }
 
@@ -403,28 +478,28 @@ const cerrarFlyer = () => {
 
 .encabezado h1 {
 
-  margin:
-    12px 0;
+  margin: 0 0 12px;
 
-  font-size:
-    44px;
+  font-size: clamp(2.3rem, 4vw, 4rem);
+
+  line-height: 1.1;
+
+  letter-spacing: -0.04em;
 
 }
 
 
 .encabezado p {
 
-  max-width:
-    700px;
+  max-width: 720px;
 
-  margin:
-    auto;
+  margin: auto;
 
-  font-size:
-    17px;
+  font-size: 1.05rem;
 
-  line-height:
-    1.6;
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.85);
 
 }
 
@@ -435,20 +510,19 @@ const cerrarFlyer = () => {
 
 .menu-marketing {
 
-  max-width:
-    1050px;
+  position: relative;
 
-  margin:
-    0 auto 50px;
+  z-index: 1;
 
-  display:
-    grid;
+  max-width: 1100px;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  margin: 0 auto 52px;
 
-  gap:
-    25px;
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 22px;
 
 }
 
@@ -456,120 +530,106 @@ const cerrarFlyer = () => {
 .tarjeta-menu {
 
   background:
-    white;
+    rgba(255, 255, 255, 0.94);
 
-  padding:
-    25px;
+  padding: 22px 24px;
 
-  border-radius:
-    22px;
+  border-radius: 22px;
 
-  display:
-    flex;
+  display: flex;
 
-  align-items:
-    center;
+  align-items: center;
 
-  gap:
-    18px;
+  gap: 18px;
 
-  color:
-    inherit;
+  color: inherit;
 
-  text-decoration:
-    none;
+  text-decoration: none;
 
-  cursor:
-    pointer;
+  cursor: pointer;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
 
   box-shadow:
-    0 12px 30px
-    rgba(0, 0, 0, 0.15);
+    0 14px 30px rgba(5, 37, 70, 0.14);
 
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
 
 }
 
 
 .tarjeta-menu:hover {
 
-  transform:
-    translateY(-8px);
+  transform: translateY(-6px);
 
   box-shadow:
-    0 20px 40px
-    rgba(0, 0, 0, 0.22);
+    0 24px 42px rgba(5, 37, 70, 0.18);
+
+  border-color: rgba(10, 105, 185, 0.18);
 
 }
 
 
 .tarjeta-menu.activa {
 
-  outline:
-    3px solid
-    rgba(255, 255, 255, 0.40);
+  background:
+    linear-gradient(135deg, #ffffff, #edf7ff);
+
+  box-shadow:
+    0 18px 36px rgba(10, 105, 185, 0.18);
 
 }
 
 
 .icono-menu {
 
-  width:
-    65px;
+  width: 68px;
+  height: 68px;
 
-  height:
-    65px;
+  min-width: 68px;
 
-  min-width:
-    65px;
+  display: flex;
 
-  display:
-    flex;
+  justify-content: center;
 
-  justify-content:
-    center;
+  align-items: center;
 
-  align-items:
-    center;
+  border-radius: 18px;
 
-  border-radius:
-    18px;
+  background: linear-gradient(135deg, #eaf6ff, #dfeeff);
 
-  background:
-    #edf7ff;
+  font-size: 32px;
 
-  font-size:
-    34px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
 
 }
 
 
 .texto-menu h3 {
 
-  margin:
-    0;
+  margin: 0;
 
-  color:
-    #252b38;
+  color: #14253d;
 
-  font-size:
-    20px;
+  font-size: 1.2rem;
+
+  letter-spacing: -0.02em;
 
 }
 
 
 .texto-menu p {
 
-  margin:
-    6px 0 0;
+  margin: 6px 0 0;
 
-  color:
-    #7b8490;
+  color: #64748b;
 
-  font-size:
-    13px;
+  font-size: 0.83rem;
+
+  line-height: 1.5;
 
 }
 
@@ -580,27 +640,26 @@ const cerrarFlyer = () => {
 
 .contenedor {
 
-  max-width:
-    1250px;
+  position: relative;
 
-  margin:
-    auto;
+  z-index: 1;
 
-  padding:
-    50px;
+  max-width: 1250px;
 
-  background:
-    #f8fafc;
+  margin: auto;
 
-  border-radius:
-    30px;
+  padding: 52px 40px 40px;
 
-  box-sizing:
-    border-box;
+  background: rgba(248, 250, 252, 0.98);
+
+  border: 1px solid rgba(148, 163, 184, 0.18);
+
+  border-radius: 30px;
+
+  box-sizing: border-box;
 
   box-shadow:
-    0 25px 60px
-    rgba(0, 0, 0, 0.20);
+    0 28px 55px rgba(2, 26, 48, 0.18);
 
 }
 
@@ -622,57 +681,47 @@ const cerrarFlyer = () => {
 
 .etiqueta {
 
-  display:
-    inline-block;
+  display: inline-block;
 
-  padding:
-    9px 20px;
+  padding: 9px 18px;
 
-  border-radius:
-    30px;
+  border-radius: 999px;
 
-  background:
-    #006bc5;
+  background: linear-gradient(135deg, #0e6fc9, #1c8fe7);
 
-  color:
-    white;
+  color: white;
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    bold;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
 
 }
 
 
 .titulo-seccion h2 {
 
-  margin:
-    18px 0 10px;
+  margin: 18px 0 10px;
 
-  color:
-    #17202a;
+  color: #102236;
 
-  font-size:
-    38px;
+  font-size: clamp(2rem, 3vw, 2.8rem);
 
 }
 
 
 .titulo-seccion p {
 
-  max-width:
-    650px;
+  max-width: 650px;
 
-  margin:
-    auto;
+  margin: auto;
 
-  color:
-    #667085;
+  color: #64748b;
 
-  line-height:
-    1.6;
+  line-height: 1.7;
 
 }
 
@@ -701,34 +750,33 @@ const cerrarFlyer = () => {
 
 .tarjeta-flyer {
 
-  overflow:
-    hidden;
+  overflow: hidden;
 
-  background:
-    white;
+  background: white;
 
-  border-radius:
-    22px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+
+  border-radius: 24px;
 
   box-shadow:
-    0 8px 25px
-    rgba(0, 0, 0, 0.08);
+    0 10px 30px rgba(15, 23, 42, 0.08);
 
   transition:
     transform 0.35s ease,
-    box-shadow 0.35s ease;
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 
 }
 
 
 .tarjeta-flyer:hover {
 
-  transform:
-    translateY(-9px);
+  transform: translateY(-9px);
 
   box-shadow:
-    0 20px 40px
-    rgba(0, 0, 0, 0.16);
+    0 20px 42px rgba(15, 23, 42, 0.15);
+
+  border-color: rgba(14, 111, 201, 0.15);
 
 }
 
@@ -879,65 +927,56 @@ const cerrarFlyer = () => {
 
 .informacion-flyer {
 
-  padding:
-    22px;
+  padding: 22px 22px 20px;
 
 }
 
 
 .producto {
 
-  display:
-    inline-block;
+  display: inline-block;
 
-  padding:
-    6px 12px;
+  padding: 6px 12px;
 
-  border-radius:
-    20px;
+  border-radius: 999px;
 
-  background:
-    #eaf5ff;
+  background: #eaf5ff;
 
-  color:
-    #006bc5;
+  color: #0a6dc0;
 
-  font-size:
-    11px;
+  font-size: 11px;
 
-  font-weight:
-    bold;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
 
 }
 
 
 .informacion-flyer h3 {
 
-  margin:
-    14px 0 8px;
+  margin: 14px 0 8px;
 
-  color:
-    #202938;
+  color: #14253d;
 
-  font-size:
-    19px;
+  font-size: 1.2rem;
+
+  letter-spacing: -0.02em;
 
 }
 
 
 .informacion-flyer p {
 
-  margin:
-    0;
+  margin: 0;
 
-  color:
-    #6b7280;
+  color: #6b7280;
 
-  line-height:
-    1.5;
+  line-height: 1.6;
 
-  font-size:
-    14px;
+  font-size: 0.92rem;
 
 }
 
@@ -948,49 +987,38 @@ const cerrarFlyer = () => {
 
 .btn-ver {
 
-  width:
-    100%;
+  width: 100%;
 
-  margin-top:
-    18px;
+  margin-top: 18px;
 
-  border:
-    none;
+  border: none;
 
-  padding:
-    11px;
+  padding: 12px 14px;
 
-  border-radius:
-    12px;
+  border-radius: 12px;
 
-  background:
-    #eaf5ff;
+  background: linear-gradient(135deg, #edf7ff, #dfeeff);
 
-  color:
-    #006bc5;
+  color: #0a6dc0;
 
-  cursor:
-    pointer;
+  cursor: pointer;
 
-  font-weight:
-    bold;
+  font-weight: 700;
 
-  transition:
-    0.25s;
+  transition: 0.25s ease;
 
 }
 
 
 .btn-ver:hover {
 
-  background:
-    #006bc5;
+  background: linear-gradient(135deg, #0d6ec6, #1a8fe7);
 
-  color:
-    white;
+  color: white;
 
-  transform:
-    translateY(-2px);
+  transform: translateY(-2px);
+
+  box-shadow: 0 14px 26px rgba(10, 109, 192, 0.18);
 
 }
 
