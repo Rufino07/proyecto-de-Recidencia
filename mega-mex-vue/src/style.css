@@ -1422,8 +1422,53 @@ nav a.router-link-active {
 ================================ */
 
 .contacto-pagina {
-  padding: 90px 0;
-  background: var(--blanco-azulado);
+  position: relative;
+  overflow: hidden;
+  padding: 94px 0 110px;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(49,156,244,.16), transparent 27%),
+    linear-gradient(145deg, #f0fbff 0%, #ffffff 58%, #fff8ed 100%);
+}
+
+
+.contacto-pagina::after {
+  content: '';
+  position: absolute;
+  right: -110px;
+  bottom: -150px;
+  width: 360px;
+  height: 360px;
+  border: 42px solid rgba(224,43,82,.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+
+.contacto-pagina .contenedor {
+  position: relative;
+  z-index: 1;
+}
+
+
+.contacto-etiqueta,
+.contacto-indicador {
+  color: var(--rojo-mega);
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1.8px;
+}
+
+
+.contacto-pagina .titulo-seccion h1 {
+  max-width: 700px;
+  margin-top: 15px;
+  color: #12375b;
+}
+
+
+.contacto-pagina .titulo-seccion p {
+  max-width: 620px;
+  line-height: 1.7;
 }
 
 
@@ -1433,9 +1478,9 @@ nav a.router-link-active {
   grid-template-columns:
     1fr 1fr;
 
-  gap: 35px;
+  gap: 28px;
 
-  margin-top: 45px;
+  margin-top: 48px;
 }
 
 
@@ -1443,13 +1488,27 @@ nav a.router-link-active {
 .formulario-contacto {
   background: white;
 
-  padding: 35px;
+  padding: 40px;
 
-  border-radius: 22px;
+  border: 1px solid rgba(0,107,197,.09);
+  border-radius: 18px;
 
   box-shadow:
-    0 15px 40px
-    rgba(0,107,197,.1);
+    0 22px 55px
+    rgba(15,72,110,.12);
+}
+
+
+.contacto-info {
+  background:
+    linear-gradient(145deg, #ffffff, #f5fbff);
+}
+
+
+.contacto-info-encabezado {
+  padding-bottom: 24px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid #e3eef5;
 }
 
 
@@ -1457,7 +1516,15 @@ nav a.router-link-active {
 .formulario-contacto h2 {
   color: var(--azul-mega);
 
-  margin-bottom: 28px;
+  margin: 8px 0 12px;
+  font-size: 26px;
+}
+
+
+.contacto-intro,
+.formulario-encabezado p {
+  color: var(--texto-gris);
+  line-height: 1.65;
 }
 
 
@@ -1466,7 +1533,7 @@ nav a.router-link-active {
 
   gap: 16px;
 
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 
@@ -1484,9 +1551,12 @@ nav a.router-link-active {
   background:
     var(--blanco-azulado);
 
-  border-radius: 13px;
+  border: 1px solid rgba(49,156,244,.16);
+  border-radius: 12px;
 
-  font-size: 23px;
+  color: var(--azul-mega);
+  font-size: 25px;
+  font-weight: bold;
 }
 
 
@@ -1503,6 +1573,30 @@ nav a.router-link-active {
   color: var(--texto-gris);
 
   line-height: 1.5;
+}
+
+
+.contacto-info .boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+
+.contacto-info .boton span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  font-size: 15px;
+}
+
+
+.formulario-encabezado {
+  margin-bottom: 28px;
 }
 
 
@@ -1533,11 +1627,14 @@ nav a.router-link-active {
   border:
     1px solid #dbe4ec;
 
-  border-radius: 10px;
+  border-radius: 8px;
 
   outline: none;
 
   font-size: 15px;
+  color: var(--texto);
+  background: #fbfdff;
+  transition: border-color .2s, box-shadow .2s, background .2s;
 }
 
 
@@ -1554,6 +1651,364 @@ nav a.router-link-active {
 
 .formulario-contacto textarea {
   resize: vertical;
+  min-height: 132px;
+}
+
+
+.formulario-contacto input:hover,
+.formulario-contacto textarea:hover {
+  background: white;
+}
+
+
+.formulario-contacto .boton {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+
+.mensaje-enviado {
+  padding: 12px 14px;
+  border-left: 3px solid #2f9e68;
+  color: #17613b;
+  background: #effaf3;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   NOSOTROS / FOLLETO EMPRESARIAL
+========================================================= */
+
+.empresa-pagina {
+  overflow: hidden;
+  background: #f7fbfd;
+}
+
+.empresa-portada {
+  padding: 86px 0 105px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(49,156,244,.2), transparent 29%),
+    linear-gradient(135deg, #eefaff 0%, #ffffff 62%, #fff7ea 100%);
+}
+
+.empresa-portada-grid {
+  display: grid;
+  grid-template-columns: 1.28fr .72fr;
+  align-items: center;
+  gap: 52px;
+}
+
+.empresa-portada-contenido {
+  padding-left: 24px;
+  border-left: 5px solid var(--rojo-mega);
+}
+
+.empresa-etiqueta,
+.empresa-ficha-etiqueta {
+  color: var(--rojo-mega);
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.empresa-portada h1 {
+  max-width: 650px;
+  margin: 18px 0;
+  color: #12375b;
+  font-size: clamp(38px, 4.6vw, 60px);
+  line-height: 1.04;
+}
+
+.empresa-portada p {
+  max-width: 485px;
+  color: var(--texto-gris);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.empresa-acento {
+  display: flex;
+  gap: 7px;
+  margin-top: 28px;
+}
+
+.empresa-acento span {
+  width: 38px;
+  height: 5px;
+  border-radius: 5px;
+}
+
+.empresa-acento span:nth-child(1) { background: var(--azul-mega); }
+.empresa-acento span:nth-child(2) { background: var(--rojo-mega); }
+.empresa-acento span:nth-child(3) { background: var(--amarillo-mega); }
+
+.empresa-foto-principal {
+  position: relative;
+  min-height: 290px;
+  margin: 0;
+  overflow: hidden;
+  border: 12px solid white;
+  border-radius: 4px 34px 4px 34px;
+  background: #dbeefa;
+  box-shadow: 0 25px 55px rgba(15,72,110,.2);
+  transform: rotate(1.5deg);
+}
+
+.empresa-foto-principal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 52%, rgba(0,44,82,.64));
+}
+
+.empresa-foto-principal img {
+  width: 100%;
+  height: 100%;
+  min-height: 290px;
+  object-fit: cover;
+}
+
+.empresa-foto-principal figcaption {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
+  color: white;
+  max-width: 190px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.empresa-folleto {
+  display: grid;
+  grid-template-columns: .92fr 1.08fr;
+  gap: 72px;
+  padding-top: 88px;
+  padding-bottom: 92px;
+}
+
+.empresa-ficha {
+  position: relative;
+  padding: 38px 40px;
+  border-top: 4px solid var(--azul-mega);
+  background: white;
+  box-shadow: 0 18px 45px rgba(15,72,110,.09);
+}
+
+.empresa-ficha-numero {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  color: #e4f2fb;
+  font-size: 56px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.empresa-ficha h2 {
+  max-width: 420px;
+  margin: 18px 0 16px;
+  color: #12375b;
+  font-size: 31px;
+  line-height: 1.15;
+}
+
+.empresa-ficha p,
+.empresa-bloque p {
+  color: var(--texto-gris);
+  line-height: 1.7;
+}
+
+.empresa-ficha-detalle {
+  margin-top: 14px;
+}
+
+.empresa-datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid #e2edf3;
+}
+
+.empresa-datos div {
+  display: grid;
+  gap: 5px;
+}
+
+.empresa-datos strong {
+  color: var(--azul-mega);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.empresa-datos span {
+  color: #12375b;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.empresa-contenido {
+  display: grid;
+  gap: 32px;
+  align-content: center;
+}
+
+.empresa-bloque {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 17px;
+}
+
+.empresa-bloque-numero {
+  color: var(--rojo-mega);
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.empresa-bloque h3 {
+  margin-bottom: 7px;
+  color: #12375b;
+  font-size: 23px;
+}
+
+.empresa-valores {
+  padding-top: 25px;
+  border-top: 1px solid #dbe9f1;
+}
+
+.empresa-valores h3 {
+  margin: 10px 0 18px;
+  color: #12375b;
+  font-size: 23px;
+}
+
+.empresa-valores-lista {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.empresa-valores-lista article {
+  padding: 16px;
+  border: 1px solid #d7eaf4;
+  border-radius: 10px;
+  background: #f6fbfe;
+}
+
+.empresa-valores-lista strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--azul-oscuro);
+  font-size: 15px;
+}
+
+.empresa-valores-lista p {
+  color: var(--texto-gris);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.empresa-cierre {
+  background: #003b73;
+}
+
+.empresa-cierre-contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding-top: 38px;
+  padding-bottom: 38px;
+}
+
+.empresa-cierre p {
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.empresa-cierre .boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 850px) {
+  .empresa-portada {
+    padding: 65px 0 80px;
+  }
+
+  .empresa-portada-grid,
+  .empresa-folleto {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .empresa-portada-contenido {
+    padding-left: 18px;
+  }
+
+  .empresa-foto-principal,
+  .empresa-foto-principal img {
+    min-height: 250px;
+  }
+
+  .empresa-folleto {
+    padding-top: 65px;
+    padding-bottom: 70px;
+  }
+}
+
+@media (max-width: 520px) {
+  .empresa-portada h1 {
+    font-size: 39px;
+  }
+
+  .empresa-foto-principal {
+    min-height: 210px;
+    border-width: 8px;
+    border-radius: 3px 28px 3px 28px;
+  }
+
+  .empresa-foto-principal img {
+    min-height: 210px;
+  }
+
+  .empresa-ficha {
+    padding: 30px 23px;
+  }
+
+  .empresa-ficha h2 {
+    font-size: 27px;
+  }
+
+  .empresa-datos {
+    grid-template-columns: 1fr;
+  }
+
+  .empresa-valores-lista {
+    grid-template-columns: 1fr;
+  }
+
+  .empresa-cierre-contenido {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .empresa-cierre p {
+    font-size: 19px;
+  }
 }
 
 
