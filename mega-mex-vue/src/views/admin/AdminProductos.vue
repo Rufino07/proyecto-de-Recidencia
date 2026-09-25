@@ -14,7 +14,7 @@
         </span>
 
         <h2>
-          Administración de Productos
+          🛒 Administración de Productos
         </h2>
 
         <p>
@@ -28,11 +28,20 @@
         class="btn-agregar"
         @click="abrirNuevoProducto"
       >
-        <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <span>+ Agregar producto</span>
+
+        <svg
+          class="icono-btn"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        <span>Agregar producto</span>
       </button>
 
     </div>
@@ -48,7 +57,16 @@
     >
 
       <div class="icono-vacio">
-        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          width="64"
+          height="64"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="m7.5 4.27 9 5.15" />
           <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
           <path d="m3.3 7 8.7 5 8.7-5" />
@@ -68,11 +86,20 @@
         class="btn-primer-producto"
         @click="abrirNuevoProducto"
       >
-        <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <span>+ Agregar primer producto</span>
+
+        <svg
+          class="icono-btn"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        <span>Agregar primer producto</span>
       </button>
 
     </div>
@@ -125,7 +152,16 @@
               v-else
               class="sin-imagen"
             >
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                width="48"
+                height="48"
+                fill="none"
+                stroke="#94a3b8"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="m7.5 4.27 9 5.15" />
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
                 <path d="m3.3 7 8.7 5 8.7-5" />
@@ -166,11 +202,20 @@
                 class="btn-editar"
                 @click="editarProducto(producto)"
               >
-                <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <span>✏️ Editar</span>
+
+                <svg
+                  class="icono-btn"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                   <path d="m15 5 4 4" />
                 </svg>
-                <span>Editar</span>
               </button>
 
 
@@ -178,13 +223,22 @@
                 class="btn-eliminar"
                 @click="eliminarProducto(producto.id)"
               >
-                <svg class="icono-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <span>🗑️ Eliminar</span>
+
+                <svg
+                  class="icono-btn"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   <line x1="10" y1="11" x2="10" y2="17" />
                   <line x1="14" y1="11" x2="14" y2="17" />
                 </svg>
-                <span>Eliminar</span>
               </button>
 
             </div>
@@ -231,7 +285,16 @@
             class="btn-cerrar-modal"
             @click="cerrarModal"
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -339,10 +402,21 @@
               >
 
                 <span class="icono-subir">
-                  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="30"
+                    height="30"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                     <circle cx="12" cy="13" r="4" />
                   </svg>
+
                 </span>
 
                 <strong>
@@ -457,11 +531,23 @@
         v-if="mensaje"
         class="mensaje"
       >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
+
         <span>{{ mensaje }}</span>
+
       </div>
 
     </transition>
@@ -935,15 +1021,21 @@ const mostrarMensaje = (texto) => {
 
 
 /* ========================================== */
-/* AGREGAR */
+/* BOTÓN AGREGAR */
 /* ========================================== */
 
 .icono-btn {
+
   width: 16px;
+
   height: 16px;
+
   display: block;
+
   flex-shrink: 0;
+
 }
+
 
 .btn-agregar,
 .btn-primer-producto {
@@ -1035,7 +1127,7 @@ const mostrarMensaje = (texto) => {
 
   background: #e9f9f0;
 
-  font-size: 50px;
+  color: #006bc5;
 
 }
 
@@ -1193,7 +1285,11 @@ const mostrarMensaje = (texto) => {
 
 .sin-imagen {
 
-  font-size: 65px;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
 
 }
 
@@ -1471,6 +1567,19 @@ const mostrarMensaje = (texto) => {
 
   font-size: 18px;
 
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+
+.btn-cerrar-modal:hover {
+
+  background: #e6e9ed;
+
 }
 
 
@@ -1528,6 +1637,8 @@ const mostrarMensaje = (texto) => {
   font-family: inherit;
 
   font-size: 14px;
+
+  box-sizing: border-box;
 
 }
 
@@ -1600,7 +1711,7 @@ const mostrarMensaje = (texto) => {
 
 .icono-subir {
 
-  font-size: 35px;
+  color: #006bc5;
 
 }
 
@@ -1716,6 +1827,8 @@ const mostrarMensaje = (texto) => {
 
   height: 25px;
 
+  flex-shrink: 0;
+
 }
 
 
@@ -1823,6 +1936,13 @@ const mostrarMensaje = (texto) => {
   background: #edf0f3;
 
   color: #555e69;
+
+}
+
+
+.btn-cancelar:hover {
+
+  background: #dfe3e7;
 
 }
 

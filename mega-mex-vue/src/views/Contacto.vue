@@ -40,7 +40,7 @@
 
 
           <div class="dato-contacto">
-            <div class="dato-icono">📞</div>
+            <div class="dato-icono"></div>
 
             <div>
               <strong>Teléfono</strong>
