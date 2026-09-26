@@ -1,9 +1,26 @@
 <script setup>
 import { ref, reactive } from 'vue'
 
-const mensajeEnviado = ref(false)
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
 
-// Objeto reactivo para almacenar los datos del formulario
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// ESTADO
+// ============================================
+
+const enviando = ref(false)
+const mensajeEnviado = ref(false)
+const error = ref('')
+
+
+// ============================================
+// FORMULARIO
+// ============================================
+
 const formulario = reactive({
   nombre: '',
   telefono: '',
@@ -11,25 +28,86 @@ const formulario = reactive({
   mensaje: ''
 })
 
-const enviarMensaje = () => {
-  // Aquí puedes agregar la lógica para enviar los datos a un backend (API, Firebase, etc.)
-  console.log('Enviando mensaje:', formulario)
-  
-  // Mostrar mensaje de éxito
-  mensajeEnviado.value = true
-  
-  // Limpiar el formulario
-  formulario.nombre = ''
-  formulario.telefono = ''
-  formulario.correo = ''
-  formulario.mensaje = ''
 
-  // Ocultar el mensaje de éxito después de 5 segundos
-  setTimeout(() => {
-    mensajeEnviado.value = false
-  }, 5000)
+// ============================================
+// ENVIAR MENSAJE
+// ============================================
+
+const enviarMensaje = async () => {
+
+  error.value = ''
+  mensajeEnviado.value = false
+
+  // Validaciones básicas
+  if (
+    !formulario.nombre.trim() ||
+    !formulario.correo.trim() ||
+    !formulario.mensaje.trim()
+  ) {
+    error.value = 'Completa los campos obligatorios.'
+    return
+  }
+
+  enviando.value = true
+
+  try {
+
+    const respuesta = await fetch(`${API_URL}/contacto`, {
+
+      method: 'POST',
+
+      headers: {
+        'Content-Type': 'application/json'
+      },
+
+      body: JSON.stringify({
+        nombre: formulario.nombre.trim(),
+        telefono: formulario.telefono.trim(),
+        correo: formulario.correo.trim(),
+        mensaje: formulario.mensaje.trim()
+      })
+
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al enviar el mensaje')
+    }
+
+    // Éxito
+    mensajeEnviado.value = true
+
+    // Limpiar formulario
+    formulario.nombre = ''
+    formulario.telefono = ''
+    formulario.correo = ''
+    formulario.mensaje = ''
+
+    // Ocultar mensaje de éxito después de 5 segundos
+    setTimeout(() => {
+      mensajeEnviado.value = false
+    }, 5000)
+
+  }
+
+  catch (err) {
+
+    console.error('Error enviando mensaje:', err)
+
+    error.value = err.message || 'No se pudo enviar el mensaje. Intenta de nuevo.'
+
+  }
+
+  finally {
+
+    enviando.value = false
+
+  }
+
 }
 </script>
+
 
 <template>
   <section class="contacto-pagina">
@@ -158,6 +236,7 @@ const enviarMensaje = () => {
                 name="nombre"
                 placeholder="Escribe tu nombre"
                 autocomplete="name"
+                :disabled="enviando"
                 required
               />
             </label>
@@ -171,6 +250,7 @@ const enviarMensaje = () => {
                 name="telefono"
                 placeholder="Tu número de teléfono"
                 autocomplete="tel"
+                :disabled="enviando"
               />
             </label>
 
@@ -183,6 +263,7 @@ const enviarMensaje = () => {
                 name="correo"
                 placeholder="Tu correo electrónico"
                 autocomplete="email"
+                :disabled="enviando"
                 required
               />
             </label>
@@ -195,6 +276,7 @@ const enviarMensaje = () => {
                 name="mensaje"
                 rows="5"
                 placeholder="¿En qué podemos ayudarte?"
+                :disabled="enviando"
                 required
               ></textarea>
             </label>
@@ -203,8 +285,9 @@ const enviarMensaje = () => {
             <button
               type="submit"
               class="boton boton-azul"
+              :disabled="enviando"
             >
-              Enviar mensaje
+              {{ enviando ? 'Enviando...' : 'Enviar mensaje' }}
             </button>
 
             <p
@@ -212,7 +295,15 @@ const enviarMensaje = () => {
               class="mensaje-enviado"
               role="status"
             >
-              Gracias. Recibimos tu mensaje y pronto nos pondremos en contacto.
+              ✅ Gracias. Recibimos tu mensaje y pronto nos pondremos en contacto.
+            </p>
+
+            <p
+              v-if="error"
+              class="mensaje-error"
+              role="alert"
+            >
+              ⚠️ {{ error }}
             </p>
 
           </form>
@@ -225,6 +316,7 @@ const enviarMensaje = () => {
 
   </section>
 </template>
+
 
 <style scoped>
 /* Variables de color para mantener consistencia */
@@ -369,10 +461,15 @@ const enviarMensaje = () => {
   color: #ffffff;
 }
 
-.boton-azul:hover {
+.boton-azul:hover:not(:disabled) {
   background-color: var(--azul-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
+}
+
+.boton-azul:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Sección del Formulario */
@@ -416,6 +513,12 @@ const enviarMensaje = () => {
   box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1);
 }
 
+.formulario-contacto input:disabled,
+.formulario-contacto textarea:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+}
+
 .formulario-contacto button {
   margin-top: 0.5rem;
   width: 100%;
@@ -430,6 +533,17 @@ const enviarMensaje = () => {
   font-weight: 500;
   margin-top: 1rem;
   border: 1px solid #bcf0da;
+}
+
+.mensaje-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  margin-top: 1rem;
+  border: 1px solid #fecaca;
 }
 
 /* Responsive */

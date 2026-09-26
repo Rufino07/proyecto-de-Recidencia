@@ -89,10 +89,10 @@
 
         <!-- VOLANTES -->
         <RouterLink
-          to="/admin/flyers"l
+          to="/admin/flyers"
           class="admin-menu-item"
           active-class="activo"
-          @click="cerrarMenu" g
+          @click="cerrarMenu" 
         >
           <span class="admin-item-icono">
             <svg class="admin-icono-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -173,6 +173,23 @@
           </span>
           <span class="admin-item-nombre">Redes</span>
         </RouterLink>
+
+        <!-- MENSAJES -->
+        <RouterLink
+          to="/admin/contacto"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
+        >
+          <span class="admin-item-icono">
+            <svg class="admin-icono-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </span>
+          <span class="admin-item-nombre">Mensajes</span>
+        </RouterLink>
+
       </nav>
 
       <!-- =================================== -->
@@ -446,6 +463,39 @@
               <h3>Redes sociales</h3>
               <p>
                 Administra los enlaces de las redes sociales.
+              </p>
+            </div>
+
+            <div class="admin-tarjeta-action">
+              <span class="admin-tarjeta-accion-texto">Gestionar</span>
+              <div class="admin-flecha">
+                <svg class="admin-flecha-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
+            </div>
+          </article>
+
+          <!-- MENSAJES -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/contacto')"
+          >
+            <div class="admin-tarjeta-top">
+              <div class="admin-tarjeta-icono morado">
+                <svg class="admin-tarjeta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </div>
+              <span class="admin-estado estado-morado">Comunicación</span>
+            </div>
+
+            <div class="admin-tarjeta-info">
+              <h3>Mensajes</h3>
+              <p>
+                Revisa los mensajes enviados por los clientes desde el formulario de contacto.
               </p>
             </div>
 
