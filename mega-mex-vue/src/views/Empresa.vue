@@ -23,10 +23,10 @@
 
         <figure class="empresa-foto-principal">
           <img
-            src="/Tienda_mega33.png"
-            alt="Tienda Mega-Mex"
+            :src="heroImage"
+            alt="Fotografía de Mega-Mex"
           />
-          <figcaption>Tienda Mega-Mex</figcaption>
+          <figcaption>Agrega aquí una foto de la empresa</figcaption>
         </figure>
       </div>
     </section>
@@ -217,6 +217,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import heroImage from '../assets/hero.png'
 
 
 // ============================================

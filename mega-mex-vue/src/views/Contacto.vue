@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 // ============================================
 // CONFIGURACIÓN API
@@ -160,7 +160,7 @@ const enviarMensaje = async () => {
 
 
           <div class="dato-contacto">
-            <div class="dato-icono">📞</div>
+            <div class="dato-icono" aria-hidden="true">↗</div>
 
             <div>
               <strong>Atención en línea</strong>
