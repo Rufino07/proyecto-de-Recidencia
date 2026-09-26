@@ -20,16 +20,34 @@
 
       <button
         class="btn-guardar"
+        :disabled="cargando || cargandoLista"
         @click="guardarRedes"
       >
-        💾 Guardar cambios
+        {{
+          cargando
+            ? '⏳ Guardando...'
+            : '💾 Guardar cambios'
+        }}
       </button>
 
     </div>
 
 
+    <!-- CARGANDO -->
+    <div
+      v-if="cargandoLista"
+      class="cargando"
+    >
+      <div class="cargando-icono">⏳</div>
+      <p>Cargando configuración actual...</p>
+    </div>
+
+
     <!-- FORMULARIO -->
-    <div class="contenedor">
+    <div
+      v-else
+      class="contenedor"
+    >
 
       <!-- FACEBOOK -->
       <div class="red-card">
@@ -86,34 +104,6 @@
 
       </div>
 
-
-      <!-- WHATSAPP -->
-      <div class="red-card">
-
-        <div class="red-icon whatsapp">
-          ☎
-        </div>
-
-        <div class="red-datos">
-
-          <label>
-            WhatsApp
-          </label>
-
-          <p>
-            Número de contacto con código de país.
-          </p>
-
-          <input
-            v-model="redes.whatsapp"
-            type="text"
-            placeholder="Ejemplo: 529531234567"
-          >
-
-        </div>
-
-      </div>
-
     </div>
 
 
@@ -135,73 +125,149 @@
 
 <script setup>
 
-import {
-  ref,
-  onMounted
-} from 'vue'
+import { ref, onMounted } from 'vue'
+import { obtenerToken } from '../../utils/auth'
 
+
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// VARIABLES
+// ============================================
 
 const mensaje = ref('')
 
+const cargando = ref(false)
+
+const cargandoLista = ref(false)
+
 
 const redes = ref({
-
   facebook: '',
-
-  instagram: '',
-
-  whatsapp: ''
-
+  instagram: ''
 })
 
 
 // ============================================
-// CARGAR DATOS GUARDADOS
+// CARGAR REDES DEL BACKEND
 // ============================================
 
-onMounted(() => {
+const cargarRedes = async () => {
 
-  const datosGuardados =
-    localStorage.getItem('megaMexRedes')
+  cargandoLista.value = true
 
+  try {
 
-  if (datosGuardados) {
+    const respuesta = await fetch(`${API_URL}/redes`)
 
-    try {
+    const datos = await respuesta.json()
 
-      redes.value =
-        JSON.parse(datosGuardados)
-
-    } catch {
+    if (datos.ok && datos.redes) {
 
       redes.value = {
-        facebook: '',
-        instagram: '',
-        whatsapp: ''
+        facebook: datos.redes.facebook || '',
+        instagram: datos.redes.instagram || ''
       }
 
     }
 
   }
 
+  catch (err) {
+
+    console.error('Error cargando redes:', err)
+
+    mostrarMensaje('No se pudo conectar con el servidor.')
+
+  }
+
+  finally {
+
+    cargandoLista.value = false
+
+  }
+
+}
+
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+
+  cargarRedes()
+
 })
 
 
 // ============================================
-// GUARDAR
+// GUARDAR REDES
 // ============================================
 
-const guardarRedes = () => {
+const guardarRedes = async () => {
 
-  localStorage.setItem(
-    'megaMexRedes',
-    JSON.stringify(redes.value)
-  )
+  cargando.value = true
+
+  try {
+
+    const token = obtenerToken()
+
+    const respuesta = await fetch(`${API_URL}/redes`, {
+
+      method: 'PUT',
+
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+
+      body: JSON.stringify({
+        facebook: redes.value.facebook.trim(),
+        instagram: redes.value.instagram.trim()
+      })
+
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al guardar')
+    }
+
+    mostrarMensaje('Redes sociales actualizadas correctamente.')
+
+  }
+
+  catch (err) {
+
+    console.error('Error guardando redes:', err)
+
+    mostrarMensaje(err.message || 'Error al guardar')
+
+  }
+
+  finally {
+
+    cargando.value = false
+
+  }
+
+}
 
 
-  mensaje.value =
-    'Redes sociales actualizadas correctamente.'
+// ============================================
+// MENSAJE
+// ============================================
 
+const mostrarMensaje = (texto) => {
+
+  mensaje.value = texto
 
   setTimeout(() => {
 
@@ -300,11 +366,69 @@ const guardarRedes = () => {
 }
 
 
-.btn-guardar:hover {
+.btn-guardar:hover:not(:disabled) {
 
   background: #00549c;
 
   transform: translateY(-2px);
+
+}
+
+
+.btn-guardar:disabled {
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+}
+
+
+/* CARGANDO */
+
+.cargando {
+
+  margin-top: 22px;
+
+  min-height: 300px;
+
+  padding: 40px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  text-align: center;
+
+  background: white;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 25px
+    rgba(0, 0, 0, 0.05);
+
+}
+
+
+.cargando-icono {
+
+  font-size: 60px;
+
+  margin-bottom: 15px;
+
+}
+
+
+.cargando p {
+
+  margin: 0;
+
+  color: #7c8490;
 
 }
 
@@ -410,13 +534,6 @@ const guardarRedes = () => {
       #e1306c,
       #f77737
     );
-
-}
-
-
-.whatsapp {
-
-  background: #25d366;
 
 }
 

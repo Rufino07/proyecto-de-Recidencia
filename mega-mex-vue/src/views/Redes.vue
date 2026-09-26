@@ -117,7 +117,8 @@
 
             <!-- FACEBOOK -->
             <a
-              href="https://www.facebook.com/profile.php?id=100064149665664"
+              v-if="redes.facebook"
+              :href="redes.facebook"
               target="_blank"
               rel="noopener noreferrer"
               class="red-social-card facebook-red"
@@ -164,7 +165,8 @@
 
             <!-- INSTAGRAM -->
             <a
-              href="https://www.instagram.com/mega_mex_0102?stkn=MXY2NTdhYjE3b2E2aA=="
+              v-if="redes.instagram"
+              :href="redes.instagram"
               class="red-social-card instagram-red"
               target="_blank"
               rel="noopener noreferrer"
@@ -219,3 +221,55 @@
 
   </section>
 </template>
+
+
+<script setup>
+import { ref, onMounted } from 'vue'
+
+
+// ============================================
+// CONFIGURACIÓN
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// ESTADO
+// ============================================
+
+const redes = ref({
+  facebook: '',
+  instagram: ''
+})
+
+
+// ============================================
+// CARGAR REDES DEL BACKEND
+// ============================================
+
+const cargarRedes = async () => {
+  try {
+    const respuesta = await fetch(`${API_URL}/redes`)
+    const datos = await respuesta.json()
+
+    if (datos.ok && datos.redes) {
+      redes.value = {
+        facebook: datos.redes.facebook || '',
+        instagram: datos.redes.instagram || ''
+      }
+    }
+  } catch (err) {
+    console.error('Error cargando redes:', err)
+  }
+}
+
+
+// ============================================
+// CICLO DE VIDA
+// ============================================
+
+onMounted(() => {
+  cargarRedes()
+})
+</script>
