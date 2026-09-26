@@ -1,99 +1,93 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const tipo = ref('menudeo')
 const categoria = ref('Todos')
 const busqueda = ref('')
 
-const productos = [
-  {
-    id: 1,
-    nombre: 'Arroz',
-    categoria: 'Abarrotes',
-    tipo: 'menudeo',
-    icono: '🍚',
-    descripcion: 'Diferentes marcas y presentaciones.'
-  },
-  {
-    id: 2,
-    nombre: 'Frijol',
-    categoria: 'Abarrotes',
-    tipo: 'menudeo',
-    icono: '🫘',
-    descripcion: 'Variedad para tus compras diarias.'
-  },
-  {
-    id: 3,
-    nombre: 'Leche',
-    categoria: 'Lácteos',
-    tipo: 'menudeo',
-    icono: '🥛',
-    descripcion: 'Diferentes marcas y presentaciones.'
-  },
-  {
-    id: 4,
-    nombre: 'Refrescos',
-    categoria: 'Bebidas',
-    tipo: 'menudeo',
-    icono: '🥤',
-    descripcion: 'Bebidas para diferentes ocasiones.'
-  },
-  {
-    id: 5,
-    nombre: 'Botanas',
-    categoria: 'Botanas',
-    tipo: 'menudeo',
-    icono: '🍿',
-    descripcion: 'Gran variedad de botanas.'
-  },
+const productos = ref([])
+const cargando = ref(true)
+const error = ref('')
 
-  {
-    id: 6,
-    nombre: 'Abarrotes por caja',
-    categoria: 'Abarrotes',
-    tipo: 'mayoreo',
-    icono: '📦',
-    descripcion: 'Presentaciones especiales para negocio.'
-  },
-  {
-    id: 7,
-    nombre: 'Bebidas por caja',
-    categoria: 'Bebidas',
-    tipo: 'mayoreo',
-    icono: '🥤',
-    descripcion: 'Venta por caja y paquete.'
-  },
-  {
-    id: 8,
-    nombre: 'Lácteos por mayoreo',
-    categoria: 'Lácteos',
-    tipo: 'mayoreo',
-    icono: '🥛',
-    descripcion: 'Presentaciones para surtir tu negocio.'
-  },
-  {
-    id: 9,
-    nombre: 'Productos de limpieza',
-    categoria: 'Limpieza',
-    tipo: 'mayoreo',
-    icono: '🧼',
-    descripcion: 'Opciones para comercios y negocios.'
+// Modal
+const productoSeleccionado = ref(null)
+
+// URL del backend
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// CARGAR PRODUCTOS DEL BACKEND
+// ============================================
+
+const cargarProductos = async () => {
+  cargando.value = true
+  error.value = ''
+
+  try {
+    const respuesta = await fetch(`${API_URL}/productos`)
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al cargar productos')
+    }
+
+    productos.value = datos.productos
+      .filter(p => p.activo)
+      .map(p => {
+        const tipoBackend = (p.tipo || '').toLowerCase()
+
+        let tipoFiltro = tipoBackend
+        if (tipoBackend === 'mayoreo y menudeo') {
+          tipoFiltro = 'ambos'
+        }
+
+        return {
+          id: p.id,
+          nombre: p.nombre,
+          categoria: p.categoria || 'General',
+          tipo: tipoFiltro,
+          tipoOriginal: p.tipo,
+          descripcion: p.descripcion || 'Sin descripción',
+          icono: '📦',
+          imagen: p.imagen || null,
+          activo: p.activo
+        }
+      })
+
+  } catch (err) {
+    console.error('Error cargando productos:', err)
+    error.value = 'No se pudieron cargar los productos.'
+  } finally {
+    cargando.value = false
   }
-]
+}
+
+
+// ============================================
+// CATEGORÍAS DINÁMICAS
+// ============================================
 
 const categorias = computed(() => {
-  const lista = productos
-    .filter(p => p.tipo === tipo.value)
+  const lista = productos.value
+    .filter(p => p.tipo === tipo.value || p.tipo === 'ambos')
     .map(p => p.categoria)
 
   return ['Todos', ...new Set(lista)]
 })
 
+
+// ============================================
+// FILTRAR PRODUCTOS
+// ============================================
+
 const productosFiltrados = computed(() => {
   const texto = busqueda.value.toLowerCase()
 
-  return productos.filter(producto => {
-    const coincideTipo = producto.tipo === tipo.value
+  return productos.value.filter(producto => {
+    const coincideTipo =
+      producto.tipo === tipo.value ||
+      producto.tipo === 'ambos'
 
     const coincideCategoria =
       categoria.value === 'Todos' ||
@@ -101,16 +95,46 @@ const productosFiltrados = computed(() => {
 
     const coincideBusqueda =
       producto.nombre.toLowerCase().includes(texto) ||
-      producto.categoria.toLowerCase().includes(texto)
+      producto.categoria.toLowerCase().includes(texto) ||
+      producto.descripcion.toLowerCase().includes(texto)
 
     return coincideTipo && coincideCategoria && coincideBusqueda
   })
 })
 
+
+// ============================================
+// CAMBIAR TIPO
+// ============================================
+
 const cambiarTipo = nuevoTipo => {
   tipo.value = nuevoTipo
   categoria.value = 'Todos'
 }
+
+
+// ============================================
+// MODAL: ABRIR / CERRAR
+// ============================================
+
+const abrirModal = (producto) => {
+  productoSeleccionado.value = producto
+  document.body.style.overflow = 'hidden'  // bloquear scroll del fondo
+}
+
+const cerrarModal = () => {
+  productoSeleccionado.value = null
+  document.body.style.overflow = ''  // reactivar scroll
+}
+
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+  cargarProductos()
+})
 </script>
 
 <template>
@@ -159,7 +183,6 @@ const cambiarTipo = nuevoTipo => {
         </div>
 
 
-        <!-- PARTE VISUAL -->
         <div class="hero-visual">
 
           <div class="hero-circulo">
@@ -308,8 +331,51 @@ const cambiarTipo = nuevoTipo => {
         </div>
 
 
+        <!-- CARGANDO -->
+        <div
+          v-if="cargando"
+          class="sin-resultados"
+        >
+          <div class="sin-icono">
+            ⏳
+          </div>
+
+          <h3>
+            Cargando productos...
+          </h3>
+
+          <p>
+            Obteniendo el catálogo desde el servidor.
+          </p>
+
+        </div>
+
+
+        <!-- ERROR -->
+        <div
+          v-else-if="error"
+          class="sin-resultados"
+        >
+          <div class="sin-icono">
+            ⚠️
+          </div>
+
+          <h3>
+            {{ error }}
+          </h3>
+
+          <p>
+            Intenta recargar la página.
+          </p>
+
+        </div>
+
+
         <!-- PRODUCTOS -->
-        <div class="grid-productos">
+        <div
+          v-else
+          class="grid-productos"
+        >
 
           <article
             v-for="producto in productosFiltrados"
@@ -320,16 +386,29 @@ const cambiarTipo = nuevoTipo => {
             <div class="producto-foto">
 
               <div class="producto-badge">
-                {{ producto.tipo }}
+                {{ producto.tipoOriginal || producto.tipo }}
               </div>
 
-              <div class="producto-emoji">
+              <img
+                v-if="producto.imagen"
+                :src="producto.imagen"
+                :alt="producto.nombre"
+                class="producto-imagen"
+              >
+
+              <div
+                v-else
+                class="producto-emoji"
+              >
                 {{ producto.icono }}
               </div>
 
-              <div class="producto-overlay">
+              <button
+                class="producto-overlay"
+                @click="abrirModal(producto)"
+              >
                 Ver producto
-              </div>
+              </button>
 
             </div>
 
@@ -348,7 +427,10 @@ const cambiarTipo = nuevoTipo => {
                 {{ producto.descripcion }}
               </p>
 
-              <button class="ver-mas">
+              <button
+                class="ver-mas"
+                @click="abrirModal(producto)"
+              >
                 Ver información
 
                 <span>
@@ -365,7 +447,7 @@ const cambiarTipo = nuevoTipo => {
 
         <!-- SIN RESULTADOS -->
         <div
-          v-if="productosFiltrados.length === 0"
+          v-if="!cargando && !error && productosFiltrados.length === 0"
           class="sin-resultados"
         >
 
@@ -420,6 +502,149 @@ const cambiarTipo = nuevoTipo => {
       </RouterLink>
 
     </section>
+
+
+    <!-- ============================================= -->
+    <!-- MODAL DE PRODUCTO -->
+    <!-- ============================================= -->
+
+    <Transition name="modal-fade">
+
+      <div
+        v-if="productoSeleccionado"
+        class="modal-producto-fondo"
+        @click.self="cerrarModal"
+      >
+
+        <div class="modal-producto">
+
+          <!-- BOTÓN CERRAR -->
+
+          <button
+            class="modal-producto-cerrar"
+            @click="cerrarModal"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+
+
+          <!-- IMAGEN / EMOJI -->
+
+          <div class="modal-producto-imagen">
+
+            <img
+              v-if="productoSeleccionado.imagen"
+              :src="productoSeleccionado.imagen"
+              :alt="productoSeleccionado.nombre"
+            >
+
+            <div
+              v-else
+              class="modal-producto-emoji"
+            >
+              {{ productoSeleccionado.icono }}
+            </div>
+
+
+            <div class="modal-producto-badge">
+              {{ productoSeleccionado.tipoOriginal || productoSeleccionado.tipo }}
+            </div>
+
+          </div>
+
+
+          <!-- INFORMACIÓN -->
+
+          <div class="modal-producto-info">
+
+            <span class="modal-producto-categoria">
+              {{ productoSeleccionado.categoria }}
+            </span>
+
+            <h2>
+              {{ productoSeleccionado.nombre }}
+            </h2>
+
+            <p class="modal-producto-descripcion">
+              {{ productoSeleccionado.descripcion }}
+            </p>
+
+
+            <div class="modal-producto-detalles">
+
+              <div class="detalle-item">
+
+                <span class="detalle-icono">
+                  🏷️
+                </span>
+
+                <div>
+
+                  <strong>
+                    Categoría
+                  </strong>
+
+                  <span>
+                    {{ productoSeleccionado.categoria }}
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="detalle-item">
+
+                <span class="detalle-icono">
+                  📦
+                </span>
+
+                <div>
+
+                  <strong>
+                    Tipo de venta
+                  </strong>
+
+                  <span>
+                    {{ productoSeleccionado.tipoOriginal || productoSeleccionado.tipo }}
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="modal-producto-acciones">
+
+              <button
+                class="modal-btn-secundario"
+                @click="cerrarModal"
+              >
+                Cerrar
+              </button>
+
+              <RouterLink
+                to="/contacto"
+                class="modal-btn-principal"
+                @click="cerrarModal"
+              >
+                Consultar disponibilidad
+
+                <span>→</span>
+              </RouterLink>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </Transition>
 
   </main>
 </template>
@@ -666,103 +891,6 @@ const cambiarTipo = nuevoTipo => {
 
   backdrop-filter:
     blur(5px);
-}
-
-
-.caja-central {
-  width: 200px;
-  height: 200px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 35px;
-
-  background: white;
-
-  font-size: 100px;
-
-  box-shadow:
-    0 30px 70px
-    rgba(0,0,0,.18);
-
-  transform:
-    rotate(-5deg);
-}
-
-
-.burbuja {
-  position: absolute;
-
-  width: 64px;
-  height: 64px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 18px;
-
-  background: white;
-
-  font-size: 31px;
-
-  box-shadow:
-    0 14px 30px
-    rgba(0,0,0,.13);
-
-  animation:
-    flotar 4s
-    ease-in-out infinite;
-}
-
-
-.b1 {
-  top: 20px;
-  right: 25px;
-}
-
-
-.b2 {
-  bottom: 15px;
-  right: 25px;
-
-  animation-delay: .6s;
-}
-
-
-.b3 {
-  bottom: 30px;
-  left: 10px;
-
-  animation-delay: 1s;
-}
-
-
-.b4 {
-  top: 35px;
-  left: 10px;
-
-  animation-delay: 1.4s;
-}
-
-
-@keyframes flotar {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-
 }
 
 
@@ -1187,6 +1315,25 @@ const cambiarTipo = nuevoTipo => {
 }
 
 
+.producto-imagen {
+  width: 100%;
+  height: 100%;
+
+  padding: 15px;
+
+  object-fit: contain;
+
+  transition: .3s;
+}
+
+
+.producto-card:hover
+.producto-imagen {
+  transform:
+    scale(1.08);
+}
+
+
 .producto-badge {
   position: absolute;
 
@@ -1211,6 +1358,8 @@ const cambiarTipo = nuevoTipo => {
 
   box-shadow:
     0 5px 15px rgba(0,0,0,.05);
+
+  z-index: 2;
 }
 
 
@@ -1250,7 +1399,13 @@ const cambiarTipo = nuevoTipo => {
 
   font-weight: 800;
 
+  border: none;
+
+  cursor: pointer;
+
   transition: .3s;
+
+  z-index: 2;
 }
 
 
@@ -1452,6 +1607,411 @@ const cambiarTipo = nuevoTipo => {
 
 
 /* =============================
+   MODAL PRODUCTO
+============================= */
+
+.modal-producto-fondo {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  padding: 20px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background:
+    rgba(10, 25, 45, 0.75);
+
+  backdrop-filter:
+    blur(6px);
+
+  overflow-y: auto;
+}
+
+
+.modal-producto {
+  position: relative;
+
+  width: 100%;
+
+  max-width: 900px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  border-radius: 24px;
+
+  background: white;
+
+  box-shadow:
+    0 30px 80px
+    rgba(0, 0, 0, 0.3);
+
+  overflow: hidden;
+
+  max-height: 90vh;
+}
+
+
+.modal-producto-cerrar {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  z-index: 3;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.95);
+
+  color: #333;
+
+  cursor: pointer;
+
+  font-size: 18px;
+
+  font-weight: bold;
+
+  box-shadow:
+    0 5px 15px rgba(0,0,0,.15);
+
+  transition: .25s;
+}
+
+
+.modal-producto-cerrar:hover {
+  background: #e53935;
+
+  color: white;
+
+  transform:
+    rotate(90deg);
+}
+
+
+/* IMAGEN */
+
+.modal-producto-imagen {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 30px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eef8ff,
+      #ffffff
+    );
+
+  min-height: 400px;
+}
+
+
+.modal-producto-imagen img {
+  width: 100%;
+  height: 100%;
+
+  max-height: 350px;
+
+  object-fit: contain;
+}
+
+
+.modal-producto-emoji {
+  font-size: 150px;
+
+  line-height: 1;
+}
+
+
+.modal-producto-badge {
+  position: absolute;
+
+  top: 20px;
+  left: 20px;
+
+  padding: 8px 14px;
+
+  border-radius: 50px;
+
+  background:
+    var(--azul);
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+
+/* INFORMACIÓN */
+
+.modal-producto-info {
+  padding: 45px 40px 40px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  overflow-y: auto;
+}
+
+
+.modal-producto-categoria {
+  color:
+    var(--azul);
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+
+.modal-producto-info h2 {
+  margin: 10px 0 15px;
+
+  color:
+    var(--oscuro);
+
+  font-size:
+    clamp(26px, 3vw, 34px);
+
+  line-height: 1.15;
+}
+
+
+.modal-producto-descripcion {
+  margin: 0 0 25px;
+
+  color:
+    var(--gris);
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+.modal-producto-detalles {
+  margin-bottom: 30px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 15px;
+}
+
+
+.detalle-item {
+  padding: 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  border-radius: 12px;
+
+  background:
+    #f5f9fd;
+}
+
+
+.detalle-icono {
+  font-size: 24px;
+}
+
+
+.detalle-item strong {
+  display: block;
+
+  color:
+    #7c8798;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+
+.detalle-item span {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--oscuro);
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+
+/* ACCIONES */
+
+.modal-producto-acciones {
+  margin-top: auto;
+
+  padding-top: 25px;
+
+  border-top:
+    1px solid #e7edf3;
+
+  display: flex;
+
+  gap: 12px;
+}
+
+
+.modal-btn-secundario {
+  flex-shrink: 0;
+
+  padding: 14px 22px;
+
+  border:
+    1px solid #dce6ef;
+
+  border-radius: 12px;
+
+  background: white;
+
+  color:
+    var(--gris);
+
+  cursor: pointer;
+
+  font-weight: 800;
+
+  font-size: 14px;
+
+  transition: .25s;
+}
+
+
+.modal-btn-secundario:hover {
+  border-color:
+    #c0cbd6;
+}
+
+
+.modal-btn-principal {
+  flex: 1;
+
+  padding: 14px 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--azul),
+      var(--azul-claro)
+    );
+
+  color: white;
+
+  text-decoration: none;
+
+  font-weight: 800;
+
+  font-size: 14px;
+
+  transition: .25s;
+
+  box-shadow:
+    0 10px 24px
+    rgba(0, 107, 197, 0.25);
+}
+
+
+.modal-btn-principal:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 15px 30px
+    rgba(0, 107, 197, 0.35);
+}
+
+
+/* TRANSICIÓN MODAL */
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+
+.modal-fade-enter-active .modal-producto,
+.modal-fade-leave-active .modal-producto {
+  transition: transform 0.35s
+    cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+.modal-fade-enter-from .modal-producto,
+.modal-fade-leave-to .modal-producto {
+  transform: scale(0.9);
+}
+
+
+/* =============================
    RESPONSIVE
 ============================= */
 
@@ -1522,6 +2082,39 @@ const cambiarTipo = nuevoTipo => {
     text-align: center;
   }
 
+
+  /* MODAL RESPONSIVE */
+
+  .modal-producto {
+    grid-template-columns: 1fr;
+
+    max-height: 95vh;
+
+    overflow-y: auto;
+  }
+
+
+  .modal-producto-imagen {
+    min-height: 250px;
+
+    padding: 25px;
+  }
+
+
+  .modal-producto-imagen img {
+    max-height: 200px;
+  }
+
+
+  .modal-producto-emoji {
+    font-size: 100px;
+  }
+
+
+  .modal-producto-info {
+    padding: 30px 25px;
+  }
+
 }
 
 
@@ -1545,19 +2138,21 @@ const cambiarTipo = nuevoTipo => {
   }
 
 
-  .caja-central {
-    width: 155px;
-    height: 155px;
-
-    font-size: 78px;
+  .modal-producto-detalles {
+    grid-template-columns: 1fr;
   }
 
 
-  .burbuja {
-    width: 52px;
-    height: 52px;
+  .modal-producto-acciones {
+    flex-direction: column;
+  }
 
-    font-size: 25px;
+
+  .modal-btn-principal,
+  .modal-btn-secundario {
+    width: 100%;
+
+    justify-content: center;
   }
 
 }
