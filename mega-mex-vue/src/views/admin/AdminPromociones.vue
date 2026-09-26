@@ -20,7 +20,22 @@
     </div>
 
 
-    <div v-if="promociones.length === 0" class="vacio">
+    <!-- CARGANDO -->
+    <div v-if="cargandoLista" class="vacio">
+
+      <div class="icono-vacio">⏳</div>
+
+      <h3>Cargando promociones...</h3>
+
+      <p>
+        Obteniendo el listado desde el servidor.
+      </p>
+
+    </div>
+
+
+    <!-- VACÍO -->
+    <div v-else-if="promociones.length === 0" class="vacio">
 
       <div class="icono-vacio">⭐</div>
 
@@ -37,6 +52,7 @@
     </div>
 
 
+    <!-- LISTA -->
     <div v-else class="contenedor">
 
       <div class="titulo-lista">
@@ -116,6 +132,7 @@
     </div>
 
 
+    <!-- MODAL -->
     <div
       v-if="mostrarModal"
       class="fondo-modal"
@@ -194,6 +211,14 @@
 
             <img :src="form.imagen">
 
+            <button
+              type="button"
+              class="quitar-imagen"
+              @click="form.imagen = ''"
+            >
+              Quitar imagen
+            </button>
+
           </div>
 
 
@@ -212,6 +237,7 @@
             <button
               type="button"
               class="btn-cancelar"
+              :disabled="cargando"
               @click="cerrar"
             >
               Cancelar
@@ -220,8 +246,9 @@
             <button
               type="submit"
               class="btn-principal"
+              :disabled="cargando"
             >
-              Guardar
+              {{ cargando ? 'Guardando...' : 'Guardar' }}
             </button>
 
           </div>
@@ -232,17 +259,48 @@
 
     </div>
 
+
+    <!-- MENSAJE -->
+    <transition name="mensaje">
+
+      <div
+        v-if="mensaje"
+        class="mensaje"
+      >
+        ✅ {{ mensaje }}
+      </div>
+
+    </transition>
+
   </section>
 </template>
 
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { obtenerToken } from '../../utils/auth'
+
+
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// VARIABLES
+// ============================================
 
 const promociones = ref([])
 const mostrarModal = ref(false)
 const editando = ref(false)
 const idEditando = ref(null)
+
+const cargando = ref(false)
+const cargandoLista = ref(false)
+const mensaje = ref('')
+
 
 const form = ref({
   titulo: '',
@@ -253,33 +311,45 @@ const form = ref({
 })
 
 
-onMounted(() => {
+// ============================================
+// CARGAR PROMOCIONES DEL BACKEND
+// ============================================
 
-  const datos =
-    localStorage.getItem('megaMexPromociones')
+const cargarPromociones = async () => {
+  cargandoLista.value = true
 
-  if (datos) {
+  try {
+    const respuesta = await fetch(`${API_URL}/promociones`)
+    const datos = await respuesta.json()
 
-    try {
-      promociones.value = JSON.parse(datos)
-    } catch {
-      promociones.value = []
+    if (datos.ok) {
+      promociones.value = datos.promociones
+    } else {
+      mostrarMensaje('Error al cargar promociones')
     }
 
-  }
+  } catch (err) {
+    console.error('Error cargando promociones:', err)
+    mostrarMensaje('No se pudo conectar con el servidor.')
 
+  } finally {
+    cargandoLista.value = false
+  }
+}
+
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+  cargarPromociones()
 })
 
 
-const persistir = () => {
-
-  localStorage.setItem(
-    'megaMexPromociones',
-    JSON.stringify(promociones.value)
-  )
-
-}
-
+// ============================================
+// NUEVA PROMOCIÓN
+// ============================================
 
 const nueva = () => {
 
@@ -298,23 +368,30 @@ const nueva = () => {
 }
 
 
+// ============================================
+// EDITAR PROMOCIÓN
+// ============================================
+
 const editar = (promo) => {
 
   editando.value = true
-
   idEditando.value = promo.id
 
   form.value = {
-    titulo: promo.titulo,
-    descripcion: promo.descripcion,
-    vigencia: promo.vigencia,
-    imagen: promo.imagen,
-    activo: promo.activo
+    titulo: promo.titulo || '',
+    descripcion: promo.descripcion || '',
+    vigencia: promo.vigencia || '',
+    imagen: promo.imagen || '',
+    activo: promo.activo !== false
   }
 
   mostrarModal.value = true
 }
 
+
+// ============================================
+// SELECCIONAR IMAGEN (base64)
+// ============================================
 
 const seleccionarImagen = (event) => {
 
@@ -322,88 +399,140 @@ const seleccionarImagen = (event) => {
 
   if (!archivo) return
 
+  if (!archivo.type.startsWith('image/')) {
+    mostrarMensaje('Selecciona un archivo de imagen válido.')
+    return
+  }
+
   const lector = new FileReader()
 
   lector.onload = (e) => {
-
-    form.value.imagen =
-      e.target.result
-
+    form.value.imagen = e.target.result
   }
 
   lector.readAsDataURL(archivo)
 }
 
 
-const guardar = () => {
+// ============================================
+// GUARDAR (crear o editar)
+// ============================================
 
-  if (!form.value.titulo.trim()) return
+const guardar = async () => {
 
-
-  if (editando.value) {
-
-    const indice =
-      promociones.value.findIndex(
-        item =>
-          item.id === idEditando.value
-      )
-
-
-    if (indice !== -1) {
-
-      promociones.value[indice] = {
-
-        id: idEditando.value,
-
-        ...form.value
-
-      }
-
-    }
-
-  } else {
-
-    promociones.value.unshift({
-
-      id: Date.now(),
-
-      ...form.value
-
-    })
-
+  if (!form.value.titulo.trim()) {
+    mostrarMensaje('El título es obligatorio.')
+    return
   }
 
+  cargando.value = true
 
-  persistir()
+  try {
 
-  cerrar()
+    const token = obtenerToken()
+
+    const url = editando.value
+      ? `${API_URL}/promociones/${idEditando.value}`
+      : `${API_URL}/promociones`
+
+    const metodo = editando.value ? 'PUT' : 'POST'
+
+    const respuesta = await fetch(url, {
+      method: metodo,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        titulo: form.value.titulo.trim(),
+        descripcion: form.value.descripcion.trim(),
+        vigencia: form.value.vigencia.trim(),
+        imagen: form.value.imagen || null,
+        activo: form.value.activo
+      })
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al guardar')
+    }
+
+    await cargarPromociones()
+
+    cerrar()
+
+    mostrarMensaje(
+      editando.value
+        ? 'Promoción actualizada correctamente.'
+        : 'Promoción creada correctamente.'
+    )
+
+  } catch (err) {
+    console.error('Error guardando promoción:', err)
+    mostrarMensaje(err.message || 'Error al guardar')
+
+  } finally {
+    cargando.value = false
+  }
 }
 
 
-const eliminar = (promo) => {
+// ============================================
+// ELIMINAR PROMOCIÓN
+// ============================================
 
-  if (
-    !window.confirm(
-      `¿Eliminar "${promo.titulo}"?`
-    )
-  ) return
+const eliminar = async (promo) => {
 
+  if (!window.confirm(`¿Eliminar "${promo.titulo}"?`)) return
 
-  promociones.value =
-    promociones.value.filter(
-      item =>
-        item.id !== promo.id
-    )
+  try {
 
+    const token = obtenerToken()
 
-  persistir()
+    const respuesta = await fetch(`${API_URL}/promociones/${promo.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al eliminar')
+    }
+
+    await cargarPromociones()
+
+    mostrarMensaje('Promoción eliminada correctamente.')
+
+  } catch (err) {
+    console.error('Error eliminando promoción:', err)
+    mostrarMensaje(err.message || 'Error al eliminar')
+  }
 }
 
+
+// ============================================
+// CERRAR MODAL
+// ============================================
 
 const cerrar = () => {
-
   mostrarModal.value = false
+}
 
+
+// ============================================
+// MENSAJE
+// ============================================
+
+const mostrarMensaje = (texto) => {
+  mensaje.value = texto
+
+  setTimeout(() => {
+    mensaje.value = ''
+  }, 3000)
 }
 </script>
 
@@ -448,6 +577,17 @@ const cerrar = () => {
   color: white;
   cursor: pointer;
   font-weight: bold;
+  transition: .25s;
+}
+
+.btn-principal:hover:not(:disabled) {
+  background: #00549c;
+  transform: translateY(-2px);
+}
+
+.btn-principal:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
 
 .vacio {
@@ -459,6 +599,8 @@ const cerrar = () => {
   align-items: center;
   background: white;
   border-radius: 20px;
+  text-align: center;
+  padding: 40px;
 }
 
 .icono-vacio {
@@ -472,8 +614,14 @@ const cerrar = () => {
   font-size: 50px;
 }
 
+.vacio h3 {
+  margin: 20px 0 8px;
+  color: #202938;
+}
+
 .vacio p {
   color: #858d98;
+  margin-bottom: 20px;
 }
 
 .contenedor {
@@ -497,6 +645,12 @@ const cerrar = () => {
   overflow: hidden;
   border: 1px solid #edf0f3;
   border-radius: 18px;
+  transition: .25s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
 }
 
 .imagen {
@@ -562,6 +716,8 @@ const cerrar = () => {
   border: none;
   border-radius: 9px;
   cursor: pointer;
+  font-weight: bold;
+  transition: .2s;
 }
 
 .btn-editar {
@@ -569,9 +725,19 @@ const cerrar = () => {
   color: #006bc5;
 }
 
+.btn-editar:hover {
+  background: #006bc5;
+  color: white;
+}
+
 .btn-eliminar {
   background: #fff0f0;
   color: #dc3f3f;
+}
+
+.btn-eliminar:hover {
+  background: #dc3f3f;
+  color: white;
 }
 
 .fondo-modal {
@@ -582,6 +748,7 @@ const cerrar = () => {
   justify-content: center;
   align-items: center;
   background: rgba(20,28,40,.55);
+  backdrop-filter: blur(4px);
 }
 
 .modal {
@@ -597,11 +764,17 @@ const cerrar = () => {
 .modal-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .modal-header button {
   border: none;
+  background: #f2f4f6;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 16px;
 }
 
 .campo {
@@ -611,22 +784,53 @@ const cerrar = () => {
   gap: 8px;
 }
 
+.campo label {
+  font-weight: bold;
+  color: #343c48;
+  font-size: 13px;
+}
+
 .campo input,
 .campo textarea {
   padding: 13px;
   border: 1px solid #dfe4ea;
   border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: #006bc5;
+  box-shadow: 0 0 0 3px rgba(0,107,197,.1);
+}
+
+.preview {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .preview img {
   width: 100%;
   max-height: 260px;
   object-fit: contain;
+  border-radius: 10px;
+}
+
+.quitar-imagen {
+  margin-top: 10px;
+  border: none;
+  background: transparent;
+  color: #dc3f3f;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .check {
   display: block;
   margin: 20px 0;
+  cursor: pointer;
 }
 
 .acciones-modal {
@@ -639,6 +843,39 @@ const cerrar = () => {
   padding: 12px 20px;
   border: none;
   border-radius: 10px;
+  background: #edf0f3;
+  color: #555e69;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-cancelar:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.mensaje {
+  position: fixed;
+  z-index: 9999;
+  right: 30px;
+  bottom: 30px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #1e9d68;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.mensaje-enter-active,
+.mensaje-leave-active {
+  transition: .3s;
+}
+
+.mensaje-enter-from,
+.mensaje-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 @media(max-width:800px) {
