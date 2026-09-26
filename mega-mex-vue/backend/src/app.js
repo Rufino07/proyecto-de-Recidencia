@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.routes.js'
 import productosRoutes from './routes/productos.routes.js'
 import promocionesRoutes from './routes/promociones.routes.js'
 import volantesRoutes from './routes/volantes.routes.js'
+import sucursalesRoutes from './routes/sucursales.routes.js'
 
 dotenv.config()
 
@@ -54,6 +55,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
 app.use('/api/promociones', promocionesRoutes)
 app.use('/api/volantes', volantesRoutes)
+app.use('/api/sucursales', sucursalesRoutes)
 
 // ============================================
 // RUTA NO ENCONTRADA

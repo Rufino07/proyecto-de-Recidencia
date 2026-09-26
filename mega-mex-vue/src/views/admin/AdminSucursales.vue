@@ -30,11 +30,33 @@
 
 
     <!-- ============================== -->
+    <!-- CARGANDO -->
+    <!-- ============================== -->
+
+    <div
+      v-if="cargandoLista"
+      class="vacio"
+    >
+      <div class="icono-vacio">
+        ⏳
+      </div>
+
+      <h3>
+        Cargando sucursales...
+      </h3>
+
+      <p>
+        Obteniendo el listado desde el servidor.
+      </p>
+    </div>
+
+
+    <!-- ============================== -->
     <!-- SIN SUCURSALES -->
     <!-- ============================== -->
 
     <div
-      v-if="sucursales.length === 0"
+      v-else-if="sucursales.length === 0"
       class="vacio"
     >
       <div class="icono-vacio">
@@ -321,6 +343,7 @@
             <button
               type="button"
               class="btn-cancelar"
+              :disabled="cargando"
               @click="cerrarModal"
             >
               Cancelar
@@ -329,8 +352,13 @@
             <button
               type="submit"
               class="btn-principal"
+              :disabled="cargando"
             >
-              {{ editando ? 'Guardar cambios' : 'Agregar sucursal' }}
+              {{
+                cargando
+                  ? 'Guardando...'
+                  : (editando ? 'Guardar cambios' : 'Agregar sucursal')
+              }}
             </button>
 
           </div>
@@ -363,10 +391,15 @@
 
 <script setup>
 
-import {
-  ref,
-  onMounted
-} from 'vue'
+import { ref, onMounted } from 'vue'
+import { obtenerToken } from '../../utils/auth'
+
+
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
 
 
 // ============================================
@@ -383,6 +416,10 @@ const idEditando = ref(null)
 
 const mensaje = ref('')
 
+const cargando = ref(false)
+
+const cargandoLista = ref(false)
+
 
 const form = ref({
   nombre: '',
@@ -395,45 +432,57 @@ const form = ref({
 
 
 // ============================================
-// CARGAR SUCURSALES
+// CARGAR SUCURSALES DEL BACKEND
 // ============================================
 
-onMounted(() => {
+const cargarSucursales = async () => {
 
-  const datos =
-    localStorage.getItem('megaMexSucursales')
+  cargandoLista.value = true
 
+  try {
 
-  if (datos) {
+    const respuesta = await fetch(`${API_URL}/sucursales`)
 
-    try {
+    const datos = await respuesta.json()
 
-      sucursales.value =
-        JSON.parse(datos)
+    if (datos.ok) {
 
-    } catch {
+      sucursales.value = datos.sucursales
 
-      sucursales.value = []
+    } else {
+
+      mostrarMensaje('Error al cargar sucursales')
 
     }
 
   }
 
-})
+  catch (err) {
 
+    console.error('Error cargando sucursales:', err)
 
-// ============================================
-// GUARDAR EN LOCALSTORAGE
-// ============================================
+    mostrarMensaje('No se pudo conectar con el servidor.')
 
-const guardarLocal = () => {
+  }
 
-  localStorage.setItem(
-    'megaMexSucursales',
-    JSON.stringify(sucursales.value)
-  )
+  finally {
+
+    cargandoLista.value = false
+
+  }
 
 }
+
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+
+  cargarSucursales()
+
+})
 
 
 // ============================================
@@ -446,7 +495,6 @@ const abrirNueva = () => {
 
   idEditando.value = null
 
-
   form.value = {
     nombre: '',
     direccion: '',
@@ -455,7 +503,6 @@ const abrirNueva = () => {
     mapa: '',
     activa: true
   }
-
 
   mostrarModal.value = true
 
@@ -472,16 +519,14 @@ const editarSucursal = (sucursal) => {
 
   idEditando.value = sucursal.id
 
-
   form.value = {
-    nombre: sucursal.nombre,
-    direccion: sucursal.direccion,
-    telefono: sucursal.telefono,
-    horario: sucursal.horario,
-    mapa: sucursal.mapa,
-    activa: sucursal.activa
+    nombre: sucursal.nombre || '',
+    direccion: sucursal.direccion || '',
+    telefono: sucursal.telefono || '',
+    horario: sucursal.horario || '',
+    mapa: sucursal.mapa || '',
+    activa: sucursal.activa !== false
   }
-
 
   mostrarModal.value = true
 
@@ -489,115 +534,85 @@ const editarSucursal = (sucursal) => {
 
 
 // ============================================
-// GUARDAR
+// GUARDAR (crear o editar)
 // ============================================
 
-const guardarSucursal = () => {
+const guardarSucursal = async () => {
 
   if (
     !form.value.nombre.trim() ||
     !form.value.direccion.trim()
   ) {
 
-    mostrarMensaje(
-      'Completa los campos obligatorios.'
-    )
+    mostrarMensaje('Completa los campos obligatorios.')
 
     return
 
   }
 
+  cargando.value = true
 
-  // EDITAR
-  if (editando.value) {
+  try {
 
-    const indice =
-      sucursales.value.findIndex(
-        item =>
-          item.id === idEditando.value
-      )
+    const token = obtenerToken()
 
+    const url = editando.value
+      ? `${API_URL}/sucursales/${idEditando.value}`
+      : `${API_URL}/sucursales`
 
-    if (indice !== -1) {
+    const metodo = editando.value ? 'PUT' : 'POST'
 
-      sucursales.value[indice] = {
+    const respuesta = await fetch(url, {
 
-        id: idEditando.value,
+      method: metodo,
 
-        nombre:
-          form.value.nombre.trim(),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
 
-        direccion:
-          form.value.direccion.trim(),
+      body: JSON.stringify({
+        nombre: form.value.nombre.trim(),
+        direccion: form.value.direccion.trim(),
+        telefono: form.value.telefono.trim(),
+        horario: form.value.horario.trim(),
+        mapa: form.value.mapa.trim(),
+        activa: form.value.activa
+      })
 
-        telefono:
-          form.value.telefono.trim(),
+    })
 
-        horario:
-          form.value.horario.trim(),
+    const datos = await respuesta.json()
 
-        mapa:
-          form.value.mapa.trim(),
-
-        activa:
-          form.value.activa
-
-      }
-
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al guardar')
     }
 
-
-    guardarLocal()
+    await cargarSucursales()
 
     cerrarModal()
 
     mostrarMensaje(
-      'Sucursal actualizada correctamente.'
+      editando.value
+        ? 'Sucursal actualizada correctamente.'
+        : 'Sucursal agregada correctamente.'
     )
 
-    return
+  }
+
+  catch (err) {
+
+    console.error('Error guardando sucursal:', err)
+
+    mostrarMensaje(err.message || 'Error al guardar')
 
   }
 
+  finally {
 
-  // NUEVA
-  const nuevaSucursal = {
-
-    id: Date.now(),
-
-    nombre:
-      form.value.nombre.trim(),
-
-    direccion:
-      form.value.direccion.trim(),
-
-    telefono:
-      form.value.telefono.trim(),
-
-    horario:
-      form.value.horario.trim(),
-
-    mapa:
-      form.value.mapa.trim(),
-
-    activa:
-      form.value.activa
+    cargando.value = false
 
   }
-
-
-  sucursales.value.unshift(
-    nuevaSucursal
-  )
-
-
-  guardarLocal()
-
-  cerrarModal()
-
-  mostrarMensaje(
-    'Sucursal agregada correctamente.'
-  )
 
 }
 
@@ -606,34 +621,47 @@ const guardarSucursal = () => {
 // ELIMINAR
 // ============================================
 
-const eliminarSucursal = (sucursal) => {
+const eliminarSucursal = async (sucursal) => {
 
-  const confirmar =
-    window.confirm(
-      `¿Seguro que deseas eliminar "${sucursal.nombre}"?`
-    )
+  const confirmar = window.confirm(
+    `¿Seguro que deseas eliminar "${sucursal.nombre}"?`
+  )
 
+  if (!confirmar) return
 
-  if (!confirmar) {
+  try {
 
-    return
+    const token = obtenerToken()
+
+    const respuesta = await fetch(`${API_URL}/sucursales/${sucursal.id}`, {
+
+      method: 'DELETE',
+
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al eliminar')
+    }
+
+    await cargarSucursales()
+
+    mostrarMensaje('Sucursal eliminada correctamente.')
 
   }
 
+  catch (err) {
 
-  sucursales.value =
-    sucursales.value.filter(
-      item =>
-        item.id !== sucursal.id
-    )
+    console.error('Error eliminando sucursal:', err)
 
+    mostrarMensaje(err.message || 'Error al eliminar')
 
-  guardarLocal()
-
-
-  mostrarMensaje(
-    'Sucursal eliminada correctamente.'
-  )
+  }
 
 }
 
@@ -656,7 +684,6 @@ const cerrarModal = () => {
 const mostrarMensaje = (texto) => {
 
   mensaje.value = texto
-
 
   setTimeout(() => {
 
@@ -686,49 +713,34 @@ const mostrarMensaje = (texto) => {
 
 .encabezado {
   padding: 28px 32px;
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   gap: 20px;
-
   background: white;
-
   border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px
-    rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
 
 
 .categoria,
 .mini-titulo {
   color: #7847b7;
-
   font-size: 11px;
-
   font-weight: bold;
-
   letter-spacing: 1px;
 }
 
 
 .encabezado h2 {
   margin: 8px 0;
-
   color: #202938;
-
   font-size: 25px;
 }
 
 
 .encabezado p {
   margin: 0;
-
   color: #7c8490;
 }
 
@@ -739,27 +751,25 @@ const mostrarMensaje = (texto) => {
 
 .btn-principal {
   padding: 13px 20px;
-
   border: none;
-
   border-radius: 12px;
-
   background: #006bc5;
-
   color: white;
-
   cursor: pointer;
-
   font-weight: bold;
-
   transition: 0.25s;
 }
 
 
-.btn-principal:hover {
+.btn-principal:hover:not(:disabled) {
   background: #00549c;
-
   transform: translateY(-2px);
+}
+
+
+.btn-principal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 
@@ -769,60 +779,39 @@ const mostrarMensaje = (texto) => {
 
 .vacio {
   margin-top: 22px;
-
   min-height: 400px;
-
   padding: 40px;
-
   display: flex;
-
   flex-direction: column;
-
   justify-content: center;
-
   align-items: center;
-
   text-align: center;
-
   background: white;
-
   border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px
-    rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 
 .icono-vacio {
   width: 100px;
-
   height: 100px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   background: #f2eaff;
-
   border-radius: 28px;
-
   font-size: 50px;
 }
 
 
 .vacio h3 {
   margin: 20px 0 7px;
-
   color: #202938;
 }
 
 
 .vacio p {
   margin: 0 0 20px;
-
   color: #858d98;
 }
 
@@ -833,29 +822,21 @@ const mostrarMensaje = (texto) => {
 
 .contenedor {
   margin-top: 22px;
-
   padding: 28px;
-
   background: white;
-
   border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px
-    rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 
 .titulo-lista h3 {
   margin: 0;
-
   color: #202938;
 }
 
 
 .titulo-lista p {
   margin: 5px 0 25px;
-
   color: #858d98;
 }
 
@@ -866,10 +847,7 @@ const mostrarMensaje = (texto) => {
 
 .grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
+  grid-template-columns: repeat(3, 1fr);
   gap: 22px;
 }
 
@@ -880,67 +858,39 @@ const mostrarMensaje = (texto) => {
 
 .tarjeta {
   overflow: hidden;
-
-  border:
-    1px solid #edf0f3;
-
+  border: 1px solid #edf0f3;
   border-radius: 18px;
-
   background: white;
-
   transition: 0.3s;
 }
 
 
 .tarjeta:hover {
   transform: translateY(-5px);
-
-  box-shadow:
-    0 12px 28px
-    rgba(0, 0, 0, 0.09);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
 }
 
 
 .cabecera-tarjeta {
   position: relative;
-
   height: 140px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
-  background:
-    linear-gradient(
-      135deg,
-      #f8f3ff,
-      #eee5ff
-    );
+  background: linear-gradient(135deg, #f8f3ff, #eee5ff);
 }
 
 
 .icono-sucursal {
   width: 75px;
-
   height: 75px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   border-radius: 22px;
-
   background: white;
-
   font-size: 38px;
-
-  box-shadow:
-    0 7px 20px
-    rgba(0, 0, 0, 0.08);
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.08);
 }
 
 
@@ -950,31 +900,23 @@ const mostrarMensaje = (texto) => {
 
 .estado {
   position: absolute;
-
   top: 12px;
-
   right: 12px;
-
   padding: 6px 10px;
-
   border-radius: 20px;
-
   font-size: 10px;
-
   font-weight: bold;
 }
 
 
 .estado.activo {
   background: #dcf8e9;
-
   color: #168b56;
 }
 
 
 .estado.inactivo {
   background: #eceff3;
-
   color: #737b85;
 }
 
@@ -990,31 +932,23 @@ const mostrarMensaje = (texto) => {
 
 .info h3 {
   margin: 7px 0 18px;
-
   color: #202938;
-
   font-size: 18px;
 }
 
 
 .dato {
   margin-bottom: 10px;
-
   display: flex;
-
   align-items: flex-start;
-
   gap: 8px;
 }
 
 
 .dato p {
   margin: 0;
-
   color: #727b87;
-
   font-size: 13px;
-
   line-height: 1.5;
 }
 
@@ -1025,9 +959,7 @@ const mostrarMensaje = (texto) => {
 
 .acciones {
   margin-top: 20px;
-
   display: flex;
-
   gap: 10px;
 }
 
@@ -1035,43 +967,35 @@ const mostrarMensaje = (texto) => {
 .btn-editar,
 .btn-eliminar {
   flex: 1;
-
   padding: 10px;
-
   border: none;
-
   border-radius: 9px;
-
   cursor: pointer;
-
   font-weight: bold;
+  transition: 0.2s;
 }
 
 
 .btn-editar {
   background: #eaf5ff;
-
   color: #006bc5;
 }
 
 
 .btn-editar:hover {
   background: #006bc5;
-
   color: white;
 }
 
 
 .btn-eliminar {
   background: #fff0f0;
-
   color: #dc3f3f;
 }
 
 
 .btn-eliminar:hover {
   background: #dc3f3f;
-
   color: white;
 }
 
@@ -1082,83 +1006,52 @@ const mostrarMensaje = (texto) => {
 
 .fondo-modal {
   position: fixed;
-
   z-index: 5000;
-
   inset: 0;
-
   padding: 20px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
-  background:
-    rgba(20, 28, 40, 0.55);
-
+  background: rgba(20, 28, 40, 0.55);
   backdrop-filter: blur(4px);
 }
 
 
 .modal {
   width: 100%;
-
   max-width: 650px;
-
   max-height: 90vh;
-
   overflow-y: auto;
-
   background: white;
-
   border-radius: 22px;
-
-  box-shadow:
-    0 25px 60px
-    rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
 }
 
 
 .modal-header {
   padding: 25px 28px;
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
-  border-bottom:
-    1px solid #edf0f3;
+  border-bottom: 1px solid #edf0f3;
 }
 
 
 .modal-header h3 {
   margin: 5px 0 0;
-
   color: #202938;
-
   font-size: 22px;
 }
 
 
 .btn-cerrar {
   width: 38px;
-
   height: 38px;
-
   border: none;
-
   border-radius: 10px;
-
   background: #f1f3f5;
-
   color: #555;
-
   cursor: pointer;
-
   font-size: 18px;
 }
 
@@ -1174,20 +1067,15 @@ const mostrarMensaje = (texto) => {
 
 .campo {
   margin-bottom: 20px;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
 }
 
 
 .campo label {
   color: #343c48;
-
   font-size: 13px;
-
   font-weight: bold;
 }
 
@@ -1195,18 +1083,11 @@ const mostrarMensaje = (texto) => {
 .campo input,
 .campo textarea {
   width: 100%;
-
   padding: 13px 14px;
-
-  border:
-    1px solid #dfe4ea;
-
+  border: 1px solid #dfe4ea;
   border-radius: 10px;
-
   outline: none;
-
   font-family: inherit;
-
   font-size: 14px;
 }
 
@@ -1219,10 +1100,7 @@ const mostrarMensaje = (texto) => {
 .campo input:focus,
 .campo textarea:focus {
   border-color: #006bc5;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(0, 107, 197, 0.10);
+  box-shadow: 0 0 0 3px rgba(0, 107, 197, 0.10);
 }
 
 
@@ -1232,17 +1110,11 @@ const mostrarMensaje = (texto) => {
 
 .estado-form {
   margin-bottom: 20px;
-
   padding: 15px;
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   background: #f8fafc;
-
   border-radius: 12px;
 }
 
@@ -1254,9 +1126,7 @@ const mostrarMensaje = (texto) => {
 
 .estado-form p {
   margin: 4px 0 0;
-
   color: #858d98;
-
   font-size: 12px;
 }
 
@@ -1267,9 +1137,7 @@ const mostrarMensaje = (texto) => {
 
 .switch {
   position: relative;
-
   width: 48px;
-
   height: 25px;
 }
 
@@ -1281,36 +1149,23 @@ const mostrarMensaje = (texto) => {
 
 .slider {
   position: absolute;
-
   inset: 0;
-
   border-radius: 30px;
-
   background: #c8ced5;
-
   cursor: pointer;
-
   transition: 0.3s;
 }
 
 
 .slider::before {
   content: '';
-
   position: absolute;
-
   width: 19px;
-
   height: 19px;
-
   top: 3px;
-
   left: 4px;
-
   border-radius: 50%;
-
   background: white;
-
   transition: 0.3s;
 }
 
@@ -1331,32 +1186,27 @@ const mostrarMensaje = (texto) => {
 
 .acciones-modal {
   padding-top: 20px;
-
   display: flex;
-
   justify-content: flex-end;
-
   gap: 12px;
-
-  border-top:
-    1px solid #edf0f3;
+  border-top: 1px solid #edf0f3;
 }
 
 
 .btn-cancelar {
   padding: 12px 20px;
-
   border: none;
-
   border-radius: 10px;
-
   background: #edf0f3;
-
   color: #555e69;
-
   cursor: pointer;
-
   font-weight: bold;
+}
+
+
+.btn-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 
@@ -1366,26 +1216,15 @@ const mostrarMensaje = (texto) => {
 
 .mensaje {
   position: fixed;
-
   z-index: 9999;
-
   right: 30px;
-
   bottom: 30px;
-
   padding: 16px 20px;
-
   border-radius: 12px;
-
   background: #1e9d68;
-
   color: white;
-
   font-weight: bold;
-
-  box-shadow:
-    0 10px 30px
-    rgba(0, 0, 0, 0.20);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
 }
 
 
@@ -1398,7 +1237,6 @@ const mostrarMensaje = (texto) => {
 .mensaje-enter-from,
 .mensaje-leave-to {
   opacity: 0;
-
   transform: translateY(20px);
 }
 
@@ -1410,8 +1248,7 @@ const mostrarMensaje = (texto) => {
 @media (max-width: 1100px) {
 
   .grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
 }
@@ -1425,25 +1262,20 @@ const mostrarMensaje = (texto) => {
 
   .encabezado {
     flex-direction: column;
-
     align-items: flex-start;
   }
-
 
   .btn-principal {
     width: 100%;
   }
 
-
   .grid {
     grid-template-columns: 1fr;
   }
 
-
   .acciones-modal {
     flex-direction: column;
   }
-
 
   .btn-cancelar,
   .acciones-modal .btn-principal {
