@@ -48,11 +48,47 @@
 
 
     <!-- ===================================== -->
+    <!-- CARGANDO -->
+    <!-- ===================================== -->
+
+    <div
+      v-if="cargandoLista"
+      class="sin-productos"
+    >
+
+      <div class="icono-vacio">
+        <svg
+          viewBox="0 0 24 24"
+          width="64"
+          height="64"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      </div>
+
+      <h3>
+        Cargando productos...
+      </h3>
+
+      <p>
+        Obteniendo el catálogo desde el servidor.
+      </p>
+
+    </div>
+
+
+    <!-- ===================================== -->
     <!-- PRODUCTOS VACÍOS -->
     <!-- ===================================== -->
 
     <div
-      v-if="productos.length === 0"
+      v-else-if="productos.length === 0"
       class="sin-productos"
     >
 
@@ -499,6 +535,7 @@
             <button
               type="button"
               class="btn-cancelar"
+              :disabled="cargando"
               @click="cerrarModal"
             >
               Cancelar
@@ -508,8 +545,13 @@
             <button
               type="submit"
               class="btn-guardar"
+              :disabled="cargando"
             >
-              {{ editando ? 'Guardar cambios' : 'Agregar producto' }}
+              {{
+                cargando
+                  ? 'Guardando...'
+                  : (editando ? 'Guardar cambios' : 'Agregar producto')
+              }}
             </button>
 
           </div>
@@ -559,10 +601,16 @@
 
 <script setup>
 
-import {
-  ref,
-  onMounted
-} from 'vue'
+import { ref, onMounted } from 'vue'
+
+import { obtenerToken } from '../../utils/auth'
+
+
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
 
 
 // ============================================
@@ -578,6 +626,10 @@ const editando = ref(false)
 const productoEditandoId = ref(null)
 
 const mensaje = ref('')
+
+const cargando = ref(false)
+
+const cargandoLista = ref(false)
 
 
 const formulario = ref({
@@ -596,46 +648,65 @@ const formulario = ref({
 
 
 // ============================================
-// CARGAR PRODUCTOS
+// CARGAR PRODUCTOS DEL BACKEND
 // ============================================
 
-onMounted(() => {
+const cargarProductos = async () => {
 
-  const productosGuardados =
-    localStorage.getItem('megaMexProductos')
+  cargandoLista.value = true
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_URL}/productos`
+    )
+
+    const datos = await respuesta.json()
 
 
-  if (productosGuardados) {
+    if (datos.ok) {
 
-    try {
-
-      productos.value =
-        JSON.parse(productosGuardados)
+      productos.value = datos.productos
 
     }
-    catch {
+    else {
 
-      productos.value = []
+      mostrarMensaje(
+        datos.mensaje || 'Error al cargar productos'
+      )
 
     }
 
   }
 
-})
+  catch (err) {
 
+    console.error('Error cargando productos:', err)
 
-// ============================================
-// GUARDAR EN LOCALSTORAGE
-// ============================================
+    mostrarMensaje(
+      'No se pudo conectar con el servidor.'
+    )
 
-const guardarLocalStorage = () => {
+  }
 
-  localStorage.setItem(
-    'megaMexProductos',
-    JSON.stringify(productos.value)
-  )
+  finally {
+
+    cargandoLista.value = false
+
+  }
 
 }
+
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+
+  cargarProductos()
+
+})
 
 
 // ============================================
@@ -681,20 +752,15 @@ const cerrarModal = () => {
 
 
 // ============================================
-// SELECCIONAR IMAGEN
+// SELECCIONAR IMAGEN (base64)
 // ============================================
 
 const seleccionarImagen = (event) => {
 
-  const archivo =
-    event.target.files[0]
+  const archivo = event.target.files[0]
 
 
-  if (!archivo) {
-
-    return
-
-  }
+  if (!archivo) return
 
 
   if (!archivo.type.startsWith('image/')) {
@@ -708,14 +774,12 @@ const seleccionarImagen = (event) => {
   }
 
 
-  const lector =
-    new FileReader()
+  const lector = new FileReader()
 
 
   lector.onload = (e) => {
 
-    formulario.value.imagen =
-      e.target.result
+    formulario.value.imagen = e.target.result
 
   }
 
@@ -729,7 +793,7 @@ const seleccionarImagen = (event) => {
 // GUARDAR PRODUCTO
 // ============================================
 
-const guardarProducto = () => {
+const guardarProducto = async () => {
 
   if (
     !formulario.value.nombre.trim() ||
@@ -745,99 +809,92 @@ const guardarProducto = () => {
   }
 
 
-  // ==========================================
-  // EDITANDO
-  // ==========================================
+  cargando.value = true
 
-  if (editando.value) {
 
-    const indice =
-      productos.value.findIndex(
-        producto =>
-          producto.id === productoEditandoId.value
+  try {
+
+    const token = obtenerToken()
+
+
+    const url = editando.value
+      ? `${API_URL}/productos/${productoEditandoId.value}`
+      : `${API_URL}/productos`
+
+
+    const metodo = editando.value ? 'PUT' : 'POST'
+
+
+    const respuesta = await fetch(url, {
+
+      method: metodo,
+
+      headers: {
+
+        'Content-Type': 'application/json',
+
+        'Authorization': `Bearer ${token}`
+
+      },
+
+      body: JSON.stringify({
+
+        nombre: formulario.value.nombre.trim(),
+
+        tipo: formulario.value.tipo,
+
+        descripcion: formulario.value.descripcion.trim(),
+
+        imagen: formulario.value.imagen || null,
+
+        activo: formulario.value.activo
+
+      })
+
+    })
+
+
+    const datos = await respuesta.json()
+
+
+    if (!datos.ok) {
+
+      throw new Error(
+        datos.mensaje || 'Error al guardar el producto.'
       )
-
-
-    if (indice !== -1) {
-
-      productos.value[indice] = {
-
-        ...productos.value[indice],
-
-        nombre:
-          formulario.value.nombre.trim(),
-
-        tipo:
-          formulario.value.tipo,
-
-        descripcion:
-          formulario.value.descripcion.trim(),
-
-        imagen:
-          formulario.value.imagen,
-
-        activo:
-          formulario.value.activo
-
-      }
 
     }
 
 
-    guardarLocalStorage()
+    await cargarProductos()
+
 
     mostrarModal.value = false
 
+
     mostrarMensaje(
-      'Producto actualizado correctamente.'
+      editando.value
+        ? 'Producto actualizado correctamente.'
+        : 'Producto agregado correctamente.'
     )
 
+  }
 
-    return
+  catch (err) {
+
+    console.error('Error guardando producto:', err)
+
+    mostrarMensaje(
+      err.message || 'Error al guardar el producto.'
+    )
 
   }
 
+  finally {
 
-  // ==========================================
-  // NUEVO PRODUCTO
-  // ==========================================
-
-  const nuevoProducto = {
-
-    id:
-      Date.now(),
-
-    nombre:
-      formulario.value.nombre.trim(),
-
-    tipo:
-      formulario.value.tipo,
-
-    descripcion:
-      formulario.value.descripcion.trim(),
-
-    imagen:
-      formulario.value.imagen,
-
-    activo:
-      formulario.value.activo
+    cargando.value = false
 
   }
-
-
-  productos.value.unshift(
-    nuevoProducto
-  )
-
-
-  guardarLocalStorage()
-
-  mostrarModal.value = false
-
-
-  mostrarMensaje(
-    'Producto agregado correctamente.'
-  )
 
 }
 
@@ -850,26 +907,20 @@ const editarProducto = (producto) => {
 
   editando.value = true
 
-  productoEditandoId.value =
-    producto.id
+  productoEditandoId.value = producto.id
 
 
   formulario.value = {
 
-    nombre:
-      producto.nombre,
+    nombre: producto.nombre || '',
 
-    tipo:
-      producto.tipo,
+    tipo: producto.tipo || '',
 
-    descripcion:
-      producto.descripcion,
+    descripcion: producto.descripcion || '',
 
-    imagen:
-      producto.imagen,
+    imagen: producto.imagen || '',
 
-    activo:
-      producto.activo
+    activo: producto.activo !== false
 
   }
 
@@ -883,48 +934,75 @@ const editarProducto = (producto) => {
 // ELIMINAR PRODUCTO
 // ============================================
 
-const eliminarProducto = (id) => {
+const eliminarProducto = async (id) => {
 
-  const producto =
-    productos.value.find(
-      producto =>
-        producto.id === id
-    )
-
-
-  if (!producto) {
-
-    return
-
-  }
-
-
-  const confirmar =
-    window.confirm(
-      `¿Seguro que deseas eliminar "${producto.nombre}"?`
-    )
-
-
-  if (!confirmar) {
-
-    return
-
-  }
-
-
-  productos.value =
-    productos.value.filter(
-      producto =>
-        producto.id !== id
-    )
-
-
-  guardarLocalStorage()
-
-
-  mostrarMensaje(
-    'Producto eliminado correctamente.'
+  const producto = productos.value.find(
+    producto => producto.id === id
   )
+
+
+  if (!producto) return
+
+
+  const confirmar = window.confirm(
+    `¿Seguro que deseas eliminar "${producto.nombre}"?`
+  )
+
+
+  if (!confirmar) return
+
+
+  try {
+
+    const token = obtenerToken()
+
+
+    const respuesta = await fetch(
+      `${API_URL}/productos/${id}`,
+      {
+
+        method: 'DELETE',
+
+        headers: {
+
+          'Authorization': `Bearer ${token}`
+
+        }
+
+      }
+    )
+
+
+    const datos = await respuesta.json()
+
+
+    if (!datos.ok) {
+
+      throw new Error(
+        datos.mensaje || 'Error al eliminar el producto.'
+      )
+
+    }
+
+
+    await cargarProductos()
+
+
+    mostrarMensaje(
+      'Producto eliminado correctamente.'
+    )
+
+  }
+
+  catch (err) {
+
+    console.error('Error eliminando producto:', err)
+
+    mostrarMensaje(
+      err.message || 'Error al eliminar el producto.'
+    )
+
+  }
 
 }
 
@@ -1947,6 +2025,16 @@ const mostrarMensaje = (texto) => {
 }
 
 
+.btn-cancelar:disabled,
+.btn-guardar:disabled {
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+}
+
+
 .btn-guardar {
 
   background: #006bc5;
@@ -1956,7 +2044,7 @@ const mostrarMensaje = (texto) => {
 }
 
 
-.btn-guardar:hover {
+.btn-guardar:hover:not(:disabled) {
 
   background: #00539a;
 
