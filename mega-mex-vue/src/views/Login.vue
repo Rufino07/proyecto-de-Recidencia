@@ -220,7 +220,10 @@
             <!-- FORMULARIO -->
             <!-- ================================= -->
 
-            <form @submit.prevent="login">
+            <form
+              autocomplete="off"
+              @submit.prevent="login"
+            >
 
               <!-- CORREO -->
 
@@ -240,8 +243,12 @@
                     id="correo"
                     v-model="correo"
                     type="email"
+                    name="correo_login_megamex"
                     placeholder="correo@ejemplo.com"
-                    autocomplete="username"
+                    autocomplete="new-password"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
                     :disabled="cargando"
                   >
 
@@ -268,8 +275,12 @@
                     id="password"
                     v-model="password"
                     :type="mostrarPassword ? 'text' : 'password'"
+                    name="password_login_megamex"
                     placeholder="Ingresa tu contraseña"
-                    autocomplete="current-password"
+                    autocomplete="new-password"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
                     :disabled="cargando"
                   >
 
@@ -538,7 +549,7 @@
 
 <script setup>
 
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import { useRouter } from 'vue-router'
 
@@ -567,6 +578,22 @@ const cargando = ref(false)
 const error = ref('')
 
 const mensaje = ref('')
+
+
+// ============================================
+// LIMPIAR CAMPOS AL MONTAR
+// (evita autocompletado del navegador)
+// ============================================
+
+onMounted(() => {
+
+  correo.value = ''
+
+  password.value = ''
+
+  mostrarPassword.value = false
+
+})
 
 
 // ============================================
