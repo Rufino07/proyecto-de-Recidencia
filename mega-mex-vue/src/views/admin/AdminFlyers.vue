@@ -18,8 +18,24 @@
     </div>
 
 
+    <!-- CARGANDO -->
+    <div v-if="cargandoLista" class="vacio">
+
+      <div class="icono">
+        ⏳
+      </div>
+
+      <h3>Cargando volantes...</h3>
+
+      <p>
+        Obteniendo el listado desde el servidor.
+      </p>
+
+    </div>
+
+
     <!-- SIN VOLANTES -->
-    <div v-if="volantes.length === 0" class="vacio">
+    <div v-else-if="volantes.length === 0" class="vacio">
 
       <div class="icono">
         🎨
@@ -237,6 +253,7 @@
             <button
               type="button"
               class="cancelar"
+              :disabled="cargando"
               @click="cerrarModal"
             >
               Cancelar
@@ -245,8 +262,13 @@
             <button
               type="submit"
               class="guardar"
+              :disabled="cargando"
             >
-              {{ editando ? 'Guardar cambios' : 'Agregar volante' }}
+              {{
+                cargando
+                  ? 'Guardando...'
+                  : (editando ? 'Guardar cambios' : 'Agregar volante')
+              }}
             </button>
 
           </div>
@@ -257,17 +279,39 @@
 
     </div>
 
+
+    <!-- MENSAJE -->
+    <transition name="mensaje">
+
+      <div
+        v-if="mensaje"
+        class="mensaje"
+      >
+        ✅ {{ mensaje }}
+      </div>
+
+    </transition>
+
   </section>
 </template>
 
 
 <script setup>
 
-import {
-  ref,
-  onMounted
-} from 'vue'
+import { ref, onMounted } from 'vue'
+import { obtenerToken } from '../../utils/auth'
 
+
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
+
+const API_URL = 'http://localhost:3000/api'
+
+
+// ============================================
+// VARIABLES
+// ============================================
 
 const volantes = ref([])
 
@@ -276,6 +320,12 @@ const mostrarModal = ref(false)
 const editando = ref(false)
 
 const idEditando = ref(null)
+
+const cargando = ref(false)
+
+const cargandoLista = ref(false)
+
+const mensaje = ref('')
 
 
 const formulario = ref({
@@ -286,34 +336,63 @@ const formulario = ref({
 })
 
 
-onMounted(() => {
+// ============================================
+// CARGAR VOLANTES DEL BACKEND
+// ============================================
 
-  const datos =
-    localStorage.getItem('megaMexVolantes')
+const cargarVolantes = async () => {
 
-  if (datos) {
+  cargandoLista.value = true
 
-    try {
-      volantes.value = JSON.parse(datos)
-    }
-    catch {
-      volantes.value = []
+  try {
+
+    const respuesta = await fetch(`${API_URL}/volantes`)
+
+    const datos = await respuesta.json()
+
+    if (datos.ok) {
+
+      volantes.value = datos.volantes
+
+    } else {
+
+      mostrarMensaje('Error al cargar volantes')
+
     }
 
   }
 
-})
+  catch (err) {
 
+    console.error('Error cargando volantes:', err)
 
-const guardarStorage = () => {
+    mostrarMensaje('No se pudo conectar con el servidor.')
 
-  localStorage.setItem(
-    'megaMexVolantes',
-    JSON.stringify(volantes.value)
-  )
+  }
+
+  finally {
+
+    cargandoLista.value = false
+
+  }
 
 }
 
+
+// ============================================
+// AL MONTAR
+// ============================================
+
+onMounted(() => {
+
+  cargarVolantes()
+
+})
+
+
+// ============================================
+// NUEVO VOLANTE
+// ============================================
 
 const nuevoVolante = () => {
 
@@ -333,6 +412,10 @@ const nuevoVolante = () => {
 }
 
 
+// ============================================
+// CERRAR MODAL
+// ============================================
+
 const cerrarModal = () => {
 
   mostrarModal.value = false
@@ -340,18 +423,29 @@ const cerrarModal = () => {
 }
 
 
+// ============================================
+// SELECCIONAR IMAGEN (base64)
+// ============================================
+
 const seleccionarImagen = (event) => {
 
   const archivo = event.target.files[0]
 
   if (!archivo) return
 
+  if (!archivo.type.startsWith('image/')) {
+
+    mostrarMensaje('Selecciona un archivo de imagen válido.')
+
+    return
+
+  }
+
   const lector = new FileReader()
 
   lector.onload = (e) => {
 
-    formulario.value.imagen =
-      e.target.result
+    formulario.value.imagen = e.target.result
 
   }
 
@@ -360,49 +454,88 @@ const seleccionarImagen = (event) => {
 }
 
 
-const guardarVolante = () => {
+// ============================================
+// GUARDAR VOLANTE (crear o editar)
+// ============================================
+
+const guardarVolante = async () => {
 
   if (!formulario.value.titulo.trim()) {
+
+    mostrarMensaje('El título es obligatorio.')
+
     return
-  }
-
-
-  if (editando.value) {
-
-    const indice =
-      volantes.value.findIndex(
-        item => item.id === idEditando.value
-      )
-
-    if (indice !== -1) {
-
-      volantes.value[indice] = {
-        ...volantes.value[indice],
-        ...formulario.value
-      }
-
-    }
 
   }
-  else {
 
-    volantes.value.unshift({
+  cargando.value = true
 
-      id: Date.now(),
+  try {
 
-      ...formulario.value
+    const token = obtenerToken()
+
+    const url = editando.value
+      ? `${API_URL}/volantes/${idEditando.value}`
+      : `${API_URL}/volantes`
+
+    const metodo = editando.value ? 'PUT' : 'POST'
+
+    const respuesta = await fetch(url, {
+
+      method: metodo,
+
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+
+      body: JSON.stringify({
+        titulo: formulario.value.titulo.trim(),
+        descripcion: formulario.value.descripcion.trim(),
+        imagen: formulario.value.imagen || null,
+        activo: formulario.value.activo
+      })
 
     })
 
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al guardar')
+    }
+
+    await cargarVolantes()
+
+    cerrarModal()
+
+    mostrarMensaje(
+      editando.value
+        ? 'Volante actualizado correctamente.'
+        : 'Volante agregado correctamente.'
+    )
+
   }
 
+  catch (err) {
 
-  guardarStorage()
+    console.error('Error guardando volante:', err)
 
-  cerrarModal()
+    mostrarMensaje(err.message || 'Error al guardar')
+
+  }
+
+  finally {
+
+    cargando.value = false
+
+  }
 
 }
 
+
+// ============================================
+// EDITAR VOLANTE
+// ============================================
 
 const editarVolante = (volante) => {
 
@@ -411,10 +544,10 @@ const editarVolante = (volante) => {
   idEditando.value = volante.id
 
   formulario.value = {
-    titulo: volante.titulo,
-    descripcion: volante.descripcion,
-    imagen: volante.imagen,
-    activo: volante.activo
+    titulo: volante.titulo || '',
+    descripcion: volante.descripcion || '',
+    imagen: volante.imagen || '',
+    activo: volante.activo !== false
   }
 
   mostrarModal.value = true
@@ -422,18 +555,62 @@ const editarVolante = (volante) => {
 }
 
 
-const eliminarVolante = (id) => {
+// ============================================
+// ELIMINAR VOLANTE
+// ============================================
 
-  if (!confirm('¿Deseas eliminar este volante?')) {
-    return
+const eliminarVolante = async (id) => {
+
+  if (!confirm('¿Deseas eliminar este volante?')) return
+
+  try {
+
+    const token = obtenerToken()
+
+    const respuesta = await fetch(`${API_URL}/volantes/${id}`, {
+
+      method: 'DELETE',
+
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+
+    })
+
+    const datos = await respuesta.json()
+
+    if (!datos.ok) {
+      throw new Error(datos.mensaje || 'Error al eliminar')
+    }
+
+    await cargarVolantes()
+
+    mostrarMensaje('Volante eliminado correctamente.')
+
   }
 
-  volantes.value =
-    volantes.value.filter(
-      volante => volante.id !== id
-    )
+  catch (err) {
 
-  guardarStorage()
+    console.error('Error eliminando volante:', err)
+
+    mostrarMensaje(err.message || 'Error al eliminar')
+
+  }
+
+}
+
+
+// ============================================
+// MENSAJE
+// ============================================
+
+const mostrarMensaje = (texto) => {
+
+  mensaje.value = texto
+
+  setTimeout(() => {
+    mensaje.value = ''
+  }, 3000)
 
 }
 
@@ -483,6 +660,12 @@ const eliminarVolante = (id) => {
   color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: .25s;
+}
+
+.btn-principal:hover {
+  background: #00549c;
+  transform: translateY(-2px);
 }
 
 .vacio {
@@ -509,8 +692,14 @@ const eliminarVolante = (id) => {
   font-size: 50px;
 }
 
+.vacio h3 {
+  margin: 20px 0 8px;
+  color: #202938;
+}
+
 .vacio p {
   color: #858d98;
+  margin-bottom: 20px;
 }
 
 .contenido {
@@ -539,6 +728,12 @@ const eliminarVolante = (id) => {
   overflow: hidden;
   border: 1px solid #edf0f3;
   border-radius: 18px;
+  transition: .25s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
 }
 
 .imagen {
@@ -614,6 +809,7 @@ const eliminarVolante = (id) => {
   border-radius: 9px;
   cursor: pointer;
   font-weight: bold;
+  transition: .2s;
 }
 
 .editar {
@@ -621,9 +817,19 @@ const eliminarVolante = (id) => {
   color: #006bc5;
 }
 
+.editar:hover {
+  background: #006bc5;
+  color: white;
+}
+
 .eliminar {
   background: #fff0f0;
   color: #dc3f3f;
+}
+
+.eliminar:hover {
+  background: #dc3f3f;
+  color: white;
 }
 
 .fondo-modal {
@@ -635,6 +841,7 @@ const eliminarVolante = (id) => {
   align-items: center;
   padding: 20px;
   background: rgba(20,28,40,.55);
+  backdrop-filter: blur(4px);
 }
 
 .modal {
@@ -650,6 +857,7 @@ const eliminarVolante = (id) => {
   padding: 25px 28px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid #edf0f3;
 }
 
@@ -670,6 +878,7 @@ const eliminarVolante = (id) => {
   width: 38px;
   height: 38px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 .formulario {
@@ -685,6 +894,8 @@ const eliminarVolante = (id) => {
 
 .campo label {
   font-weight: bold;
+  font-size: 13px;
+  color: #343c48;
 }
 
 .campo input,
@@ -693,6 +904,14 @@ const eliminarVolante = (id) => {
   border: 1px solid #dfe4ea;
   border-radius: 10px;
   outline: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  border-color: #006bc5;
+  box-shadow: 0 0 0 3px rgba(0,107,197,.1);
 }
 
 .input-file {
@@ -707,6 +926,13 @@ const eliminarVolante = (id) => {
   border: 2px dashed #cad3dc;
   border-radius: 14px;
   cursor: pointer;
+  background: #f9fbfd;
+  transition: .2s;
+}
+
+.subir:hover {
+  border-color: #006bc5;
+  background: #f2f9ff;
 }
 
 .subir small {
@@ -722,6 +948,7 @@ const eliminarVolante = (id) => {
   width: 100%;
   max-height: 300px;
   object-fit: contain;
+  border-radius: 10px;
 }
 
 .preview button {
@@ -730,12 +957,14 @@ const eliminarVolante = (id) => {
   background: transparent;
   color: #dc3f3f;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .estado-form {
   padding: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: #f8fafc;
   border-radius: 12px;
 }
@@ -743,6 +972,7 @@ const eliminarVolante = (id) => {
 .estado-form p {
   margin: 4px 0 0;
   color: #858d98;
+  font-size: 12px;
 }
 
 .botones-modal {
@@ -759,15 +989,55 @@ const eliminarVolante = (id) => {
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
+  transition: .2s;
 }
 
 .cancelar {
   background: #edf0f3;
+  color: #555e69;
+}
+
+.cancelar:hover:not(:disabled) {
+  background: #dfe3e7;
+}
+
+.cancelar:disabled,
+.guardar:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
 
 .guardar {
   background: #006bc5;
   color: white;
+}
+
+.guardar:hover:not(:disabled) {
+  background: #00539a;
+}
+
+.mensaje {
+  position: fixed;
+  z-index: 9999;
+  right: 30px;
+  bottom: 30px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #1e9d68;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.mensaje-enter-active,
+.mensaje-leave-active {
+  transition: .3s;
+}
+
+.mensaje-enter-from,
+.mensaje-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 @media (max-width: 900px) {
@@ -784,6 +1054,10 @@ const eliminarVolante = (id) => {
   .encabezado {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .btn-principal {
+    width: 100%;
   }
 }
 

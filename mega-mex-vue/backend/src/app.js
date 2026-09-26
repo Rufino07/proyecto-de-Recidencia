@@ -10,6 +10,7 @@ import dotenv from 'dotenv'
 import authRoutes from './routes/auth.routes.js'
 import productosRoutes from './routes/productos.routes.js'
 import promocionesRoutes from './routes/promociones.routes.js'
+import volantesRoutes from './routes/volantes.routes.js'
 
 dotenv.config()
 
@@ -52,6 +53,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/productos', productosRoutes)
 app.use('/api/promociones', promocionesRoutes)
+app.use('/api/volantes', volantesRoutes)
 
 // ============================================
 // RUTA NO ENCONTRADA
