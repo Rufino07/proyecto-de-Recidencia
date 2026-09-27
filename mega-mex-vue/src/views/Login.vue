@@ -1,10 +1,6 @@
 <template>
   <main class="pagina-login">
 
-    <!-- ===================================== -->
-    <!-- FONDO ANIMADO -->
-    <!-- ===================================== -->
-
     <div class="fondo-luz luz-1"></div>
     <div class="fondo-luz luz-2"></div>
     <div class="fondo-luz luz-3"></div>
@@ -17,16 +13,7 @@
       ></span>
     </div>
 
-
-    <!-- ===================================== -->
-    <!-- TARJETA PRINCIPAL -->
-    <!-- ===================================== -->
-
     <section class="login-card">
-
-      <!-- =================================== -->
-      <!-- PANEL IZQUIERDO -->
-      <!-- =================================== -->
 
       <aside class="presentacion">
 
@@ -53,50 +40,21 @@
             que Mega-Mex tiene para ti.
           </p>
 
-
-          <!-- VENTAJAS -->
-
           <div class="ventajas">
 
-            <div
-              class="ventaja"
-              style="--delay: 0.2s"
-            >
-              <span class="check">
-                ✓
-              </span>
-
-              <p>
-                Consulta nuestros productos
-              </p>
+            <div class="ventaja" style="--delay: 0.2s">
+              <span class="check">✓</span>
+              <p>Consulta nuestros productos</p>
             </div>
 
-
-            <div
-              class="ventaja"
-              style="--delay: 0.4s"
-            >
-              <span class="check">
-                ✓
-              </span>
-
-              <p>
-                Descubre promociones
-              </p>
+            <div class="ventaja" style="--delay: 0.4s">
+              <span class="check">✓</span>
+              <p>Descubre promociones</p>
             </div>
 
-
-            <div
-              class="ventaja"
-              style="--delay: 0.6s"
-            >
-              <span class="check">
-                ✓
-              </span>
-
-              <p>
-                Conoce las novedades de Mega-Mex
-              </p>
+            <div class="ventaja" style="--delay: 0.6s">
+              <span class="check">✓</span>
+              <p>Conoce las novedades de Mega-Mex</p>
             </div>
 
           </div>
@@ -105,14 +63,7 @@
 
       </aside>
 
-
-      <!-- =================================== -->
-      <!-- PANEL DERECHO -->
-      <!-- =================================== -->
-
       <section class="formulario">
-
-        <!-- ENCABEZADO -->
 
         <div class="encabezado">
 
@@ -120,33 +71,15 @@
             class="icono-usuario"
             :class="{ admin: tipoAcceso === 'admin' }"
           >
-            <span
-              :key="tipoAcceso"
-              class="icono-cambio"
-            >
-              {{
-                tipoAcceso === 'usuario'
-                  ? '👤'
-                  : '🔐'
-              }}
+            <span :key="tipoAcceso" class="icono-cambio">
+              {{ tipoAcceso === 'usuario' ? '👤' : '🔐' }}
             </span>
           </div>
 
-
-          <h2>
-            Iniciar sesión
-          </h2>
-
-          <p>
-            Selecciona tu tipo de acceso
-          </p>
+          <h2>Iniciar sesión</h2>
+          <p>Selecciona tu tipo de acceso</p>
 
         </div>
-
-
-        <!-- ================================= -->
-        <!-- SELECTOR USUARIO / ADMIN -->
-        <!-- ================================= -->
 
         <div class="selector">
 
@@ -154,7 +87,6 @@
             class="selector-fondo"
             :class="{ mover: tipoAcceso === 'admin' }"
           ></div>
-
 
           <button
             type="button"
@@ -164,7 +96,6 @@
             <span>👤</span>
             Usuario
           </button>
-
 
           <button
             type="button"
@@ -177,22 +108,9 @@
 
         </div>
 
+        <Transition name="cambio" mode="out-in">
 
-        <!-- ================================= -->
-        <!-- CONTENIDO -->
-        <!-- ================================= -->
-
-        <Transition
-          name="cambio"
-          mode="out-in"
-        >
-
-          <div
-            :key="tipoAcceso"
-            class="contenido-login"
-          >
-
-            <!-- TIPO -->
+          <div :key="tipoAcceso" class="contenido-login">
 
             <div class="tipo-info">
 
@@ -204,7 +122,6 @@
                 Acceso administrativo
               </h3>
 
-
               <p v-if="tipoAcceso === 'usuario'">
                 Ingresa con tu cuenta o crea una nueva.
               </p>
@@ -215,29 +132,15 @@
 
             </div>
 
-
-            <!-- ================================= -->
-            <!-- FORMULARIO -->
-            <!-- ================================= -->
-
-            <form
-              autocomplete="off"
-              @submit.prevent="login"
-            >
-
-              <!-- CORREO -->
+            <form autocomplete="off" @submit.prevent="login">
 
               <div class="campo">
 
-                <label for="correo">
-                  Correo electrónico
-                </label>
+                <label for="correo">Correo electrónico</label>
 
                 <div class="input-contenedor">
 
-                  <span class="icono-input">
-                    ✉️
-                  </span>
+                  <span class="icono-input">✉️</span>
 
                   <input
                     id="correo"
@@ -256,20 +159,13 @@
 
               </div>
 
-
-              <!-- CONTRASEÑA -->
-
               <div class="campo">
 
-                <label for="password">
-                  Contraseña
-                </label>
+                <label for="password">Contraseña</label>
 
                 <div class="input-contenedor">
 
-                  <span class="icono-input">
-                    🔒
-                  </span>
+                  <span class="icono-input">🔒</span>
 
                   <input
                     id="password"
@@ -284,62 +180,32 @@
                     :disabled="cargando"
                   >
 
-
                   <button
                     type="button"
                     class="mostrar-password"
                     :disabled="cargando"
                     @click="mostrarPassword = !mostrarPassword"
                   >
-                    {{
-                      mostrarPassword
-                        ? '🙈'
-                        : '👁️'
-                    }}
+                    {{ mostrarPassword ? '🙈' : '👁️' }}
                   </button>
 
                 </div>
 
               </div>
 
-
-              <!-- ERROR -->
-
               <Transition name="mensaje">
-
-                <div
-                  v-if="error"
-                  class="mensaje-error"
-                >
-                  <span>
-                    ⚠️
-                  </span>
-
+                <div v-if="error" class="mensaje-error">
+                  <span>⚠️</span>
                   {{ error }}
                 </div>
-
               </Transition>
-
-
-              <!-- MENSAJE -->
 
               <Transition name="mensaje">
-
-                <div
-                  v-if="mensaje"
-                  class="mensaje-info"
-                >
-                  <span>
-                    ℹ️
-                  </span>
-
+                <div v-if="mensaje" class="mensaje-info">
+                  <span>ℹ️</span>
                   {{ mensaje }}
                 </div>
-
               </Transition>
-
-
-              <!-- BOTÓN LOGIN -->
 
               <button
                 type="submit"
@@ -349,121 +215,65 @@
 
                 <span class="brillo"></span>
 
-
-                <span
-                  v-if="cargando"
-                  class="loader"
-                ></span>
-
+                <span v-if="cargando" class="loader"></span>
 
                 <span v-if="cargando">
                   Verificando acceso...
                 </span>
 
-
-                <span
-                  v-else-if="tipoAcceso === 'admin'"
-                >
+                <span v-else-if="tipoAcceso === 'admin'">
                   Iniciar como administrador
-
-                  <span class="flecha">
-                    →
-                  </span>
+                  <span class="flecha">→</span>
                 </span>
-
 
                 <span v-else>
                   Iniciar sesión
-
-                  <span class="flecha">
-                    →
-                  </span>
+                  <span class="flecha">→</span>
                 </span>
 
               </button>
 
             </form>
 
-
-            <!-- ================================= -->
-            <!-- OPCIONES DEL USUARIO -->
-            <!-- ================================= -->
-
             <template v-if="tipoAcceso === 'usuario'">
 
-              <!-- SEPARADOR -->
-
               <div class="separador">
-
                 <span></span>
-
-                <p>
-                  o continuar con
-                </p>
-
+                <p>o continuar con</p>
                 <span></span>
-
               </div>
 
-
-              <!-- ================================= -->
-              <!-- GOOGLE Y FACEBOOK -->
-              <!-- ================================= -->
-
               <div class="login-social">
-
-                <!-- GOOGLE -->
 
                 <button
                   type="button"
                   class="social-btn google-btn"
                   title="Continuar con Google"
                   aria-label="Continuar con Google"
+                  :disabled="cargandoGoogle"
                   @click="loginSocial('Google')"
                 >
 
                   <span class="social-icon google-icon">
 
-                    <!-- LOGO GOOGLE -->
                     <svg
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                       aria-hidden="true"
                     >
-
-                      <path
-                        fill="#4285F4"
-                        d="M21.35 12.18c0-.64-.06-1.26-.17-1.86H12v3.52h5.25a4.49 4.49 0 0 1-1.95 2.95v2.29h3.16c1.85-1.7 2.89-4.22 2.89-6.9Z"
-                      />
-
-                      <path
-                        fill="#34A853"
-                        d="M12 21.7c2.64 0 4.86-.87 6.48-2.37l-3.16-2.29c-.88.59-2 .94-3.32.94-2.55 0-4.71-1.72-5.48-4.03H3.26v2.36A9.79 9.79 0 0 0 12 21.7Z"
-                      />
-
-                      <path
-                        fill="#FBBC05"
-                        d="M6.52 13.95A5.9 5.9 0 0 1 6.21 12c0-.68.12-1.34.31-1.95V7.69H3.26A9.8 9.8 0 0 0 2.2 12c0 1.57.38 3.06 1.06 4.31l3.26-2.36Z"
-                      />
-
-                      <path
-                        fill="#EA4335"
-                        d="M12 6.02c1.44 0 2.73.5 3.75 1.47l2.8-2.8A9.39 9.39 0 0 0 12 2.3a9.79 9.79 0 0 0-8.74 5.39l3.26 2.36C7.29 7.74 9.45 6.02 12 6.02Z"
-                      />
-
+                      <path fill="#4285F4" d="M21.35 12.18c0-.64-.06-1.26-.17-1.86H12v3.52h5.25a4.49 4.49 0 0 1-1.95 2.95v2.29h3.16c1.85-1.7 2.89-4.22 2.89-6.9Z" />
+                      <path fill="#34A853" d="M12 21.7c2.64 0 4.86-.87 6.48-2.37l-3.16-2.29c-.88.59-2 .94-3.32.94-2.55 0-4.71-1.72-5.48-4.03H3.26v2.36A9.79 9.79 0 0 0 12 21.7Z" />
+                      <path fill="#FBBC05" d="M6.52 13.95A5.9 5.9 0 0 1 6.21 12c0-.68.12-1.34.31-1.95V7.69H3.26A9.8 9.8 0 0 0 2.2 12c0 1.57.38 3.06 1.06 4.31l3.26-2.36Z" />
+                      <path fill="#EA4335" d="M12 6.02c1.44 0 2.73.5 3.75 1.47l2.8-2.8A9.39 9.39 0 0 0 12 2.3a9.79 9.79 0 0 0-8.74 5.39l3.26 2.36C7.29 7.74 9.45 6.02 12 6.02Z" />
                     </svg>
 
                   </span>
 
-
                   <span class="social-nombre">
-                    Google
+                    {{ cargandoGoogle ? 'Conectando...' : 'Google' }}
                   </span>
 
                 </button>
-
-
-                <!-- FACEBOOK -->
 
                 <button
                   type="button"
@@ -473,31 +283,19 @@
                   @click="loginSocial('Facebook')"
                 >
 
-                  <span class="social-icon facebook-icon">
-                    f
-                  </span>
+                  <span class="social-icon facebook-icon">f</span>
 
-                  <span class="social-nombre">
-                    Facebook
-                  </span>
+                  <span class="social-nombre">Facebook</span>
 
                 </button>
 
               </div>
 
-
-              <!-- CREAR CUENTA -->
-
               <div class="crear-cuenta">
 
-                <span>
-                  ¿No tienes una cuenta?
-                </span>
+                <span>¿No tienes una cuenta?</span>
 
-                <button
-                  type="button"
-                  @click="irARegistro"
-                >
+                <button type="button" @click="irARegistro">
                   Crear una cuenta
                 </button>
 
@@ -505,32 +303,13 @@
 
             </template>
 
+            <div v-else class="seguridad-admin">
 
-            <!-- ================================= -->
-            <!-- ADMIN -->
-            <!-- ================================= -->
-
-            <div
-              v-else
-              class="seguridad-admin"
-            >
-
-              <span class="escudo">
-                🛡️
-              </span>
-
+              <span class="escudo">🛡️</span>
 
               <div>
-
-                <strong>
-                  Área protegida
-                </strong>
-
-                <p>
-                  Solo el personal autorizado
-                  puede acceder al panel.
-                </p>
-
+                <strong>Área protegida</strong>
+                <p>Solo el personal autorizado puede acceder al panel.</p>
               </div>
 
             </div>
@@ -548,2282 +327,1108 @@
 
 
 <script setup>
-
 import { ref, onMounted } from 'vue'
-
 import { useRouter } from 'vue-router'
-
-import {
-  iniciarSesion
-} from '../utils/auth'
-
+import { iniciarSesion } from '../utils/auth'
 
 const router = useRouter()
 
+// ============================================
+// GOOGLE CLIENT ID
+// ============================================
+
+const GOOGLE_CLIENT_ID = '1003235781938-1sv6ttf3d455biko2qrh5c49s0cnbh3c.apps.googleusercontent.com'
 
 // ============================================
 // VARIABLES
 // ============================================
 
 const tipoAcceso = ref('usuario')
-
 const correo = ref('')
-
 const password = ref('')
-
 const mostrarPassword = ref(false)
-
 const cargando = ref(false)
-
+const cargandoGoogle = ref(false)
 const error = ref('')
-
 const mensaje = ref('')
 
-
 // ============================================
-// LIMPIAR CAMPOS AL MONTAR
-// (evita autocompletado del navegador)
+// MOUNT
 // ============================================
 
 onMounted(() => {
-
   correo.value = ''
-
   password.value = ''
-
   mostrarPassword.value = false
 
+  // ============================================
+  // INICIALIZAR GOOGLE UNA SOLA VEZ
+  // ============================================
+
+  const inicializarGoogle = () => {
+    if (!window.google) return false
+
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: manejarRespuestaGoogle,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      use_fedcm_for_prompt: false
+    })
+
+    console.log('✅ Google inicializado (una sola vez)')
+    return true
+  }
+
+  // Intentar inmediatamente
+  if (!inicializarGoogle()) {
+    // Si no está cargado, esperar con intervalos
+    let intentos = 0
+    const interval = setInterval(() => {
+      intentos++
+      if (inicializarGoogle() || intentos > 50) {
+        clearInterval(interval)
+      }
+    }, 100)
+  }
 })
 
-
 // ============================================
-// CAMBIAR TIPO DE ACCESO
+// CAMBIAR TIPO
 // ============================================
 
 const cambiarTipo = (tipo) => {
-
-  if (tipoAcceso.value === tipo) {
-    return
-  }
-
+  if (tipoAcceso.value === tipo) return
 
   tipoAcceso.value = tipo
-
   correo.value = ''
-
   password.value = ''
-
   error.value = ''
-
   mensaje.value = ''
-
   mostrarPassword.value = false
-
 }
-
 
 // ============================================
 // VALIDAR CORREO
 // ============================================
 
 const correoValido = (correoIngresado) => {
-
-  const expresion =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-
-  return expresion.test(
-    correoIngresado
-  )
-
+  const expresion = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return expresion.test(correoIngresado)
 }
 
-
 // ============================================
-// LOGIN
+// LOGIN TRADICIONAL
 // ============================================
 
 const login = async () => {
-
   error.value = ''
-
   mensaje.value = ''
 
+  const correoLimpio = correo.value.trim()
 
-  const correoLimpio =
-    correo.value.trim()
-
-
-  // CAMPOS VACÍOS
-
-  if (
-    !correoLimpio ||
-    !password.value
-  ) {
-
-    error.value =
-      'Ingresa tu correo y contraseña.'
-
+  if (!correoLimpio || !password.value) {
+    error.value = 'Ingresa tu correo y contraseña.'
     return
-
   }
 
-
-  // CORREO NO VÁLIDO
-
-  if (
-    !correoValido(
-      correoLimpio
-    )
-  ) {
-
-    error.value =
-      'Ingresa un correo electrónico válido.'
-
+  if (!correoValido(correoLimpio)) {
+    error.value = 'Ingresa un correo electrónico válido.'
     return
-
   }
-
 
   cargando.value = true
 
-
   try {
-
-    const sesion =
-      await iniciarSesion(
-        correoLimpio,
-        password.value
-      )
-
-
-    const usuario =
-      sesion.usuario
-
+    const sesion = await iniciarSesion(correoLimpio, password.value)
+    const usuario = sesion.usuario
 
     if (!usuario) {
-
-      throw new Error(
-        'No se pudo obtener la información del usuario.'
-      )
-
+      throw new Error('No se pudo obtener la información del usuario.')
     }
 
-
-    // ========================================
-    // ADMIN
-    // ========================================
-
-    if (
-      tipoAcceso.value === 'admin'
-    ) {
-
-      if (
-        usuario.rol !== 'admin'
-      ) {
-
-        throw new Error(
-          'Esta cuenta no tiene permisos de administrador.'
-        )
-
+    if (tipoAcceso.value === 'admin') {
+      if (usuario.rol !== 'admin') {
+        throw new Error('Esta cuenta no tiene permisos de administrador.')
       }
-
-
-      router.replace(
-        '/admin'
-      )
-
+      router.replace('/admin')
       return
-
     }
 
-
-    // ========================================
-    // CLIENTE
-    // ========================================
-
-    if (
-      tipoAcceso.value === 'usuario'
-    ) {
-
-      if (
-        usuario.rol !== 'cliente'
-      ) {
-
-        throw new Error(
-          'Esta cuenta corresponde al área administrativa.'
-        )
-
+    if (tipoAcceso.value === 'usuario') {
+      if (usuario.rol !== 'cliente') {
+        throw new Error('Esta cuenta corresponde al área administrativa.')
       }
-
-
-      router.replace(
-        '/inicio'
-      )
-
+      router.replace('/inicio')
     }
-
-  }
-
-  catch (err) {
-
-    error.value =
-      err.message ||
-      'No fue posible iniciar sesión.'
-
-
+  } catch (err) {
+    error.value = err.message || 'No fue posible iniciar sesión.'
     password.value = ''
-
-  }
-
-  finally {
-
+  } finally {
     cargando.value = false
-
   }
-
 }
-
 
 // ============================================
 // REGISTRO
 // ============================================
 
 const irARegistro = () => {
-
-  router.push(
-    '/registro'
-  )
-
+  router.push('/registro')
 }
 
-
 // ============================================
-// GOOGLE / FACEBOOK
+// LOGIN SOCIAL
 // ============================================
 
 const loginSocial = (proveedor) => {
-
   error.value = ''
 
+  if (proveedor === 'Google') {
+    iniciarLoginGoogle()
+    return
+  }
 
-  mensaje.value =
-    `El acceso con ${proveedor} se conectará al implementar el backend.`
-
+  mensaje.value = `El acceso con ${proveedor} se conectará próximamente.`
 
   setTimeout(() => {
-
     mensaje.value = ''
-
   }, 3500)
-
 }
 
+// ============================================
+// INICIAR GOOGLE (método alternativo sin FedCM)
+// ============================================
+
+const iniciarLoginGoogle = () => {
+  error.value = ''
+
+  if (!window.google) {
+    error.value = 'La librería de Google aún se está cargando. Intenta en unos segundos.'
+    return
+  }
+
+  cargandoGoogle.value = true
+
+  try {
+    // Crear contenedor oculto
+    let contenedor = document.getElementById('google-btn-oculto')
+
+    if (!contenedor) {
+      contenedor = document.createElement('div')
+      contenedor.id = 'google-btn-oculto'
+      contenedor.style.position = 'fixed'
+      contenedor.style.top = '0'
+      contenedor.style.left = '0'
+      contenedor.style.opacity = '0'
+      contenedor.style.pointerEvents = 'none'
+      contenedor.style.zIndex = '-1'
+      document.body.appendChild(contenedor)
+    }
+
+    // Limpiar
+    contenedor.innerHTML = ''
+
+    // Renderizar el botón real de Google (usa iframe, NO FedCM)
+    window.google.accounts.id.renderButton(
+      contenedor,
+      {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        locale: 'es',
+        width: 300
+      }
+    )
+
+    // Esperar a que se renderice
+    setTimeout(() => {
+      const iframe = contenedor.querySelector('iframe')
+      const btn = contenedor.querySelector('div[role="button"]')
+
+      if (btn) {
+        // Hacer clic programáticamente
+        btn.click()
+        cargandoGoogle.value = false
+      } else if (iframe) {
+        // Si solo hay iframe, hacer clic sobre él
+        iframe.click()
+        cargandoGoogle.value = false
+      } else {
+        error.value = 'No se pudo abrir el popup de Google.'
+        cargandoGoogle.value = false
+      }
+    }, 300)
+
+  } catch (err) {
+    console.error('Error Google:', err)
+    error.value = 'No se pudo abrir el login de Google.'
+    cargandoGoogle.value = false
+  }
+}
+
+// ============================================
+// MANEJAR RESPUESTA DE GOOGLE
+// ============================================
+
+const manejarRespuestaGoogle = async (response) => {
+  console.log('🎉 Callback de Google ejecutado')
+
+  error.value = ''
+  mensaje.value = ''
+  cargandoGoogle.value = true
+
+  try {
+    console.log('📤 Enviando credential al backend...')
+
+    const res = await fetch('http://localhost:3000/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ credential: response.credential })
+    })
+
+    console.log('📥 Respuesta del backend:', res.status)
+
+    const datos = await res.json()
+    console.log('📦 Datos:', datos)
+
+    if (!res.ok || !datos.ok) {
+      throw new Error(datos.mensaje || 'Error al iniciar sesión con Google.')
+    }
+
+    const usuario = datos.usuario
+
+    if (!usuario) {
+      throw new Error('No se obtuvo usuario del servidor.')
+    }
+
+    console.log('✅ Login exitoso. Rol:', usuario.rol)
+
+    // ⚠️⚠️⚠️ LÍNEA CLAVE: GUARDAR USUARIO PARA EL ROUTER ⚠️⚠️⚠️
+    localStorage.setItem('usuarioMegaMex', JSON.stringify(usuario))
+
+    console.log('💾 Usuario guardado en localStorage')
+
+    // Redirigir según rol
+    if (usuario.rol === 'admin') {
+      router.replace('/admin')
+    } else {
+      router.replace('/inicio')
+    }
+  } catch (err) {
+    console.error('❌ Error login Google:', err)
+    error.value = err.message || 'No se pudo iniciar sesión con Google.'
+  } finally {
+    cargandoGoogle.value = false
+  }
+}
 </script>
 
 
 <style scoped>
 
-/* ========================================== */
-/* CONFIGURACIÓN GENERAL */
-/* ========================================== */
-
 * {
   box-sizing: border-box;
 }
 
-
 .pagina-login {
-
   position: fixed;
-
   inset: 0;
-
   z-index: 99999;
-
   width: 100%;
-
   min-height: 100dvh;
-
   padding: 25px;
-
   overflow-x: hidden;
-
   overflow-y: auto;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  background:
-    linear-gradient(
-      -45deg,
-      #003d78,
-      #0059ad,
-      #006bc5,
-      #0b91db,
-      #00a7e9
-    );
-
-  background-size:
-    400% 400%;
-
-  animation:
-    fondoAnimado
-    13s ease
-    infinite;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
+  background: linear-gradient(-45deg, #003d78, #0059ad, #006bc5, #0b91db, #00a7e9);
+  background-size: 400% 400%;
+  animation: fondoAnimado 13s ease infinite;
+  font-family: Arial, Helvetica, sans-serif;
 }
-
 
 @keyframes fondoAnimado {
-
-  0% {
-    background-position:
-      0% 50%;
-  }
-
-  50% {
-    background-position:
-      100% 50%;
-  }
-
-  100% {
-    background-position:
-      0% 50%;
-  }
-
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-
-
-/* ========================================== */
-/* LUCES */
-/* ========================================== */
 
 .fondo-luz {
-
   position: absolute;
-
   border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.09);
-
+  background: rgba(255, 255, 255, 0.09);
   pointer-events: none;
-
 }
-
 
 .luz-1 {
-
   width: 430px;
-
   height: 430px;
-
   top: -180px;
-
   left: -100px;
-
-  animation:
-    flotar1
-    9s ease-in-out
-    infinite;
-
+  animation: flotar1 9s ease-in-out infinite;
 }
-
 
 .luz-2 {
-
   width: 330px;
-
   height: 330px;
-
   right: -100px;
-
   bottom: -100px;
-
-  animation:
-    flotar2
-    11s ease-in-out
-    infinite;
-
+  animation: flotar2 11s ease-in-out infinite;
 }
-
 
 .luz-3 {
-
   width: 190px;
-
   height: 190px;
-
   top: 20%;
-
   right: 6%;
-
   opacity: 0.4;
-
-  animation:
-    flotar1
-    13s ease-in-out
-    infinite reverse;
-
+  animation: flotar1 13s ease-in-out infinite reverse;
 }
-
 
 @keyframes flotar1 {
-
-  0%,
-  100% {
-
-    transform:
-      translate(0, 0);
-
-  }
-
-  50% {
-
-    transform:
-      translate(
-        40px,
-        45px
-      );
-
-  }
-
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, 45px); }
 }
-
 
 @keyframes flotar2 {
-
-  0%,
-  100% {
-
-    transform:
-      translate(0, 0)
-      scale(1);
-
-  }
-
-  50% {
-
-    transform:
-      translate(
-        -35px,
-        -45px
-      )
-      scale(1.12);
-
-  }
-
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-35px, -45px) scale(1.12); }
 }
-
-
-/* ========================================== */
-/* PARTÍCULAS */
-/* ========================================== */
 
 .particula {
-
   position: absolute;
-
   width: 7px;
-
   height: 7px;
-
   border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.35);
-
-  animation:
-    subir
-    9s linear
-    infinite;
-
+  background: rgba(255, 255, 255, 0.35);
+  animation: subir 9s linear infinite;
 }
 
-
-.particula-1 {
-  left: 5%;
-  bottom: -20px;
-  animation-delay: 0s;
-}
-
-
-.particula-2 {
-  left: 12%;
-  bottom: -20px;
-  animation-delay: 2s;
-}
-
-
-.particula-3 {
-  left: 22%;
-  bottom: -20px;
-  animation-delay: 4s;
-}
-
-
-.particula-4 {
-  left: 35%;
-  bottom: -20px;
-  animation-delay: 1s;
-}
-
-
-.particula-5 {
-  left: 45%;
-  bottom: -20px;
-  animation-delay: 6s;
-}
-
-
-.particula-6 {
-  left: 55%;
-  bottom: -20px;
-  animation-delay: 3s;
-}
-
-
-.particula-7 {
-  left: 63%;
-  bottom: -20px;
-  animation-delay: 8s;
-}
-
-
-.particula-8 {
-  left: 72%;
-  bottom: -20px;
-  animation-delay: 2.5s;
-}
-
-
-.particula-9 {
-  left: 80%;
-  bottom: -20px;
-  animation-delay: 5s;
-}
-
-
-.particula-10 {
-  left: 88%;
-  bottom: -20px;
-  animation-delay: 1.5s;
-}
-
-
-.particula-11 {
-  left: 94%;
-  bottom: -20px;
-  animation-delay: 7s;
-}
-
-
-.particula-12 {
-  left: 50%;
-  bottom: -20px;
-  animation-delay: 9s;
-}
-
+.particula-1 { left: 5%; bottom: -20px; animation-delay: 0s; }
+.particula-2 { left: 12%; bottom: -20px; animation-delay: 2s; }
+.particula-3 { left: 22%; bottom: -20px; animation-delay: 4s; }
+.particula-4 { left: 35%; bottom: -20px; animation-delay: 1s; }
+.particula-5 { left: 45%; bottom: -20px; animation-delay: 6s; }
+.particula-6 { left: 55%; bottom: -20px; animation-delay: 3s; }
+.particula-7 { left: 63%; bottom: -20px; animation-delay: 8s; }
+.particula-8 { left: 72%; bottom: -20px; animation-delay: 2.5s; }
+.particula-9 { left: 80%; bottom: -20px; animation-delay: 5s; }
+.particula-10 { left: 88%; bottom: -20px; animation-delay: 1.5s; }
+.particula-11 { left: 94%; bottom: -20px; animation-delay: 7s; }
+.particula-12 { left: 50%; bottom: -20px; animation-delay: 9s; }
 
 @keyframes subir {
-
-  0% {
-
-    transform:
-      translateY(0)
-      scale(0.4);
-
-    opacity: 0;
-
-  }
-
-
-  20% {
-
-    opacity: 0.8;
-
-  }
-
-
-  100% {
-
-    transform:
-      translateY(-110vh)
-      scale(1.3);
-
-    opacity: 0;
-
-  }
-
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
 }
-
-
-/* ========================================== */
-/* TARJETA */
-/* ========================================== */
 
 .login-card {
-
   position: relative;
-
   z-index: 5;
-
-  width:
-    min(
-      1150px,
-      100%
-    );
-
+  width: min(1150px, 100%);
   min-height: 670px;
-
   display: grid;
-
-  grid-template-columns:
-    0.9fr 1.1fr;
-
+  grid-template-columns: 0.9fr 1.1fr;
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.3);
-
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 32px;
-
   background: white;
-
-  box-shadow:
-    0 35px 90px
-    rgba(0, 30, 70, 0.38);
-
-  animation:
-    aparecerCard
-    0.8s ease;
-
+  box-shadow: 0 35px 90px rgba(0, 30, 70, 0.38);
+  animation: aparecerCard 0.8s ease;
 }
-
 
 @keyframes aparecerCard {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(35px)
-      scale(0.96);
-
-  }
-
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0)
-      scale(1);
-
-  }
-
+  from { opacity: 0; transform: translateY(35px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
-
-/* ========================================== */
-/* PANEL IZQUIERDO */
-/* ========================================== */
 
 .presentacion {
-
   position: relative;
-
   overflow: hidden;
-
-  padding:
-    65px 55px;
-
+  padding: 65px 55px;
   display: flex;
-
   align-items: center;
-
   color: white;
-
-  background:
-    linear-gradient(
-      145deg,
-      #00498e,
-      #006bc5,
-      #008de0
-    );
-
+  background: linear-gradient(145deg, #00498e, #006bc5, #008de0);
 }
-
 
 .contenido-presentacion {
-
   position: relative;
-
   z-index: 4;
-
 }
-
 
 .circulo {
-
   position: absolute;
-
   border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.06);
-
+  background: rgba(255, 255, 255, 0.06);
 }
-
 
 .circulo-a {
-
   width: 400px;
-
   height: 400px;
-
   top: -200px;
-
   left: -160px;
-
 }
-
 
 .circulo-b {
-
   width: 230px;
-
   height: 230px;
-
   bottom: -100px;
-
   right: -80px;
-
 }
-
-
-/* LOGO */
 
 .logo-login {
-
   width: 82px;
-
   height: 82px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.2);
-
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 25px;
-
-  background:
-    rgba(255, 255, 255, 0.13);
-
+  background: rgba(255, 255, 255, 0.13);
   font-size: 42px;
-
-  box-shadow:
-    0 10px 25px
-    rgba(0, 0, 0, 0.1);
-
-  animation:
-    logoFlotar
-    3.5s ease-in-out
-    infinite;
-
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: logoFlotar 3.5s ease-in-out infinite;
 }
-
 
 @keyframes logoFlotar {
-
-  0%,
-  100% {
-
-    transform:
-      translateY(0);
-
-  }
-
-
-  50% {
-
-    transform:
-      translateY(-10px);
-
-  }
-
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
-
 
 .presentacion h1 {
-
-  margin:
-    28px 0 4px;
-
-  font-size:
-    clamp(
-      38px,
-      4vw,
-      50px
-    );
-
+  margin: 28px 0 4px;
+  font-size: clamp(38px, 4vw, 50px);
   letter-spacing: 1px;
-
 }
-
 
 .presentacion h1 span {
-
   color: #e7f7ff;
-
 }
-
 
 .presentacion h2 {
-
   margin: 0;
-
   font-size: 30px;
-
 }
-
 
 .descripcion {
-
   max-width: 410px;
-
   margin-top: 25px;
-
   line-height: 1.8;
-
-  color:
-    rgba(255, 255, 255, 0.88);
-
+  color: rgba(255, 255, 255, 0.88);
 }
-
-
-/* ========================================== */
-/* VENTAJAS */
-/* ========================================== */
 
 .ventajas {
-
   margin-top: 37px;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 16px;
-
 }
-
 
 .ventaja {
-
   display: flex;
-
   align-items: center;
-
   gap: 13px;
-
   opacity: 0;
-
-  transform:
-    translateX(-20px);
-
-  animation:
-    aparecerVentaja
-    0.6s ease
-    forwards;
-
-  animation-delay:
-    var(--delay);
-
+  transform: translateX(-20px);
+  animation: aparecerVentaja 0.6s ease forwards;
+  animation-delay: var(--delay);
 }
-
 
 @keyframes aparecerVentaja {
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateX(0);
-
-  }
-
+  to { opacity: 1; transform: translateX(0); }
 }
-
 
 .ventaja p {
-
   margin: 0;
-
   font-size: 14px;
-
 }
-
 
 .check {
-
   width: 32px;
-
   height: 32px;
-
   min-width: 32px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   border-radius: 50%;
-
-  background:
-    rgba(255, 255, 255, 0.15);
-
+  background: rgba(255, 255, 255, 0.15);
 }
-
-
-/* ========================================== */
-/* PANEL DERECHO */
-/* ========================================== */
 
 .formulario {
-
-  padding:
-    42px 60px;
-
+  padding: 42px 60px;
   display: flex;
-
   flex-direction: column;
-
   justify-content: center;
-
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff,
-      #fbfdff
-    );
-
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
 }
-
-
-/* ========================================== */
-/* ENCABEZADO */
-/* ========================================== */
 
 .encabezado {
-
   text-align: center;
-
 }
-
 
 .icono-usuario {
-
   width: 70px;
-
   height: 70px;
-
-  margin:
-    0 auto 15px;
-
+  margin: 0 auto 15px;
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   border-radius: 22px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #e4f3ff,
-      #f0f8ff
-    );
-
-  box-shadow:
-    0 9px 20px
-    rgba(0, 107, 197, 0.10);
-
+  background: linear-gradient(135deg, #e4f3ff, #f0f8ff);
+  box-shadow: 0 9px 20px rgba(0, 107, 197, 0.10);
 }
-
 
 .icono-usuario.admin {
-
-  background:
-    linear-gradient(
-      135deg,
-      #eae7ff,
-      #f7f5ff
-    );
-
+  background: linear-gradient(135deg, #eae7ff, #f7f5ff);
 }
-
 
 .icono-cambio {
-
   display: block;
-
   font-size: 31px;
-
-  animation:
-    iconoEntrada
-    0.4s ease;
-
+  animation: iconoEntrada 0.4s ease;
 }
-
 
 @keyframes iconoEntrada {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      scale(0.5)
-      rotate(-15deg);
-
-  }
-
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      scale(1)
-      rotate(0);
-
-  }
-
+  from { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
 }
-
 
 .encabezado h2 {
-
   margin: 0;
-
   color: #172033;
-
   font-size: 31px;
-
 }
-
 
 .encabezado p {
-
-  margin:
-    7px 0 23px;
-
+  margin: 7px 0 23px;
   color: #7c8798;
-
 }
-
-
-/* ========================================== */
-/* SELECTOR */
-/* ========================================== */
 
 .selector {
-
   position: relative;
-
   padding: 5px;
-
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(0, 1fr)
-    );
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border-radius: 15px;
-
   background: #edf2f8;
-
 }
-
 
 .selector-fondo {
-
   position: absolute;
-
   top: 5px;
-
   left: 5px;
-
-  width:
-    calc(
-      50% - 7.5px
-    );
-
-  height:
-    calc(
-      100% - 10px
-    );
-
+  width: calc(50% - 7.5px);
+  height: calc(100% - 10px);
   border-radius: 11px;
-
   background: white;
-
-  box-shadow:
-    0 6px 16px
-    rgba(0, 36, 80, 0.1);
-
-  transition:
-    transform
-    0.45s
-    cubic-bezier(
-      0.34,
-      1.56,
-      0.64,
-      1
-    );
-
+  box-shadow: 0 6px 16px rgba(0, 36, 80, 0.1);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 
 .selector-fondo.mover {
-
-  transform:
-    translateX(
-      calc(
-        100% + 5px
-      )
-    );
-
+  transform: translateX(calc(100% + 5px));
 }
-
 
 .selector button {
-
   position: relative;
-
   z-index: 2;
-
   height: 52px;
-
   border: none;
-
   background: transparent;
-
   color: #68758a;
-
   cursor: pointer;
-
   font-size: 14px;
-
   font-weight: 700;
-
-  transition:
-    0.3s ease;
-
+  transition: 0.3s ease;
 }
-
 
 .selector button span {
-
   margin-right: 7px;
-
 }
-
 
 .selector button.activo {
-
   color: #006bc5;
-
 }
-
-
-/* ========================================== */
-/* INFORMACIÓN DEL TIPO */
-/* ========================================== */
 
 .tipo-info {
-
-  margin:
-    24px 0 20px;
-
+  margin: 24px 0 20px;
 }
-
 
 .tipo-info h3 {
-
-  margin:
-    0 0 6px;
-
+  margin: 0 0 6px;
   color: #202b3c;
-
   font-size: 17px;
-
 }
-
 
 .tipo-info p {
-
   margin: 0;
-
   color: #8993a2;
-
   font-size: 13px;
-
 }
-
-
-/* ========================================== */
-/* TRANSICIÓN USUARIO / ADMIN */
-/* ========================================== */
 
 .cambio-enter-active,
 .cambio-leave-active {
-
-  transition:
-    all
-    0.3s ease;
-
+  transition: all 0.3s ease;
 }
-
 
 .cambio-enter-from {
-
   opacity: 0;
-
-  transform:
-    translateX(20px);
-
+  transform: translateX(20px);
 }
-
 
 .cambio-leave-to {
-
   opacity: 0;
-
-  transform:
-    translateX(-20px);
-
+  transform: translateX(-20px);
 }
-
-
-/* ========================================== */
-/* CAMPOS */
-/* ========================================== */
 
 .campo {
-
   margin-bottom: 19px;
-
 }
-
 
 .campo label {
-
   display: block;
-
   margin-bottom: 8px;
-
   color: #303b4c;
-
   font-size: 13px;
-
   font-weight: 700;
-
 }
-
 
 .input-contenedor {
-
   position: relative;
-
   display: flex;
-
   align-items: center;
-
 }
-
 
 .icono-input {
-
   position: absolute;
-
   left: 16px;
-
   z-index: 2;
-
   opacity: 0.7;
-
 }
-
 
 .input-contenedor input {
-
   width: 100%;
-
   height: 55px;
-
-  padding:
-    0 50px;
-
-  border:
-    1px solid
-    #d5dde7;
-
+  padding: 0 50px;
+  border: 1px solid #d5dde7;
   border-radius: 14px;
-
   outline: none;
-
   background: white;
-
   color: #273447;
-
   font-size: 14px;
-
-  transition:
-    all
-    0.3s ease;
-
+  transition: all 0.3s ease;
 }
-
 
 .input-contenedor input:hover {
-
   border-color: #a8cce7;
-
 }
-
 
 .input-contenedor input:focus {
-
   border-color: #006bc5;
-
-  box-shadow:
-    0 0 0 4px
-    rgba(0, 107, 197, 0.10);
-
-  transform:
-    translateY(-1px);
-
+  box-shadow: 0 0 0 4px rgba(0, 107, 197, 0.10);
+  transform: translateY(-1px);
 }
-
 
 .mostrar-password {
-
   position: absolute;
-
   right: 14px;
-
   border: none;
-
   background: transparent;
-
   cursor: pointer;
-
   font-size: 15px;
-
 }
-
-
-/* ========================================== */
-/* BOTÓN LOGIN */
-/* ========================================== */
 
 .btn-login {
-
   position: relative;
-
   width: 100%;
-
   height: 55px;
-
   overflow: hidden;
-
   border: none;
-
   border-radius: 14px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 10px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #006bc5,
-      #0796df
-    );
-
+  background: linear-gradient(90deg, #006bc5, #0796df);
   color: white;
-
   cursor: pointer;
-
   font-size: 14px;
-
   font-weight: 700;
-
-  box-shadow:
-    0 10px 24px
-    rgba(0, 107, 197, 0.26);
-
-  transition:
-    all
-    0.3s ease;
-
+  box-shadow: 0 10px 24px rgba(0, 107, 197, 0.26);
+  transition: all 0.3s ease;
 }
-
 
 .btn-login:hover:not(:disabled) {
-
-  transform:
-    translateY(-3px);
-
-  box-shadow:
-    0 15px 30px
-    rgba(0, 107, 197, 0.35);
-
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 107, 197, 0.35);
 }
-
 
 .btn-login:disabled {
-
   opacity: 0.65;
-
   cursor: not-allowed;
-
 }
-
 
 .brillo {
-
   position: absolute;
-
   top: 0;
-
   left: -120%;
-
   width: 70%;
-
   height: 100%;
-
-  transform:
-    skewX(-20deg);
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,255,255,0.35),
-      transparent
-    );
-
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
 }
-
 
 .btn-login:hover .brillo {
-
-  animation:
-    brilloBoton
-    0.8s ease;
-
+  animation: brilloBoton 0.8s ease;
 }
-
 
 @keyframes brilloBoton {
-
-  to {
-
-    left: 150%;
-
-  }
-
+  to { left: 150%; }
 }
-
 
 .flecha {
-
   display: inline-block;
-
   margin-left: 5px;
-
-  transition:
-    transform
-    0.3s ease;
-
+  transition: transform 0.3s ease;
 }
-
 
 .btn-login:hover .flecha {
-
-  transform:
-    translateX(5px);
-
+  transform: translateX(5px);
 }
-
-
-/* ========================================== */
-/* LOADER */
-/* ========================================== */
 
 .loader {
-
   width: 18px;
-
   height: 18px;
-
-  border:
-    2px solid
-    rgba(255,255,255,0.4);
-
-  border-top-color:
-    white;
-
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
   border-radius: 50%;
-
-  animation:
-    girar
-    0.7s linear
-    infinite;
-
+  animation: girar 0.7s linear infinite;
 }
-
 
 @keyframes girar {
-
-  to {
-
-    transform:
-      rotate(360deg);
-
-  }
-
+  to { transform: rotate(360deg); }
 }
-
-
-/* ========================================== */
-/* MENSAJES */
-/* ========================================== */
 
 .mensaje-error,
 .mensaje-info {
-
   margin-bottom: 15px;
-
-  padding:
-    12px 14px;
-
+  padding: 12px 14px;
   border-radius: 11px;
-
   font-size: 12px;
-
 }
-
 
 .mensaje-error {
-
-  border:
-    1px solid #ffcaca;
-
-  background:
-    #fff0f0;
-
-  color:
-    #c62828;
-
+  border: 1px solid #ffcaca;
+  background: #fff0f0;
+  color: #c62828;
 }
-
 
 .mensaje-info {
-
-  border:
-    1px solid #b8defa;
-
-  background:
-    #eef8ff;
-
-  color:
-    #1769aa;
-
+  border: 1px solid #b8defa;
+  background: #eef8ff;
+  color: #1769aa;
 }
-
 
 .mensaje-enter-active,
 .mensaje-leave-active {
-
-  transition:
-    all
-    0.3s ease;
-
+  transition: all 0.3s ease;
 }
-
 
 .mensaje-enter-from,
 .mensaje-leave-to {
-
   opacity: 0;
-
-  transform:
-    translateY(-8px);
-
+  transform: translateY(-8px);
 }
-
-
-/* ========================================== */
-/* SEPARADOR */
-/* ========================================== */
 
 .separador {
-
-  margin:
-    23px 0 18px;
-
+  margin: 23px 0 18px;
   display: flex;
-
   align-items: center;
-
   gap: 12px;
-
 }
-
 
 .separador span {
-
   flex: 1;
-
   height: 1px;
-
-  background:
-    #dfe5ec;
-
+  background: #dfe5ec;
 }
-
 
 .separador p {
-
   margin: 0;
-
-  color:
-    #959eaa;
-
+  color: #959eaa;
   font-size: 11px;
-
   white-space: nowrap;
-
 }
-
-
-/* ========================================== */
-/* GOOGLE Y FACEBOOK */
-/* ========================================== */
 
 .login-social {
-
   min-height: 68px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 18px;
-
 }
 
-
-/* BOTONES CERRADOS */
-
 .social-btn {
-
   width: 58px;
-
   height: 58px;
-
-  padding:
-    0 14px;
-
+  padding: 0 14px;
   display: flex;
-
   align-items: center;
-
   justify-content: flex-start;
-
   gap: 10px;
-
   overflow: hidden;
-
-  border:
-    1px solid #d9e0e8;
-
+  border: 1px solid #d9e0e8;
   border-radius: 18px;
-
-  background:
-    white;
-
+  background: white;
   cursor: pointer;
-
-  box-shadow:
-    0 5px 15px
-    rgba(0, 30, 60, 0.05);
-
-  transition:
-    width 0.38s
-      cubic-bezier(
-        0.2,
-        0.8,
-        0.2,
-        1
-      ),
+  box-shadow: 0 5px 15px rgba(0, 30, 60, 0.05);
+  transition: width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
     transform 0.25s ease,
     box-shadow 0.25s ease,
     border-color 0.25s ease,
     background 0.25s ease;
-
 }
 
-
-/* ABRIR BOTÓN */
-
-.social-btn:hover,
+.social-btn:hover:not(:disabled),
 .social-btn:focus,
 .social-btn:focus-visible {
-
   width: 165px;
-
-  transform:
-    translateY(-4px);
-
+  transform: translateY(-4px);
   outline: none;
-
-  box-shadow:
-    0 13px 28px
-    rgba(0, 30, 60, 0.14);
-
+  box-shadow: 0 13px 28px rgba(0, 30, 60, 0.14);
 }
 
-
-/* ICONO GENERAL */
+.social-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
 
 .social-icon {
-
   width: 30px;
-
   height: 30px;
-
   min-width: 30px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   flex-shrink: 0;
-
-  transition:
-    transform
-    0.3s ease;
-
+  transition: transform 0.3s ease;
 }
-
 
 .social-btn:hover .social-icon,
 .social-btn:focus .social-icon {
-
-  transform:
-    scale(1.08);
-
+  transform: scale(1.08);
 }
-
-
-/* ========================================== */
-/* GOOGLE */
-/* ========================================== */
 
 .google-icon {
-
-  background:
-    transparent !important;
-
-  color:
-    inherit !important;
-
-  -webkit-text-fill-color:
-    initial !important;
-
+  background: transparent !important;
+  color: inherit !important;
+  -webkit-text-fill-color: initial !important;
 }
-
 
 .google-icon svg {
-
   width: 27px;
-
   height: 27px;
-
   display: block;
-
 }
-
 
 .google-btn:hover,
 .google-btn:focus,
 .google-btn:focus-visible {
-
-  border-color:
-    #4285f4;
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffffff,
-      #f3f7ff
-    );
-
+  border-color: #4285f4;
+  background: linear-gradient(135deg, #ffffff, #f3f7ff);
 }
-
-
-/* ========================================== */
-/* FACEBOOK */
-/* ========================================== */
 
 .facebook-icon {
-
   border-radius: 50%;
-
-  background:
-    #1877f2;
-
-  color:
-    white;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
+  background: #1877f2;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 23px;
-
   font-weight: 800;
-
   line-height: 1;
-
 }
-
 
 .facebook-btn:hover,
 .facebook-btn:focus,
 .facebook-btn:focus-visible {
-
-  border-color:
-    #1877f2;
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffffff,
-      #f2f7ff
-    );
-
+  border-color: #1877f2;
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
 }
-
-
-/* ========================================== */
-/* NOMBRE SOCIAL */
-/* ========================================== */
 
 .social-nombre {
-
   opacity: 0;
-
   max-width: 0;
-
   overflow: hidden;
-
-  transform:
-    translateX(-8px);
-
+  transform: translateX(-8px);
   white-space: nowrap;
-
-  color:
-    #253044;
-
+  color: #253044;
   font-size: 14px;
-
   font-weight: 700;
-
-  transition:
-    opacity 0.25s ease,
-    max-width 0.35s ease,
-    transform 0.35s ease;
-
+  transition: opacity 0.25s ease, max-width 0.35s ease, transform 0.35s ease;
 }
-
 
 .social-btn:hover .social-nombre,
 .social-btn:focus .social-nombre,
 .social-btn:focus-visible .social-nombre {
-
   opacity: 1;
-
   max-width: 100px;
-
-  transform:
-    translateX(0);
-
+  transform: translateX(0);
 }
-
-
-/* ========================================== */
-/* CREAR CUENTA */
-/* ========================================== */
 
 .crear-cuenta {
-
   margin-top: 22px;
-
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   gap: 7px;
-
-  color:
-    #7e8997;
-
+  color: #7e8997;
   font-size: 12px;
-
 }
-
 
 .crear-cuenta button {
-
   position: relative;
-
   border: none;
-
-  background:
-    transparent;
-
-  color:
-    #006bc5;
-
+  background: transparent;
+  color: #006bc5;
   cursor: pointer;
-
   font-weight: 700;
-
 }
-
 
 .crear-cuenta button::after {
-
   content: '';
-
   position: absolute;
-
   left: 0;
-
   bottom: -3px;
-
   width: 0;
-
   height: 2px;
-
-  background:
-    #006bc5;
-
-  transition:
-    width
-    0.3s ease;
-
+  background: #006bc5;
+  transition: width 0.3s ease;
 }
-
 
 .crear-cuenta button:hover::after {
-
   width: 100%;
-
 }
-
-
-/* ========================================== */
-/* ADMIN */
-/* ========================================== */
 
 .seguridad-admin {
-
   margin-top: 22px;
-
   padding: 16px;
-
   display: flex;
-
   align-items: center;
-
   gap: 13px;
-
-  border:
-    1px solid #e2e7ed;
-
+  border: 1px solid #e2e7ed;
   border-radius: 13px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #f7f9fc,
-      #f1f5f9
-    );
-
+  background: linear-gradient(135deg, #f7f9fc, #f1f5f9);
 }
-
 
 .escudo {
-
   font-size: 25px;
-
 }
-
 
 .seguridad-admin strong {
-
-  color:
-    #354052;
-
+  color: #354052;
   font-size: 12px;
-
 }
-
 
 .seguridad-admin p {
-
-  margin:
-    4px 0 0;
-
-  color:
-    #8a94a2;
-
+  margin: 4px 0 0;
+  color: #8a94a2;
   font-size: 11px;
-
 }
-
-
-/* ========================================== */
-/* TABLET */
-/* ========================================== */
 
 @media (max-width: 900px) {
-
   .pagina-login {
-
     position: absolute;
-
     align-items: flex-start;
-
   }
-
 
   .login-card {
-
-    grid-template-columns:
-      1fr;
-
+    grid-template-columns: 1fr;
   }
-
 
   .presentacion {
-
     min-height: 420px;
-
-    padding:
-      45px 40px;
-
+    padding: 45px 40px;
   }
-
 
   .formulario {
-
-    padding:
-      45px 40px;
-
+    padding: 45px 40px;
   }
-
 }
-
-
-/* ========================================== */
-/* CELULAR */
-/* ========================================== */
 
 @media (max-width: 520px) {
-
   .pagina-login {
-
-    padding:
-      12px;
-
+    padding: 12px;
   }
-
 
   .login-card {
-
-    border-radius:
-      23px;
-
+    border-radius: 23px;
   }
-
 
   .presentacion {
-
-    min-height:
-      auto;
-
-    padding:
-      35px 25px;
-
+    min-height: auto;
+    padding: 35px 25px;
   }
-
 
   .logo-login {
-
-    width:
-      65px;
-
-    height:
-      65px;
-
-    font-size:
-      32px;
-
+    width: 65px;
+    height: 65px;
+    font-size: 32px;
   }
-
 
   .presentacion h1 {
-
-    font-size:
-      35px;
-
+    font-size: 35px;
   }
-
 
   .presentacion h2 {
-
-    font-size:
-      24px;
-
+    font-size: 24px;
   }
-
 
   .formulario {
-
-    padding:
-      35px 20px;
-
+    padding: 35px 20px;
   }
-
 
   .encabezado h2 {
-
-    font-size:
-      27px;
-
+    font-size: 27px;
   }
-
 
   .selector button {
-
-    font-size:
-      12px;
-
+    font-size: 12px;
   }
-
 
   .login-social {
-
-    gap:
-      14px;
-
+    gap: 14px;
   }
-
 
   .social-btn {
-
-    width:
-      56px;
-
-    height:
-      56px;
-
+    width: 56px;
+    height: 56px;
   }
 
-
-  .social-btn:hover,
+  .social-btn:hover:not(:disabled),
   .social-btn:focus,
   .social-btn:focus-visible {
-
-    width:
-      140px;
-
+    width: 140px;
   }
-
 
   .crear-cuenta {
-
-    flex-direction:
-      column;
-
+    flex-direction: column;
   }
-
 }
 
-
-/* ========================================== */
-/* REDUCIR ANIMACIONES */
-/* ========================================== */
-
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
-
-    animation-duration:
-      0.01ms !important;
-
-    animation-iteration-count:
-      1 !important;
-
-    transition-duration:
-      0.01ms !important;
-
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-
 }
 
 </style>

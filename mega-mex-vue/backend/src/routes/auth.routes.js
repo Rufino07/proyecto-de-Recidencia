@@ -8,7 +8,8 @@ import {
   login,
   registro,
   logout,
-  perfil
+  perfil,
+  loginGoogle
 } from '../controllers/auth.controller.js'
 
 import {
@@ -32,6 +33,9 @@ router.post('/registro', validarRegistro, registro)
 
 // POST /api/auth/logout
 router.post('/logout', logout)
+
+// POST /api/auth/google
+router.post('/google', loginGoogle)   // ← NUEVA
 
 // ============================================
 // RUTAS PROTEGIDAS

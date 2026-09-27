@@ -5,6 +5,7 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
+import { OAuth2Client } from 'google-auth-library'
 
 // ============================================
 // CONFIGURACIÓN DE COOKIES
@@ -26,6 +27,13 @@ const COOKIE_USUARIO_OPTIONS = {
 
 
 // ============================================
+// GOOGLE OAUTH CLIENT
+// ============================================
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
+
+// ============================================
 // GENERAR TOKEN JWT
 // ============================================
 
@@ -37,7 +45,7 @@ const generarToken = (usuario) => {
       rol: usuario.rol
     },
     process.env.JWT_SECRET,
-    { expiresIn: '2h' }  // ← Reducido de 7d a 2h
+    { expiresIn: '2h' }
   )
 }
 
@@ -115,24 +123,16 @@ export const login = async (req, res) => {
     // GUARDAR EN COOKIES
     // ============================================
 
-    // Cookie 1: token (httpOnly → inaccesible desde JS)
     res.cookie('token', token, COOKIE_OPTIONS)
-
-    // Cookie 2: datos del usuario (NO httpOnly → el frontend los lee)
     res.cookie(
       'usuario',
       JSON.stringify(usuarioSeguro),
       COOKIE_USUARIO_OPTIONS
     )
 
-    // ============================================
-    // RESPONDER SIN EL TOKEN EN EL BODY
-    // ============================================
-
     res.json({
       ok: true,
       usuario: usuarioSeguro
-      // ⚠️ NO se envía el token en el body
     })
 
   } catch (err) {
@@ -238,15 +238,10 @@ export const registro = async (req, res) => {
       COOKIE_USUARIO_OPTIONS
     )
 
-    // ============================================
-    // RESPONDER
-    // ============================================
-
     res.status(201).json({
       ok: true,
       mensaje: 'Usuario registrado correctamente.',
       usuario: usuarioSeguro
-      // ⚠️ NO se envía el token en el body
     })
 
   } catch (err) {
@@ -325,6 +320,145 @@ export const perfil = async (req, res) => {
     res.status(500).json({
       ok: false,
       mensaje: 'Error del servidor.'
+    })
+  }
+}
+
+
+// ============================================
+// LOGIN CON GOOGLE
+// POST /api/auth/google
+// ============================================
+
+export const loginGoogle = async (req, res) => {
+  try {
+    const { credential } = req.body
+
+    // Validar que venga el token de Google
+    if (!credential) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Falta el token de Google.'
+      })
+    }
+
+    // ==========================================
+    // 1. VERIFICAR TOKEN CON GOOGLE
+    // ==========================================
+
+    let payload
+
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID
+      })
+
+      payload = ticket.getPayload()
+
+    } catch (err) {
+      console.error('❌ Token de Google inválido:', err.message)
+      return res.status(401).json({
+        ok: false,
+        mensaje: 'Token de Google inválido o expirado.'
+      })
+    }
+
+    const { email, name, picture } = payload
+
+    if (!email) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Google no proporcionó un correo válido.'
+      })
+    }
+
+    const correoLimpio = email.trim().toLowerCase()
+
+    // ==========================================
+    // 2. BUSCAR USUARIO EN LA BD
+    // ==========================================
+
+    const resultado = await pool.query(
+      `SELECT id, nombre, correo, rol, activo
+       FROM usuarios
+       WHERE LOWER(correo) = $1
+       LIMIT 1`,
+      [correoLimpio]
+    )
+
+    let usuario
+
+    // ==========================================
+    // 3. SI NO EXISTE → CREAR COMO CLIENTE
+    // ==========================================
+
+    if (resultado.rows.length === 0) {
+
+      const insert = await pool.query(
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol)
+         VALUES ($1, $2, $3, 'cliente')
+         RETURNING id, nombre, correo, rol, activo`,
+        [
+          name || correoLimpio.split('@')[0],
+          correoLimpio,
+          'GOOGLE_OAUTH_NO_PASSWORD'
+        ]
+      )
+
+      usuario = insert.rows[0]
+
+    } else {
+      usuario = resultado.rows[0]
+    }
+
+    // ==========================================
+    // 4. VERIFICAR QUE ESTÉ ACTIVO
+    // ==========================================
+
+    if (!usuario.activo) {
+      return res.status(403).json({
+        ok: false,
+        mensaje: 'Esta cuenta está desactivada.'
+      })
+    }
+
+    // ==========================================
+    // 5. GENERAR TOKEN Y GUARDAR COOKIES
+    // ==========================================
+
+    const token = generarToken(usuario)
+
+    const usuarioSeguro = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      rol: usuario.rol,
+      avatar: picture || null
+    }
+
+    res.cookie('token', token, COOKIE_OPTIONS)
+    res.cookie(
+      'usuario',
+      JSON.stringify(usuarioSeguro),
+      COOKIE_USUARIO_OPTIONS
+    )
+
+    // ==========================================
+    // 6. RESPONDER
+    // ==========================================
+
+    res.json({
+      ok: true,
+      mensaje: 'Login con Google exitoso.',
+      usuario: usuarioSeguro
+    })
+
+  } catch (err) {
+    console.error('❌ Error en loginGoogle:', err.message)
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error del servidor al iniciar sesión con Google.'
     })
   }
 }

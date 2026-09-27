@@ -29,7 +29,8 @@ const app = express()
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false    // ← NUEVO: permite popups de Google
 }))
 
 // ============================================
