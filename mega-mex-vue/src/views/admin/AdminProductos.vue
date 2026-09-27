@@ -603,8 +603,6 @@
 
 import { ref, onMounted } from 'vue'
 
-import { obtenerToken } from '../../utils/auth'
-
 
 // ============================================
 // CONFIGURACIÓN API
@@ -658,24 +656,28 @@ const cargarProductos = async () => {
   try {
 
     const respuesta = await fetch(
-      `${API_URL}/productos`
+      `${API_URL}/productos`,
+      {
+
+        credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
+      }
     )
 
     const datos = await respuesta.json()
 
 
-    if (datos.ok) {
-
-      productos.value = datos.productos
-
-    }
-    else {
+    if (!datos.ok) {
 
       mostrarMensaje(
         datos.mensaje || 'Error al cargar productos'
       )
 
+      return
+
     }
+
+    productos.value = datos.productos
 
   }
 
@@ -790,7 +792,7 @@ const seleccionarImagen = (event) => {
 
 
 // ============================================
-// GUARDAR PRODUCTO
+// GUARDAR PRODUCTO (con cookies)
 // ============================================
 
 const guardarProducto = async () => {
@@ -814,9 +816,6 @@ const guardarProducto = async () => {
 
   try {
 
-    const token = obtenerToken()
-
-
     const url = editando.value
       ? `${API_URL}/productos/${productoEditandoId.value}`
       : `${API_URL}/productos`
@@ -831,11 +830,13 @@ const guardarProducto = async () => {
 
       headers: {
 
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
 
-        'Authorization': `Bearer ${token}`
+        // El token va en la cookie httpOnly automáticamente
 
       },
+
+      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
 
       body: JSON.stringify({
 
@@ -852,6 +853,21 @@ const guardarProducto = async () => {
       })
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje(
+        'Tu sesión expiró. Inicia sesión de nuevo.'
+      )
+
+      // Opcional: redirigir al login
+      // window.location.href = '/login'
+
+      return
+
+    }
 
 
     const datos = await respuesta.json()
@@ -931,7 +947,7 @@ const editarProducto = (producto) => {
 
 
 // ============================================
-// ELIMINAR PRODUCTO
+// ELIMINAR PRODUCTO (con cookies)
 // ============================================
 
 const eliminarProducto = async (id) => {
@@ -954,23 +970,28 @@ const eliminarProducto = async (id) => {
 
   try {
 
-    const token = obtenerToken()
-
-
     const respuesta = await fetch(
       `${API_URL}/productos/${id}`,
       {
 
         method: 'DELETE',
 
-        headers: {
-
-          'Authorization': `Bearer ${token}`
-
-        }
+        credentials: 'include'   // ← NUEVO: envía cookie httpOnly
 
       }
     )
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje(
+        'Tu sesión expiró. Inicia sesión de nuevo.'
+      )
+
+      return
+
+    }
 
 
     const datos = await respuesta.json()

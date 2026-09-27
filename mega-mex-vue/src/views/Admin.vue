@@ -584,7 +584,7 @@ const irA = (ruta) => {
 // ============================================
 // CERRAR SESIÓN
 // ============================================
-const salir = () => {
+const salir = async () => {
   const confirmar = window.confirm(
     '¿Deseas cerrar tu sesión de administrador?'
   )
@@ -594,7 +594,10 @@ const salir = () => {
   }
 
   cerrarMenu()
-  cerrarSesion()
+
+  // Esperar a que el backend borre las cookies
+  await cerrarSesion()
+
   router.replace('/login')
 }
 </script>

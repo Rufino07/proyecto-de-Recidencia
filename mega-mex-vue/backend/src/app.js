@@ -7,6 +7,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import cookieParser from 'cookie-parser'
 
 // Importar rutas
 import authRoutes from './routes/auth.routes.js'
@@ -30,6 +31,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false
 }))
+
 // ============================================
 // SEGURIDAD: CORS (LISTA BLANCA ESTRICTA)
 // ============================================
@@ -94,11 +96,12 @@ app.use('/api/auth/login', limiterAuth)
 app.use('/api/auth/registro', limiterAuth)
 
 // ============================================
-// PARSERS DE BODY (CON LÍMITE)
+// PARSERS DE BODY (CON LÍMITE) + COOKIES
 // ============================================
 
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(cookieParser())
 
 // ============================================
 // RUTA DE PRUEBA

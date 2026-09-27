@@ -7,6 +7,25 @@ import jwt from 'jsonwebtoken'
 import pool from '../config/db.js'
 
 // ============================================
+// CONFIGURACIÓN DE COOKIES
+// ============================================
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 2 * 60 * 60 * 1000  // 2 horas
+}
+
+const COOKIE_USUARIO_OPTIONS = {
+  httpOnly: false,            // El frontend puede leerlo
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  maxAge: 2 * 60 * 60 * 1000  // 2 horas
+}
+
+
+// ============================================
 // GENERAR TOKEN JWT
 // ============================================
 
@@ -18,9 +37,10 @@ const generarToken = (usuario) => {
       rol: usuario.rol
     },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES || '7d' }
+    { expiresIn: '2h' }  // ← Reducido de 7d a 2h
   )
 }
+
 
 // ============================================
 // LOGIN
@@ -83,16 +103,36 @@ export const login = async (req, res) => {
     // Generar token
     const token = generarToken(usuario)
 
-    // Responder
+    // Datos seguros del usuario (sin password_hash)
+    const usuarioSeguro = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      rol: usuario.rol
+    }
+
+    // ============================================
+    // GUARDAR EN COOKIES
+    // ============================================
+
+    // Cookie 1: token (httpOnly → inaccesible desde JS)
+    res.cookie('token', token, COOKIE_OPTIONS)
+
+    // Cookie 2: datos del usuario (NO httpOnly → el frontend los lee)
+    res.cookie(
+      'usuario',
+      JSON.stringify(usuarioSeguro),
+      COOKIE_USUARIO_OPTIONS
+    )
+
+    // ============================================
+    // RESPONDER SIN EL TOKEN EN EL BODY
+    // ============================================
+
     res.json({
       ok: true,
-      token,
-      usuario: {
-        id: usuario.id,
-        nombre: usuario.nombre,
-        correo: usuario.correo,
-        rol: usuario.rol
-      }
+      usuario: usuarioSeguro
+      // ⚠️ NO se envía el token en el body
     })
 
   } catch (err) {
@@ -103,6 +143,7 @@ export const login = async (req, res) => {
     })
   }
 }
+
 
 // ============================================
 // REGISTRO (solo clientes)
@@ -175,19 +216,37 @@ export const registro = async (req, res) => {
 
     const nuevoUsuario = resultado.rows[0]
 
-    // Generar token automáticamente
+    // Generar token
     const token = generarToken(nuevoUsuario)
+
+    // Datos seguros
+    const usuarioSeguro = {
+      id: nuevoUsuario.id,
+      nombre: nuevoUsuario.nombre,
+      correo: nuevoUsuario.correo,
+      rol: nuevoUsuario.rol
+    }
+
+    // ============================================
+    // GUARDAR EN COOKIES
+    // ============================================
+
+    res.cookie('token', token, COOKIE_OPTIONS)
+    res.cookie(
+      'usuario',
+      JSON.stringify(usuarioSeguro),
+      COOKIE_USUARIO_OPTIONS
+    )
+
+    // ============================================
+    // RESPONDER
+    // ============================================
 
     res.status(201).json({
       ok: true,
       mensaje: 'Usuario registrado correctamente.',
-      token,
-      usuario: {
-        id: nuevoUsuario.id,
-        nombre: nuevoUsuario.nombre,
-        correo: nuevoUsuario.correo,
-        rol: nuevoUsuario.rol
-      }
+      usuario: usuarioSeguro
+      // ⚠️ NO se envía el token en el body
     })
 
   } catch (err) {
@@ -198,6 +257,42 @@ export const registro = async (req, res) => {
     })
   }
 }
+
+
+// ============================================
+// LOGOUT
+// POST /api/auth/logout
+// ============================================
+
+export const logout = (req, res) => {
+  try {
+    // Borrar ambas cookies
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+
+    res.clearCookie('usuario', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+
+    res.json({
+      ok: true,
+      mensaje: 'Sesión cerrada correctamente.'
+    })
+
+  } catch (err) {
+    console.error('❌ Error en logout:', err.message)
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error del servidor al cerrar sesión.'
+    })
+  }
+}
+
 
 // ============================================
 // OBTENER PERFIL (usuario autenticado)

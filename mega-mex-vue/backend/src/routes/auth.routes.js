@@ -7,6 +7,7 @@ import { Router } from 'express'
 import {
   login,
   registro,
+  logout,
   perfil
 } from '../controllers/auth.controller.js'
 
@@ -28,6 +29,9 @@ router.post('/login', validarLogin, login)
 
 // POST /api/auth/registro
 router.post('/registro', validarRegistro, registro)
+
+// POST /api/auth/logout
+router.post('/logout', logout)
 
 // ============================================
 // RUTAS PROTEGIDAS

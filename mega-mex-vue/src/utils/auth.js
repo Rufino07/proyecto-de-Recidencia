@@ -9,21 +9,20 @@ const API_URL = 'http://localhost:3000/api'
 // =====================================================
 // CLAVE DE LOCALSTORAGE
 // =====================================================
+// Solo guardamos el usuario (no el token, ese va en cookie httpOnly)
 
-const CLAVE_SESION = 'sesionMegaMex'
+const CLAVE_USUARIO = 'usuarioMegaMex'
 
 
 // =====================================================
-// GUARDAR SESIÓN
+// GUARDAR USUARIO EN LOCALSTORAGE
 // =====================================================
 
-const guardarSesion = (sesion) => {
-
+const guardarUsuario = (usuario) => {
   localStorage.setItem(
-    CLAVE_SESION,
-    JSON.stringify(sesion)
+    CLAVE_USUARIO,
+    JSON.stringify(usuario)
   )
-
 }
 
 
@@ -46,6 +45,8 @@ export const iniciarSesion = async (correo, password) => {
           'Content-Type': 'application/json'
         },
 
+        credentials: 'include',   // ← NUEVO: enviar/recibir cookies
+
         body: JSON.stringify({
           correo: correoLimpio,
           password: password
@@ -61,11 +62,11 @@ export const iniciarSesion = async (correo, password) => {
       )
     }
 
-    // Guardar sesión con token JWT real
-    guardarSesion({
-      token: datos.token,
-      usuario: datos.usuario
-    })
+    // El token ya está en la cookie httpOnly
+    // Solo guardamos el usuario para saber quién está logueado
+    if (datos.usuario) {
+      guardarUsuario(datos.usuario)
+    }
 
     return datos
 
@@ -106,6 +107,8 @@ export const registrarUsuario = async ({ nombre, correo, password }) => {
           'Content-Type': 'application/json'
         },
 
+        credentials: 'include',   // ← NUEVO
+
         body: JSON.stringify({
           nombre: nombreLimpio,
           correo: correoLimpio,
@@ -122,12 +125,9 @@ export const registrarUsuario = async ({ nombre, correo, password }) => {
       )
     }
 
-    // Guardar sesión automáticamente después del registro
-    if (datos.token) {
-      guardarSesion({
-        token: datos.token,
-        usuario: datos.usuario
-      })
+    // Guardar usuario (el token va en cookie)
+    if (datos.usuario) {
+      guardarUsuario(datos.usuario)
     }
 
     return datos
@@ -150,12 +150,12 @@ export const registrarUsuario = async ({ nombre, correo, password }) => {
 
 
 // =====================================================
-// OBTENER SESIÓN
+// OBTENER USUARIO ACTUAL
 // =====================================================
 
-export const obtenerSesion = () => {
+export const obtenerUsuario = () => {
 
-  const datos = localStorage.getItem(CLAVE_SESION)
+  const datos = localStorage.getItem(CLAVE_USUARIO)
 
   if (!datos) {
     return null
@@ -166,7 +166,7 @@ export const obtenerSesion = () => {
   }
 
   catch {
-    localStorage.removeItem(CLAVE_SESION)
+    localStorage.removeItem(CLAVE_USUARIO)
     return null
   }
 
@@ -174,14 +174,21 @@ export const obtenerSesion = () => {
 
 
 // =====================================================
-// OBTENER USUARIO ACTUAL
+// OBTENER SESIÓN (compatibilidad)
 // =====================================================
 
-export const obtenerUsuario = () => {
+export const obtenerSesion = () => {
 
-  const sesion = obtenerSesion()
+  const usuario = obtenerUsuario()
 
-  return sesion?.usuario || null
+  if (!usuario) {
+    return null
+  }
+
+  return {
+    usuario
+    // El token ya no se expone al frontend
+  }
 
 }
 
@@ -189,13 +196,11 @@ export const obtenerUsuario = () => {
 // =====================================================
 // OBTENER TOKEN
 // =====================================================
+// El token ya no es accesible desde JS.
+// Este método se mantiene por compatibilidad pero devuelve null.
 
 export const obtenerToken = () => {
-
-  const sesion = obtenerSesion()
-
-  return sesion?.token || null
-
+  return null
 }
 
 
@@ -249,8 +254,26 @@ export const esCliente = () => {
 // CERRAR SESIÓN
 // =====================================================
 
-export const cerrarSesion = () => {
+export const cerrarSesion = async () => {
 
-  localStorage.removeItem(CLAVE_SESION)
+  try {
+    // Llamar al backend para que borre las cookies
+    await fetch(
+      `${API_URL}/auth/logout`,
+      {
+        method: 'POST',
+        credentials: 'include'
+      }
+    )
+  }
+
+  catch (err) {
+    console.warn('Error cerrando sesión en servidor:', err)
+  }
+
+  finally {
+    // Limpiar el usuario del localStorage
+    localStorage.removeItem(CLAVE_USUARIO)
+  }
 
 }
