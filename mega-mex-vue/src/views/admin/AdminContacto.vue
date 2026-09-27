@@ -150,7 +150,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { obtenerToken } from '../../utils/auth'
 
 const API_URL = 'http://localhost:3000/api'
 
@@ -184,28 +183,34 @@ const mensajesFiltrados = computed(() => {
 
 
 // ============================================
-// CARGAR MENSAJES
+// CARGAR MENSAJES — con cookies
 // ============================================
 
 const cargarMensajes = async () => {
   cargandoLista.value = true
 
   try {
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/contacto`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
     })
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+      return
+    }
 
     const datos = await respuesta.json()
 
-    if (datos.ok) {
-      mensajes.value = datos.mensajes
-    } else {
+    if (!datos.ok) {
       mostrarMensaje('Error al cargar mensajes')
+      return
     }
+
+    mensajes.value = datos.mensajes
+
   } catch (err) {
     console.error('Error cargando mensajes:', err)
     mostrarMensaje('No se pudo conectar con el servidor.')
@@ -216,19 +221,24 @@ const cargarMensajes = async () => {
 
 
 // ============================================
-// TOGGLE LEÍDO
+// TOGGLE LEÍDO — con cookies
 // ============================================
 
 const toggleLeido = async (msg) => {
   try {
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/contacto/${msg.id}`, {
+
       method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
     })
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+      return
+    }
 
     const datos = await respuesta.json()
 
@@ -246,7 +256,7 @@ const toggleLeido = async (msg) => {
 
 
 // ============================================
-// ELIMINAR
+// ELIMINAR — con cookies
 // ============================================
 
 const eliminarMensaje = async (msg) => {
@@ -257,14 +267,19 @@ const eliminarMensaje = async (msg) => {
   if (!confirmar) return
 
   try {
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/contacto/${msg.id}`, {
+
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
     })
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+      return
+    }
 
     const datos = await respuesta.json()
 
@@ -323,7 +338,6 @@ onMounted(() => {
   cargarMensajes()
 })
 </script>
-
 
 <style scoped>
 
