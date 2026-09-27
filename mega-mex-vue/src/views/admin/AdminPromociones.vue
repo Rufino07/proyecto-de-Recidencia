@@ -278,7 +278,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { obtenerToken } from '../../utils/auth'
 
 
 // ============================================
@@ -319,14 +318,20 @@ const cargarPromociones = async () => {
   cargandoLista.value = true
 
   try {
-    const respuesta = await fetch(`${API_URL}/promociones`)
+    const respuesta = await fetch(`${API_URL}/promociones`, {
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
+    })
+
     const datos = await respuesta.json()
 
-    if (datos.ok) {
-      promociones.value = datos.promociones
-    } else {
+    if (!datos.ok) {
       mostrarMensaje('Error al cargar promociones')
+      return
     }
+
+    promociones.value = datos.promociones
 
   } catch (err) {
     console.error('Error cargando promociones:', err)
@@ -415,7 +420,7 @@ const seleccionarImagen = (event) => {
 
 
 // ============================================
-// GUARDAR (crear o editar)
+// GUARDAR (crear o editar) — con cookies
 // ============================================
 
 const guardar = async () => {
@@ -429,8 +434,6 @@ const guardar = async () => {
 
   try {
 
-    const token = obtenerToken()
-
     const url = editando.value
       ? `${API_URL}/promociones/${idEditando.value}`
       : `${API_URL}/promociones`
@@ -438,11 +441,19 @@ const guardar = async () => {
     const metodo = editando.value ? 'PUT' : 'POST'
 
     const respuesta = await fetch(url, {
+
       method: metodo,
+
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+
+        'Content-Type': 'application/json'
+
+        // El token va en la cookie httpOnly automáticamente
+
       },
+
+      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
+
       body: JSON.stringify({
         titulo: form.value.titulo.trim(),
         descripcion: form.value.descripcion.trim(),
@@ -450,7 +461,16 @@ const guardar = async () => {
         imagen: form.value.imagen || null,
         activo: form.value.activo
       })
+
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+      return
+    }
+
 
     const datos = await respuesta.json()
 
@@ -479,7 +499,7 @@ const guardar = async () => {
 
 
 // ============================================
-// ELIMINAR PROMOCIÓN
+// ELIMINAR PROMOCIÓN — con cookies
 // ============================================
 
 const eliminar = async (promo) => {
@@ -488,14 +508,21 @@ const eliminar = async (promo) => {
 
   try {
 
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/promociones/${promo.id}`, {
+
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+      return
+    }
+
 
     const datos = await respuesta.json()
 
