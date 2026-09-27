@@ -126,7 +126,6 @@
 <script setup>
 
 import { ref, onMounted } from 'vue'
-import { obtenerToken } from '../../utils/auth'
 
 
 // ============================================
@@ -163,7 +162,11 @@ const cargarRedes = async () => {
 
   try {
 
-    const respuesta = await fetch(`${API_URL}/redes`)
+    const respuesta = await fetch(`${API_URL}/redes`, {
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
+    })
 
     const datos = await respuesta.json()
 
@@ -207,7 +210,7 @@ onMounted(() => {
 
 
 // ============================================
-// GUARDAR REDES
+// GUARDAR REDES — con cookies
 // ============================================
 
 const guardarRedes = async () => {
@@ -216,16 +219,19 @@ const guardarRedes = async () => {
 
   try {
 
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/redes`, {
 
       method: 'PUT',
 
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+
+        'Content-Type': 'application/json'
+
+        // El token va en la cookie httpOnly automáticamente
+
       },
+
+      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
 
       body: JSON.stringify({
         facebook: redes.value.facebook.trim(),
@@ -233,6 +239,17 @@ const guardarRedes = async () => {
       })
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+
+      return
+
+    }
+
 
     const datos = await respuesta.json()
 
