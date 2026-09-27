@@ -392,7 +392,6 @@
 <script setup>
 
 import { ref, onMounted } from 'vue'
-import { obtenerToken } from '../../utils/auth'
 
 
 // ============================================
@@ -441,19 +440,23 @@ const cargarSucursales = async () => {
 
   try {
 
-    const respuesta = await fetch(`${API_URL}/sucursales`)
+    const respuesta = await fetch(`${API_URL}/sucursales`, {
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
+    })
 
     const datos = await respuesta.json()
 
-    if (datos.ok) {
-
-      sucursales.value = datos.sucursales
-
-    } else {
+    if (!datos.ok) {
 
       mostrarMensaje('Error al cargar sucursales')
 
+      return
+
     }
+
+    sucursales.value = datos.sucursales
 
   }
 
@@ -534,7 +537,7 @@ const editarSucursal = (sucursal) => {
 
 
 // ============================================
-// GUARDAR (crear o editar)
+// GUARDAR (crear o editar) — con cookies
 // ============================================
 
 const guardarSucursal = async () => {
@@ -554,8 +557,6 @@ const guardarSucursal = async () => {
 
   try {
 
-    const token = obtenerToken()
-
     const url = editando.value
       ? `${API_URL}/sucursales/${idEditando.value}`
       : `${API_URL}/sucursales`
@@ -567,9 +568,14 @@ const guardarSucursal = async () => {
       method: metodo,
 
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+
+        'Content-Type': 'application/json'
+
+        // El token va en la cookie httpOnly automáticamente
+
       },
+
+      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
 
       body: JSON.stringify({
         nombre: form.value.nombre.trim(),
@@ -581,6 +587,17 @@ const guardarSucursal = async () => {
       })
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+
+      return
+
+    }
+
 
     const datos = await respuesta.json()
 
@@ -618,7 +635,7 @@ const guardarSucursal = async () => {
 
 
 // ============================================
-// ELIMINAR
+// ELIMINAR — con cookies
 // ============================================
 
 const eliminarSucursal = async (sucursal) => {
@@ -631,17 +648,24 @@ const eliminarSucursal = async (sucursal) => {
 
   try {
 
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/sucursales/${sucursal.id}`, {
 
       method: 'DELETE',
 
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+
+      return
+
+    }
+
 
     const datos = await respuesta.json()
 
