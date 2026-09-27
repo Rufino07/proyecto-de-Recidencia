@@ -299,7 +299,6 @@
 <script setup>
 
 import { ref, onMounted } from 'vue'
-import { obtenerToken } from '../../utils/auth'
 
 
 // ============================================
@@ -346,19 +345,23 @@ const cargarVolantes = async () => {
 
   try {
 
-    const respuesta = await fetch(`${API_URL}/volantes`)
+    const respuesta = await fetch(`${API_URL}/volantes`, {
+
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+
+    })
 
     const datos = await respuesta.json()
 
-    if (datos.ok) {
-
-      volantes.value = datos.volantes
-
-    } else {
+    if (!datos.ok) {
 
       mostrarMensaje('Error al cargar volantes')
 
+      return
+
     }
+
+    volantes.value = datos.volantes
 
   }
 
@@ -455,7 +458,7 @@ const seleccionarImagen = (event) => {
 
 
 // ============================================
-// GUARDAR VOLANTE (crear o editar)
+// GUARDAR VOLANTE (crear o editar) — con cookies
 // ============================================
 
 const guardarVolante = async () => {
@@ -472,8 +475,6 @@ const guardarVolante = async () => {
 
   try {
 
-    const token = obtenerToken()
-
     const url = editando.value
       ? `${API_URL}/volantes/${idEditando.value}`
       : `${API_URL}/volantes`
@@ -485,9 +486,14 @@ const guardarVolante = async () => {
       method: metodo,
 
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+
+        'Content-Type': 'application/json'
+
+        // El token va en la cookie httpOnly automáticamente
+
       },
+
+      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
 
       body: JSON.stringify({
         titulo: formulario.value.titulo.trim(),
@@ -497,6 +503,17 @@ const guardarVolante = async () => {
       })
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+
+      return
+
+    }
+
 
     const datos = await respuesta.json()
 
@@ -556,7 +573,7 @@ const editarVolante = (volante) => {
 
 
 // ============================================
-// ELIMINAR VOLANTE
+// ELIMINAR VOLANTE — con cookies
 // ============================================
 
 const eliminarVolante = async (id) => {
@@ -565,17 +582,24 @@ const eliminarVolante = async (id) => {
 
   try {
 
-    const token = obtenerToken()
-
     const respuesta = await fetch(`${API_URL}/volantes/${id}`, {
 
       method: 'DELETE',
 
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      credentials: 'include'   // ← NUEVO: envía cookie httpOnly
 
     })
+
+
+    // Sesión expirada
+    if (respuesta.status === 401) {
+
+      mostrarMensaje('Tu sesión expiró. Inicia sesión de nuevo.')
+
+      return
+
+    }
+
 
     const datos = await respuesta.json()
 
@@ -615,7 +639,6 @@ const mostrarMensaje = (texto) => {
 }
 
 </script>
-
 
 <style scoped>
 
