@@ -28,6 +28,7 @@
     "bcrypt@6.0.0": true
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "nodemon": "^3.1.14"
   }
 }

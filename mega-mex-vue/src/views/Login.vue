@@ -338,10 +338,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { iniciarSesion } from '../utils/auth'
 
 const router = useRouter()
+const route = useRoute()
 
 // ============================================
 // GOOGLE CLIENT ID
@@ -362,6 +363,7 @@ const cargandoGoogle = ref(false)
 const cargandoFacebook = ref(false)
 const error = ref('')
 const mensaje = ref('')
+
 // ============================================
 // MOUNT
 // ============================================
@@ -370,6 +372,17 @@ onMounted(() => {
   correo.value = ''
   password.value = ''
   mostrarPassword.value = false
+
+  // ============================================
+  // DETECTAR SESIÓN EXPIRADA (viene desde api.js)
+  // ============================================
+
+  if (
+    route.query.sesion === 'expirada' ||
+    route.query.sesion === 'SESION_EXPIRADA'
+  ) {
+    mensaje.value = 'Tu sesión ha expirado. Inicia sesión de nuevo.'
+  }
 
   // ============================================
   // INICIALIZAR GOOGLE UNA SOLA VEZ
@@ -600,7 +613,7 @@ const manejarRespuestaGoogle = async (response) => {
   try {
     console.log('📤 Enviando credential al backend...')
 
-    const res = await fetch('http://localhost:3000/api/auth/google', {
+    const res = await fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -688,7 +701,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
   try {
     console.log('📤 Enviando accessToken al backend...')
 
-    const res = await fetch('http://localhost:3000/api/auth/facebook', {
+    const res = await fetch('/api/auth/facebook', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

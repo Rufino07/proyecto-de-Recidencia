@@ -2,15 +2,9 @@
 // CONFIGURACIÓN GENERAL
 // =====================================================
 
-// URL del backend (Node.js + Express)
-const API_URL = 'http://localhost:3000/api'
+import { apiFetch } from './api.js'
 
-
-// =====================================================
-// CLAVE DE LOCALSTORAGE
-// =====================================================
-// Solo guardamos el usuario (no el token, ese va en cookie httpOnly)
-
+// Clave de localStorage
 const CLAVE_USUARIO = 'usuarioMegaMex'
 
 
@@ -19,10 +13,7 @@ const CLAVE_USUARIO = 'usuarioMegaMex'
 // =====================================================
 
 const guardarUsuario = (usuario) => {
-  localStorage.setItem(
-    CLAVE_USUARIO,
-    JSON.stringify(usuario)
-  )
+  localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuario))
 }
 
 
@@ -31,59 +22,35 @@ const guardarUsuario = (usuario) => {
 // =====================================================
 
 export const iniciarSesion = async (correo, password) => {
-
   const correoLimpio = correo.trim().toLowerCase()
 
   try {
-
-    const respuesta = await fetch(
-      `${API_URL}/auth/login`,
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        credentials: 'include',   // ← NUEVO: enviar/recibir cookies
-
-        body: JSON.stringify({
-          correo: correoLimpio,
-          password: password
-        })
-      }
-    )
+    const respuesta = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        correo: correoLimpio,
+        password
+      })
+    })
 
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(
-        datos.mensaje || 'No fue posible iniciar sesión.'
-      )
+      throw new Error(datos.mensaje || 'No fue posible iniciar sesión.')
     }
 
-    // El token ya está en la cookie httpOnly
-    // Solo guardamos el usuario para saber quién está logueado
     if (datos.usuario) {
       guardarUsuario(datos.usuario)
     }
 
     return datos
 
-  }
-
-  catch (err) {
-
-    if (err.message === 'Failed to fetch') {
-      throw new Error(
-        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-      )
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
     }
-
     throw err
-
   }
-
 }
 
 
@@ -92,60 +59,37 @@ export const iniciarSesion = async (correo, password) => {
 // =====================================================
 
 export const registrarUsuario = async ({ nombre, correo, password }) => {
-
   const nombreLimpio = nombre.trim()
   const correoLimpio = correo.trim().toLowerCase()
 
   try {
-
-    const respuesta = await fetch(
-      `${API_URL}/auth/registro`,
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        credentials: 'include',   // ← NUEVO
-
-        body: JSON.stringify({
-          nombre: nombreLimpio,
-          correo: correoLimpio,
-          password: password
-        })
-      }
-    )
+    const respuesta = await apiFetch('/auth/registro', {
+      method: 'POST',
+      body: JSON.stringify({
+        nombre: nombreLimpio,
+        correo: correoLimpio,
+        password
+      })
+    })
 
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(
-        datos.mensaje || 'No fue posible crear la cuenta.'
-      )
+      throw new Error(datos.mensaje || 'No fue posible crear la cuenta.')
     }
 
-    // Guardar usuario (el token va en cookie)
     if (datos.usuario) {
       guardarUsuario(datos.usuario)
     }
 
     return datos
 
-  }
-
-  catch (err) {
-
-    if (err.message === 'Failed to fetch') {
-      throw new Error(
-        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-      )
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
     }
-
     throw err
-
   }
-
 }
 
 
@@ -154,22 +98,16 @@ export const registrarUsuario = async ({ nombre, correo, password }) => {
 // =====================================================
 
 export const obtenerUsuario = () => {
-
   const datos = localStorage.getItem(CLAVE_USUARIO)
 
-  if (!datos) {
-    return null
-  }
+  if (!datos) return null
 
   try {
     return JSON.parse(datos)
-  }
-
-  catch {
+  } catch {
     localStorage.removeItem(CLAVE_USUARIO)
     return null
   }
-
 }
 
 
@@ -178,41 +116,24 @@ export const obtenerUsuario = () => {
 // =====================================================
 
 export const obtenerSesion = () => {
-
   const usuario = obtenerUsuario()
-
-  if (!usuario) {
-    return null
-  }
-
-  return {
-    usuario
-    // El token ya no se expone al frontend
-  }
-
+  if (!usuario) return null
+  return { usuario }
 }
 
 
 // =====================================================
-// OBTENER TOKEN
+// OBTENER TOKEN (compatibilidad, siempre null)
 // =====================================================
-// El token ya no es accesible desde JS.
-// Este método se mantiene por compatibilidad pero devuelve null.
 
-export const obtenerToken = () => {
-  return null
-}
+export const obtenerToken = () => null
 
 
 // =====================================================
 // SABER SI HAY UNA SESIÓN
 // =====================================================
 
-export const estaAutenticado = () => {
-
-  return !!obtenerUsuario()
-
-}
+export const estaAutenticado = () => !!obtenerUsuario()
 
 
 // =====================================================
@@ -220,11 +141,8 @@ export const estaAutenticado = () => {
 // =====================================================
 
 export const tieneRol = (rol) => {
-
   const usuario = obtenerUsuario()
-
   return usuario?.rol === rol
-
 }
 
 
@@ -232,22 +150,14 @@ export const tieneRol = (rol) => {
 // VERIFICAR ADMINISTRADOR
 // =====================================================
 
-export const esAdministrador = () => {
-
-  return tieneRol('admin')
-
-}
+export const esAdministrador = () => tieneRol('admin')
 
 
 // =====================================================
 // VERIFICAR CLIENTE
 // =====================================================
 
-export const esCliente = () => {
-
-  return tieneRol('cliente')
-
-}
+export const esCliente = () => tieneRol('cliente')
 
 
 // =====================================================
@@ -255,27 +165,13 @@ export const esCliente = () => {
 // =====================================================
 
 export const cerrarSesion = async () => {
-
   try {
-    // Llamar al backend para que borre las cookies
-    await fetch(
-      `${API_URL}/auth/logout`,
-      {
-        method: 'POST',
-        credentials: 'include'
-      }
-    )
-  }
-
-  catch (err) {
+    await apiFetch('/auth/logout', { method: 'POST' })
+  } catch (err) {
     console.warn('Error cerrando sesión en servidor:', err)
-  }
-
-  finally {
-    // Limpiar el usuario del localStorage
+  } finally {
     localStorage.removeItem(CLAVE_USUARIO)
   }
-
 }
 
 
@@ -284,155 +180,86 @@ export const cerrarSesion = async () => {
 // =====================================================
 
 export const iniciarSesionFacebook = async (accessToken) => {
-
   try {
-
-    const respuesta = await fetch(
-      `${API_URL}/auth/facebook`,
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        credentials: 'include',   // ← cookies httpOnly
-
-        body: JSON.stringify({ accessToken })
-      }
-    )
+    const respuesta = await apiFetch('/auth/facebook', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken })
+    })
 
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(
-        datos.mensaje || 'No fue posible iniciar sesión con Facebook.'
-      )
+      throw new Error(datos.mensaje || 'No fue posible iniciar sesión con Facebook.')
     }
 
-    // Guardar usuario (el token va en cookie)
     if (datos.usuario) {
       guardarUsuario(datos.usuario)
     }
 
     return datos
 
-  }
-
-  catch (err) {
-
-    if (err.message === 'Failed to fetch') {
-      throw new Error(
-        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-      )
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
     }
-
     throw err
-
   }
-
 }
 
 
 // =====================================================
 // SOLICITAR RECUPERACIÓN DE CONTRASEÑA
 // =====================================================
-// Envía el correo del usuario para pedir un enlace de reseteo
 
 export const forgotPassword = async (correo) => {
-
   const correoLimpio = correo.trim().toLowerCase()
 
   try {
-
-    const respuesta = await fetch(
-      `${API_URL}/auth/forgot-password`,
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        credentials: 'include',
-
-        body: JSON.stringify({ correo: correoLimpio })
-      }
-    )
+    const respuesta = await apiFetch('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ correo: correoLimpio })
+    })
 
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(
-        datos.mensaje || 'No fue posible procesar la solicitud.'
-      )
+      throw new Error(datos.mensaje || 'No fue posible procesar la solicitud.')
     }
 
     return datos
 
-  }
-
-  catch (err) {
-
-    if (err.message === 'Failed to fetch') {
-      throw new Error(
-        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-      )
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
     }
-
     throw err
-
   }
-
 }
 
 
 // =====================================================
 // RESETEAR CONTRASEÑA
 // =====================================================
-// Recibe el token del enlace y la nueva contraseña
 
 export const resetPassword = async (token, password) => {
-
   try {
-
-    const respuesta = await fetch(
-      `${API_URL}/auth/reset-password`,
-      {
-        method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        credentials: 'include',
-
-        body: JSON.stringify({ token, password })
-      }
-    )
+    const respuesta = await apiFetch('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password })
+    })
 
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(
-        datos.mensaje || 'No fue posible cambiar la contraseña.'
-      )
+      throw new Error(datos.mensaje || 'No fue posible cambiar la contraseña.')
     }
 
     return datos
 
-  }
-
-  catch (err) {
-
-    if (err.message === 'Failed to fetch') {
-      throw new Error(
-        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-      )
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
     }
-
     throw err
-
   }
-
 }

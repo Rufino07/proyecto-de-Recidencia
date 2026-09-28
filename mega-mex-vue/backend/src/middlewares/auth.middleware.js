@@ -19,7 +19,8 @@ export const verificarToken = (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         ok: false,
-        mensaje: 'Token no proporcionado.'
+        codigo: 'SESION_REQUERIDA',
+        mensaje: 'No hay sesión activa.'
       })
     }
 
@@ -32,9 +33,19 @@ export const verificarToken = (req, res, next) => {
     next()
 
   } catch (err) {
+    // Distinguir entre expirado e inválido
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        ok: false,
+        codigo: 'SESION_EXPIRADA',
+        mensaje: 'Tu sesión ha expirado. Inicia sesión de nuevo.'
+      })
+    }
+
     return res.status(401).json({
       ok: false,
-      mensaje: 'Token inválido o expirado.'
+      codigo: 'SESION_INVALIDA',
+      mensaje: 'Sesión inválida.'
     })
   }
 }
@@ -62,6 +73,7 @@ export const verificarCliente = (req, res, next) => {
   if (!req.usuario) {
     return res.status(401).json({
       ok: false,
+      codigo: 'SESION_REQUERIDA',
       mensaje: 'No autenticado.'
     })
   }

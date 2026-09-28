@@ -14,14 +14,14 @@ import { OAuth2Client } from 'google-auth-library'
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: 'lax',
   maxAge: 2 * 60 * 60 * 1000  // 2 horas
 }
 
 const COOKIE_USUARIO_OPTIONS = {
   httpOnly: false,            // El frontend puede leerlo
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: 'lax',
   maxAge: 2 * 60 * 60 * 1000  // 2 horas
 }
 
@@ -272,13 +272,13 @@ export const logout = (req, res) => {
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'lax'
     })
 
     res.clearCookie('usuario', {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'lax'
     })
 
     res.json({
