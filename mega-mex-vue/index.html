@@ -32,7 +32,27 @@
       async
       defer
     ></script>
+    <!-- ===================================== -->
+    <!-- FACEBOOK SDK -->
+    <!-- ===================================== -->
+    <script>
+      window.fbAsyncInit = function () {
+        FB.init({
+          appId: '1406927924239937',
+          cookie: true,
+          xfbml: true,
+          version: 'v19.0'
+        })
+        window.dispatchEvent(new Event('fb-sdk-ready'))
+      }
+    </script>
 
+    <script
+      async
+      defer
+      crossorigin="anonymous"
+      src="https://connect.facebook.net/es_LA/sdk.js"
+    ></script>
     <title>Mega-Mex | Abarrotes</title>
   </head>
 

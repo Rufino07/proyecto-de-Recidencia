@@ -277,3 +277,56 @@ export const cerrarSesion = async () => {
   }
 
 }
+// =====================================================
+// INICIAR SESIÓN CON FACEBOOK
+// =====================================================
+
+export const iniciarSesionFacebook = async (accessToken) => {
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_URL}/auth/facebook`,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        credentials: 'include',   // ← cookies httpOnly
+
+        body: JSON.stringify({ accessToken })
+      }
+    )
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.mensaje || 'No fue posible iniciar sesión con Facebook.'
+      )
+    }
+
+    // Guardar usuario (el token va en cookie)
+    if (datos.usuario) {
+      guardarUsuario(datos.usuario)
+    }
+
+    return datos
+
+  }
+
+  catch (err) {
+
+    if (err.message === 'Failed to fetch') {
+      throw new Error(
+        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+      )
+    }
+
+    throw err
+
+  }
+
+}

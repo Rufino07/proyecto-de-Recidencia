@@ -9,7 +9,8 @@ import {
   registro,
   logout,
   perfil,
-  loginGoogle
+  loginGoogle,
+  loginFacebook
 } from '../controllers/auth.controller.js'
 
 import {
@@ -28,6 +29,8 @@ const router = Router()
 // POST /api/auth/login
 router.post('/login', validarLogin, login)
 
+// POST /api/auth/facebook
+router.post('/facebook', loginFacebook)   // ← NUEVA
 // POST /api/auth/registro
 router.post('/registro', validarRegistro, registro)
 

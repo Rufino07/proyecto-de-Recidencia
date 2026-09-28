@@ -275,19 +275,22 @@
 
                 </button>
 
-                <button
-                  type="button"
-                  class="social-btn facebook-btn"
-                  title="Continuar con Facebook"
-                  aria-label="Continuar con Facebook"
-                  @click="loginSocial('Facebook')"
-                >
+               <button
+  type="button"
+  class="social-btn facebook-btn"
+  title="Continuar con Facebook"
+  aria-label="Continuar con Facebook"
+  :disabled="cargandoFacebook"
+  @click="loginSocial('Facebook')"
+>
 
-                  <span class="social-icon facebook-icon">f</span>
+  <span class="social-icon facebook-icon">f</span>
 
-                  <span class="social-nombre">Facebook</span>
+  <span class="social-nombre">
+    {{ cargandoFacebook ? 'Conectando...' : 'Facebook' }}
+  </span>
 
-                </button>
+</button>
 
               </div>
 
@@ -349,9 +352,9 @@ const password = ref('')
 const mostrarPassword = ref(false)
 const cargando = ref(false)
 const cargandoGoogle = ref(false)
+const cargandoFacebook = ref(false)
 const error = ref('')
 const mensaje = ref('')
-
 // ============================================
 // MOUNT
 // ============================================
@@ -483,17 +486,17 @@ const irARegistro = () => {
 
 const loginSocial = (proveedor) => {
   error.value = ''
+  mensaje.value = ''
 
   if (proveedor === 'Google') {
     iniciarLoginGoogle()
     return
   }
 
-  mensaje.value = `El acceso con ${proveedor} se conectará próximamente.`
-
-  setTimeout(() => {
-    mensaje.value = ''
-  }, 3500)
+  if (proveedor === 'Facebook') {
+    iniciarLoginFacebook()
+    return
+  }
 }
 
 // ============================================
@@ -622,6 +625,97 @@ const manejarRespuestaGoogle = async (response) => {
     error.value = err.message || 'No se pudo iniciar sesión con Google.'
   } finally {
     cargandoGoogle.value = false
+  }
+}
+// ============================================
+// INICIAR LOGIN CON FACEBOOK
+// ============================================
+
+const iniciarLoginFacebook = () => {
+  error.value = ''
+
+  if (!window.FB) {
+    error.value =
+      'La librería de Facebook aún se está cargando. Intenta en unos segundos.'
+    return
+  }
+
+  cargandoFacebook.value = true
+
+  window.FB.login(
+    (response) => {
+
+      if (!response.authResponse) {
+        cargandoFacebook.value = false
+        return
+      }
+
+      manejarRespuestaFacebook(response.authResponse.accessToken)
+    },
+    {
+      scope: 'public_profile,email',
+      return_scopes: true
+    }
+  )
+}
+
+// ============================================
+// MANEJAR RESPUESTA DE FACEBOOK
+// ============================================
+
+const manejarRespuestaFacebook = async (accessToken) => {
+  console.log('🎉 Callback de Facebook ejecutado')
+
+  error.value = ''
+  mensaje.value = ''
+  cargandoFacebook.value = true
+
+  try {
+    console.log('📤 Enviando accessToken al backend...')
+
+    const res = await fetch('http://localhost:3000/api/auth/facebook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ accessToken })
+    })
+
+    console.log('📥 Respuesta del backend:', res.status)
+
+    const datos = await res.json()
+    console.log('📦 Datos:', datos)
+
+    if (!res.ok || !datos.ok) {
+      throw new Error(
+        datos.mensaje || 'Error al iniciar sesión con Facebook.'
+      )
+    }
+
+    const usuario = datos.usuario
+
+    if (!usuario) {
+      throw new Error('No se obtuvo usuario del servidor.')
+    }
+
+    console.log('✅ Login exitoso. Rol:', usuario.rol)
+
+    // ⚠️ GUARDAR USUARIO PARA EL ROUTER
+    localStorage.setItem('usuarioMegaMex', JSON.stringify(usuario))
+
+    console.log('💾 Usuario guardado en localStorage')
+
+    // Redirigir según rol
+    if (usuario.rol === 'admin') {
+      router.replace('/admin')
+    } else {
+      router.replace('/inicio')
+    }
+
+  } catch (err) {
+    console.error('❌ Error login Facebook:', err)
+    error.value = err.message || 'No se pudo iniciar sesión con Facebook.'
+  } finally {
+    cargandoFacebook.value = false
   }
 }
 </script>

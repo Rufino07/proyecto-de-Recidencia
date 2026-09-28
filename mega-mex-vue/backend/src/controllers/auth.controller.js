@@ -32,7 +32,14 @@ const COOKIE_USUARIO_OPTIONS = {
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
+// ============================================
+// FACEBOOK OAUTH
+// ============================================
 
+const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID
+const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET
+const FACEBOOK_GRAPH_VERSION = 'v19.0'
+const FACEBOOK_GRAPH_URL = `https://graph.facebook.com/${FACEBOOK_GRAPH_VERSION}`
 // ============================================
 // GENERAR TOKEN JWT
 // ============================================
@@ -459,6 +466,181 @@ export const loginGoogle = async (req, res) => {
     res.status(500).json({
       ok: false,
       mensaje: 'Error del servidor al iniciar sesión con Google.'
+    })
+  }
+}
+// ============================================
+// LOGIN CON FACEBOOK
+// POST /api/auth/facebook
+// ============================================
+
+export const loginFacebook = async (req, res) => {
+  try {
+    const { accessToken } = req.body
+
+    // ==========================================
+    // 1. VALIDAR QUE VENGA EL TOKEN
+    // ==========================================
+
+    if (!accessToken) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Falta el token de Facebook.'
+      })
+    }
+
+    if (!FACEBOOK_APP_ID || !FACEBOOK_APP_SECRET) {
+      console.error('❌ Faltan FACEBOOK_APP_ID o FACEBOOK_APP_SECRET en .env')
+      return res.status(500).json({
+        ok: false,
+        mensaje: 'Configuración de Facebook incompleta en el servidor.'
+      })
+    }
+
+    // ==========================================
+    // 2. VERIFICAR TOKEN CON /debug_token
+    // ==========================================
+
+    const debugUrl =
+      `${FACEBOOK_GRAPH_URL}/debug_token` +
+      `?input_token=${encodeURIComponent(accessToken)}` +
+      `&access_token=${FACEBOOK_APP_ID}|${FACEBOOK_APP_SECRET}`
+
+    const debugResp = await fetch(debugUrl)
+    const debugData = await debugResp.json()
+
+    if (!debugData.data || !debugData.data.is_valid) {
+      console.error('❌ Token de Facebook inválido:', debugData)
+      return res.status(401).json({
+        ok: false,
+        mensaje: 'Token de Facebook inválido o expirado.'
+      })
+    }
+
+    if (String(debugData.data.app_id) !== String(FACEBOOK_APP_ID)) {
+      console.error('❌ Token de Facebook de otra app:', debugData.data.app_id)
+      return res.status(401).json({
+        ok: false,
+        mensaje: 'El token no pertenece a esta aplicación.'
+      })
+    }
+
+    // ==========================================
+    // 3. OBTENER DATOS DEL USUARIO CON /me
+    // ==========================================
+
+    const meUrl =
+      `${FACEBOOK_GRAPH_URL}/me` +
+      `?fields=id,name,email,picture.type(large)` +
+      `&access_token=${encodeURIComponent(accessToken)}`
+
+    const meResp = await fetch(meUrl)
+    const meData = await meResp.json()
+
+    if (meData.error) {
+      console.error('❌ Error Graph API /me:', meData.error)
+      return res.status(401).json({
+        ok: false,
+        mensaje: 'No se pudo obtener el perfil de Facebook.'
+      })
+    }
+
+    const { email, name, picture } = meData
+
+    if (!email) {
+      return res.status(400).json({
+        ok: false,
+        mensaje:
+          'Facebook no proporcionó un correo. ' +
+          'Autoriza el acceso al correo o usa otro método de login.'
+      })
+    }
+
+    const correoLimpio = email.trim().toLowerCase()
+    const avatarUrl = picture?.data?.url || null
+
+    // ==========================================
+    // 4. BUSCAR USUARIO EN LA BD
+    // ==========================================
+
+    const resultado = await pool.query(
+      `SELECT id, nombre, correo, rol, activo
+       FROM usuarios
+       WHERE LOWER(correo) = $1
+       LIMIT 1`,
+      [correoLimpio]
+    )
+
+    let usuario
+
+    // ==========================================
+    // 5. SI NO EXISTE → CREAR COMO CLIENTE
+    // ==========================================
+
+    if (resultado.rows.length === 0) {
+      const insert = await pool.query(
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol)
+         VALUES ($1, $2, $3, 'cliente')
+         RETURNING id, nombre, correo, rol, activo`,
+        [
+          name || correoLimpio.split('@')[0],
+          correoLimpio,
+          'FACEBOOK_OAUTH_NO_PASSWORD'
+        ]
+      )
+
+      usuario = insert.rows[0]
+    } else {
+      usuario = resultado.rows[0]
+    }
+
+    // ==========================================
+    // 6. VERIFICAR QUE ESTÉ ACTIVO
+    // ==========================================
+
+    if (!usuario.activo) {
+      return res.status(403).json({
+        ok: false,
+        mensaje: 'Esta cuenta está desactivada.'
+      })
+    }
+
+    // ==========================================
+    // 7. GENERAR TOKEN Y GUARDAR COOKIES
+    // ==========================================
+
+    const token = generarToken(usuario)
+
+    const usuarioSeguro = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      rol: usuario.rol,
+      avatar: avatarUrl
+    }
+
+    res.cookie('token', token, COOKIE_OPTIONS)
+    res.cookie(
+      'usuario',
+      JSON.stringify(usuarioSeguro),
+      COOKIE_USUARIO_OPTIONS
+    )
+
+    // ==========================================
+    // 8. RESPONDER
+    // ==========================================
+
+    res.json({
+      ok: true,
+      mensaje: 'Login con Facebook exitoso.',
+      usuario: usuarioSeguro
+    })
+
+  } catch (err) {
+    console.error('❌ Error en loginFacebook:', err.message)
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error del servidor al iniciar sesión con Facebook.'
     })
   }
 }
