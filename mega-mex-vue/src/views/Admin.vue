@@ -190,6 +190,24 @@
           <span class="admin-item-nombre">Mensajes</span>
         </RouterLink>
 
+        <!-- USUARIOS -->
+        <RouterLink
+          to="/admin/usuarios"
+          class="admin-menu-item"
+          active-class="activo"
+          @click="cerrarMenu"
+        >
+          <span class="admin-item-icono">
+            <svg class="admin-icono-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <span class="admin-item-nombre">Usuarios</span>
+        </RouterLink>
+
       </nav>
 
       <!-- =================================== -->
@@ -496,6 +514,41 @@
               <h3>Mensajes</h3>
               <p>
                 Revisa los mensajes enviados por los clientes desde el formulario de contacto.
+              </p>
+            </div>
+
+            <div class="admin-tarjeta-action">
+              <span class="admin-tarjeta-accion-texto">Gestionar</span>
+              <div class="admin-flecha">
+                <svg class="admin-flecha-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
+            </div>
+          </article>
+
+          <!-- USUARIOS -->
+          <article
+            class="admin-tarjeta"
+            @click="irA('/admin/usuarios')"
+          >
+            <div class="admin-tarjeta-top">
+              <div class="admin-tarjeta-icono morado">
+                <svg class="admin-tarjeta-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <span class="admin-estado estado-morado">Usuarios</span>
+            </div>
+
+            <div class="admin-tarjeta-info">
+              <h3>Usuarios</h3>
+              <p>
+                Administra roles, activa o desactiva cuentas y consulta los usuarios registrados.
               </p>
             </div>
 

@@ -29,6 +29,7 @@ import AdminProductos from '../views/admin/AdminProductos.vue'
 import AdminSucursales from '../views/admin/AdminSucursales.vue'
 import AdminRedes from '../views/admin/AdminRedes.vue'
 import AdminContacto from '../views/admin/AdminContacto.vue'
+import AdminUsuarios from '../views/AdminUsuarios.vue'   // ← NUEVO
 
 // ============================================
 // AUTENTICACIÓN
@@ -242,6 +243,12 @@ const router = createRouter({
           path: 'contacto',
           name: 'admin-contacto',
           component: AdminContacto
+        },
+
+        {
+          path: 'usuarios',
+          name: 'admin-usuarios',
+          component: AdminUsuarios
         }
 
       ]
