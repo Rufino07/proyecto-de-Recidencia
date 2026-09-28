@@ -14,6 +14,11 @@ import {
 } from '../controllers/auth.controller.js'
 
 import {
+  forgotPassword,
+  resetPassword
+} from '../controllers/passwordReset.controller.js'
+
+import {
   validarLogin,
   validarRegistro
 } from '../validators/auth.validator.js'
@@ -29,8 +34,6 @@ const router = Router()
 // POST /api/auth/login
 router.post('/login', validarLogin, login)
 
-// POST /api/auth/facebook
-router.post('/facebook', loginFacebook)   // ← NUEVA
 // POST /api/auth/registro
 router.post('/registro', validarRegistro, registro)
 
@@ -38,7 +41,16 @@ router.post('/registro', validarRegistro, registro)
 router.post('/logout', logout)
 
 // POST /api/auth/google
-router.post('/google', loginGoogle)   // ← NUEVA
+router.post('/google', loginGoogle)
+
+// POST /api/auth/facebook
+router.post('/facebook', loginFacebook)
+
+// POST /api/auth/forgot-password
+router.post('/forgot-password', forgotPassword)
+
+// POST /api/auth/reset-password
+router.post('/reset-password', resetPassword)
 
 // ============================================
 // RUTAS PROTEGIDAS

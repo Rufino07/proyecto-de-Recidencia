@@ -277,6 +277,8 @@ export const cerrarSesion = async () => {
   }
 
 }
+
+
 // =====================================================
 // INICIAR SESIÓN CON FACEBOOK
 // =====================================================
@@ -311,6 +313,110 @@ export const iniciarSesionFacebook = async (accessToken) => {
     // Guardar usuario (el token va en cookie)
     if (datos.usuario) {
       guardarUsuario(datos.usuario)
+    }
+
+    return datos
+
+  }
+
+  catch (err) {
+
+    if (err.message === 'Failed to fetch') {
+      throw new Error(
+        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+      )
+    }
+
+    throw err
+
+  }
+
+}
+
+
+// =====================================================
+// SOLICITAR RECUPERACIÓN DE CONTRASEÑA
+// =====================================================
+// Envía el correo del usuario para pedir un enlace de reseteo
+
+export const forgotPassword = async (correo) => {
+
+  const correoLimpio = correo.trim().toLowerCase()
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_URL}/auth/forgot-password`,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        credentials: 'include',
+
+        body: JSON.stringify({ correo: correoLimpio })
+      }
+    )
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.mensaje || 'No fue posible procesar la solicitud.'
+      )
+    }
+
+    return datos
+
+  }
+
+  catch (err) {
+
+    if (err.message === 'Failed to fetch') {
+      throw new Error(
+        'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+      )
+    }
+
+    throw err
+
+  }
+
+}
+
+
+// =====================================================
+// RESETEAR CONTRASEÑA
+// =====================================================
+// Recibe el token del enlace y la nueva contraseña
+
+export const resetPassword = async (token, password) => {
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_URL}/auth/reset-password`,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        credentials: 'include',
+
+        body: JSON.stringify({ token, password })
+      }
+    )
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok) {
+      throw new Error(
+        datos.mensaje || 'No fue posible cambiar la contraseña.'
+      )
     }
 
     return datos

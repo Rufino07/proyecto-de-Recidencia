@@ -235,6 +235,13 @@
 
             </form>
 
+            <!-- Link olvidé mi contraseña (solo para usuarios) -->
+            <div v-if="tipoAcceso === 'usuario'" class="olvide-link">
+              <button type="button" @click="irAOlvidePassword">
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
             <template v-if="tipoAcceso === 'usuario'">
 
               <div class="separador">
@@ -478,6 +485,14 @@ const login = async () => {
 
 const irARegistro = () => {
   router.push('/registro')
+}
+
+// ============================================
+// OLVIDÉ MI CONTRASEÑA
+// ============================================
+
+const irAOlvidePassword = () => {
+  router.push('/olvide-password')
 }
 
 // ============================================
@@ -1373,6 +1388,27 @@ const manejarRespuestaFacebook = async (accessToken) => {
   opacity: 1;
   max-width: 100px;
   transform: translateX(0);
+}
+
+.olvide-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.olvide-link button {
+  border: none;
+  background: transparent;
+  color: #006bc5;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.olvide-link button:hover {
+  color: #00498e;
+  text-decoration: underline;
 }
 
 .crear-cuenta {

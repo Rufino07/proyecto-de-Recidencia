@@ -3,9 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 // ============================================
 // VISTAS PRINCIPALES
 // ============================================
- 
+
 import Login from '../views/Login.vue'
 import Registro from '../views/Registro.vue'
+import OlvidePassword from '../views/OlvidePassword.vue'
+import ResetPassword from '../views/ResetPassword.vue'
 
 import Inicio from '../views/Inicio.vue'
 import Productos from '../views/Productos.vue'
@@ -78,6 +80,30 @@ const router = createRouter({
       path: '/registro',
       name: 'registro',
       component: Registro,
+
+      meta: {
+        ocultarNavegacion: true
+      }
+    },
+
+    // ========================================
+    // RECUPERACIÓN DE CONTRASEÑA
+    // ========================================
+
+    {
+      path: '/olvide-password',
+      name: 'olvide-password',
+      component: OlvidePassword,
+
+      meta: {
+        ocultarNavegacion: true
+      }
+    },
+
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPassword,
 
       meta: {
         ocultarNavegacion: true
@@ -260,6 +286,18 @@ router.beforeEach((to) => {
 
     return true
 
+  }
+
+  // ==========================================
+  // RECUPERACIÓN DE CONTRASEÑA (públicas)
+  // ==========================================
+
+  if (to.path === '/olvide-password') {
+    return true
+  }
+
+  if (to.path === '/reset-password') {
+    return true
   }
 
   // ==========================================
