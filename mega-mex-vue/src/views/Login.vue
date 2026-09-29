@@ -138,7 +138,13 @@
 
                 <label for="correo">Correo electrónico</label>
 
-                <div class="input-contenedor">
+                <div
+                  class="input-contenedor"
+                  :class="{
+                    'input-valido': correoFeedback.valido === true,
+                    'input-invalido': correoFeedback.valido === false
+                  }"
+                >
 
                   <span class="icono-input">✉️</span>
 
@@ -155,7 +161,28 @@
                     :disabled="cargando"
                   >
 
+                  <Transition name="feedback">
+                    <span
+                      v-if="correoFeedback.valido === true"
+                      class="feedback-icono feedback-ok"
+                    >✓</span>
+                    <span
+                      v-else-if="correoFeedback.valido === false"
+                      class="feedback-icono feedback-error"
+                    >!</span>
+                  </Transition>
+
                 </div>
+
+                <Transition name="feedback">
+                  <p
+                    v-if="correoFeedback.valido !== null"
+                    class="feedback-mensaje"
+                    :class="correoFeedback.valido ? 'texto-ok' : 'texto-error'"
+                  >
+                    {{ correoFeedback.mensaje }}
+                  </p>
+                </Transition>
 
               </div>
 
@@ -163,7 +190,13 @@
 
                 <label for="password">Contraseña</label>
 
-                <div class="input-contenedor">
+                <div
+                  class="input-contenedor"
+                  :class="{
+                    'input-valido': passwordFeedback.valido === true,
+                    'input-invalido': passwordFeedback.valido === false
+                  }"
+                >
 
                   <span class="icono-input">🔒</span>
 
@@ -191,6 +224,16 @@
 
                 </div>
 
+                <Transition name="feedback">
+                  <p
+                    v-if="passwordFeedback.valido !== null"
+                    class="feedback-mensaje"
+                    :class="passwordFeedback.valido ? 'texto-ok' : 'texto-error'"
+                  >
+                    {{ passwordFeedback.mensaje }}
+                  </p>
+                </Transition>
+
               </div>
 
               <Transition name="mensaje">
@@ -210,7 +253,7 @@
               <button
                 type="submit"
                 class="btn-login"
-                :disabled="cargando"
+                :disabled="cargando || !formularioValido"
               >
 
                 <span class="brillo"></span>
@@ -337,9 +380,14 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { iniciarSesion } from '../utils/auth'
+import {
+  validarCorreo,
+  validarPasswordLogin,
+  debeMostrarFeedback
+} from '../utils/validaciones'
 
 const router = useRouter()
 const route = useRoute()
@@ -365,6 +413,41 @@ const error = ref('')
 const mensaje = ref('')
 
 // ============================================
+// VALIDACIÓN EN VIVO
+// ============================================
+
+const correoFeedback = ref({ valido: null, mensaje: '' })
+const passwordFeedback = ref({ valido: null, mensaje: '' })
+
+// ¿El formulario es válido para enviar?
+const formularioValido = computed(() => {
+  return correoFeedback.value.valido === true &&
+         passwordFeedback.value.valido === true
+})
+
+// ============================================
+// WATCHERS DE VALIDACIÓN EN VIVO
+// ============================================
+
+// Validar correo mientras el usuario escribe
+watch(correo, (nuevoValor) => {
+  if (!debeMostrarFeedback(nuevoValor)) {
+    correoFeedback.value = { valido: null, mensaje: '' }
+    return
+  }
+  correoFeedback.value = validarCorreo(nuevoValor)
+})
+
+// Validar contraseña mientras el usuario escribe
+watch(password, (nuevoValor) => {
+  if (!debeMostrarFeedback(nuevoValor)) {
+    passwordFeedback.value = { valido: null, mensaje: '' }
+    return
+  }
+  passwordFeedback.value = validarPasswordLogin(nuevoValor)
+})
+
+// ============================================
 // MOUNT
 // ============================================
 
@@ -372,6 +455,8 @@ onMounted(() => {
   correo.value = ''
   password.value = ''
   mostrarPassword.value = false
+  correoFeedback.value = { valido: null, mensaje: '' }
+  passwordFeedback.value = { valido: null, mensaje: '' }
 
   // ============================================
   // DETECTAR SESIÓN EXPIRADA (viene desde api.js)
@@ -429,6 +514,8 @@ const cambiarTipo = (tipo) => {
   error.value = ''
   mensaje.value = ''
   mostrarPassword.value = false
+  correoFeedback.value = { valido: null, mensaje: '' }
+  passwordFeedback.value = { valido: null, mensaje: '' }
 }
 
 // ============================================
@@ -1125,6 +1212,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
   position: relative;
   display: flex;
   align-items: center;
+  border: 1px solid #d5dde7;
+  border-radius: 14px;
+  background: white;
+  transition: all 0.3s ease;
 }
 
 .icono-input {
@@ -1138,20 +1229,20 @@ const manejarRespuestaFacebook = async (accessToken) => {
   width: 100%;
   height: 55px;
   padding: 0 50px;
-  border: 1px solid #d5dde7;
+  border: none;
   border-radius: 14px;
   outline: none;
-  background: white;
+  background: transparent;
   color: #273447;
   font-size: 14px;
   transition: all 0.3s ease;
 }
 
-.input-contenedor input:hover {
+.input-contenedor:hover {
   border-color: #a8cce7;
 }
 
-.input-contenedor input:focus {
+.input-contenedor:focus-within {
   border-color: #006bc5;
   box-shadow: 0 0 0 4px rgba(0, 107, 197, 0.10);
   transform: translateY(-1px);
@@ -1483,6 +1574,95 @@ const manejarRespuestaFacebook = async (accessToken) => {
   color: #8a94a2;
   font-size: 11px;
 }
+
+
+/* ========================================== */
+/* VALIDACIÓN EN VIVO */
+/* ========================================== */
+
+.input-contenedor.input-valido {
+  border-color: #22c55e;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+.input-contenedor.input-invalido {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2, #ffffff);
+}
+
+.input-contenedor.input-valido:focus-within {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.input-contenedor.input-invalido:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.feedback-icono {
+  position: absolute;
+  right: 46px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+  animation: aparecerFeedback 0.25s ease;
+}
+
+.feedback-ok {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+}
+
+.feedback-error {
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+}
+
+.feedback-mensaje {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding-left: 4px;
+  animation: aparecerFeedback 0.25s ease;
+}
+
+.texto-ok {
+  color: #16a34a;
+}
+
+.texto-error {
+  color: #dc2626;
+}
+
+@keyframes aparecerFeedback {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedback-enter-active,
+.feedback-leave-active {
+  transition: all 0.2s ease;
+}
+
+.feedback-enter-from,
+.feedback-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 
 @media (max-width: 900px) {
   .pagina-login {
