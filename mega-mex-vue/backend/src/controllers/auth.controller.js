@@ -4,8 +4,10 @@
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 import pool from '../config/db.js'
 import { OAuth2Client } from 'google-auth-library'
+import { enviarEmailVerificacion } from '../services/email.service.js'
 
 // ============================================
 // CONFIGURACIÓN DE COOKIES
@@ -40,6 +42,8 @@ const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET
 const FACEBOOK_GRAPH_VERSION = 'v19.0'
 const FACEBOOK_GRAPH_URL = `https://graph.facebook.com/${FACEBOOK_GRAPH_VERSION}`
+
+
 // ============================================
 // GENERAR TOKEN JWT
 // ============================================
@@ -76,9 +80,9 @@ export const login = async (req, res) => {
 
     const correoLimpio = correo.trim().toLowerCase()
 
-    // Buscar usuario
+    // Buscar usuario (incluye email_verificado)
     const resultado = await pool.query(
-      `SELECT id, nombre, correo, password_hash, rol, activo
+      `SELECT id, nombre, correo, password_hash, rol, activo, email_verificado
        FROM usuarios
        WHERE LOWER(correo) = $1
        LIMIT 1`,
@@ -99,6 +103,15 @@ export const login = async (req, res) => {
       return res.status(403).json({
         ok: false,
         mensaje: 'Esta cuenta está desactivada.'
+      })
+    }
+
+    // Verificar si el correo está confirmado
+    if (!usuario.email_verificado) {
+      return res.status(403).json({
+        ok: false,
+        mensaje:
+          'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.'
       })
     }
 
@@ -155,6 +168,14 @@ export const login = async (req, res) => {
 // ============================================
 // REGISTRO (solo clientes)
 // POST /api/auth/registro
+// ============================================
+// Flujo nuevo:
+//   1. Valida datos
+//   2. Crea usuario con email_verificado = false
+//   3. Genera token de verificación (32 bytes hex)
+//   4. Guarda token + expiración (24h) en la BD
+//   5. Envía email con enlace de verificación
+//   6. NO loguea al usuario automáticamente
 // ============================================
 
 export const registro = async (req, res) => {
@@ -213,42 +234,50 @@ export const registro = async (req, res) => {
     // Hashear contraseña
     const hash = await bcrypt.hash(password, 10)
 
-    // Insertar (SIEMPRE como cliente)
+    // Generar token de verificación (32 bytes = 64 caracteres hex)
+    const verificacionToken = crypto.randomBytes(32).toString('hex')
+
+    // Expiración: 24 horas desde ahora
+    const expiracion = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    // Insertar usuario con email_verificado = false
     const resultado = await pool.query(
-      `INSERT INTO usuarios (nombre, correo, password_hash, rol)
-       VALUES ($1, $2, $3, 'cliente')
+      `INSERT INTO usuarios 
+         (nombre, correo, password_hash, rol, email_verificado, verificacion_token, verificacion_token_expira)
+       VALUES ($1, $2, $3, 'cliente', FALSE, $4, $5)
        RETURNING id, nombre, correo, rol`,
-      [nombreLimpio, correoLimpio, hash]
+      [nombreLimpio, correoLimpio, hash, verificacionToken, expiracion]
     )
 
     const nuevoUsuario = resultado.rows[0]
 
-    // Generar token
-    const token = generarToken(nuevoUsuario)
+    // ============================================
+    // ENVIAR EMAIL DE VERIFICACIÓN
+    // ============================================
 
-    // Datos seguros
-    const usuarioSeguro = {
-      id: nuevoUsuario.id,
-      nombre: nuevoUsuario.nombre,
-      correo: nuevoUsuario.correo,
-      rol: nuevoUsuario.rol
+    try {
+      await enviarEmailVerificacion(
+        correoLimpio,
+        nombreLimpio,
+        verificacionToken
+      )
+    } catch (emailErr) {
+      console.error('❌ Error enviando email de verificación:', emailErr.message)
+      // No abortamos el registro; el usuario puede pedir reenvío luego.
     }
 
-    // ============================================
-    // GUARDAR EN COOKIES
-    // ============================================
-
-    res.cookie('token', token, COOKIE_OPTIONS)
-    res.cookie(
-      'usuario',
-      JSON.stringify(usuarioSeguro),
-      COOKIE_USUARIO_OPTIONS
-    )
+    // NO generamos JWT ni cookies: el usuario debe verificar primero
 
     res.status(201).json({
       ok: true,
-      mensaje: 'Usuario registrado correctamente.',
-      usuario: usuarioSeguro
+      mensaje:
+        'Cuenta creada. Revisa tu correo para verificar tu cuenta antes de iniciar sesión.',
+      usuario: {
+        id: nuevoUsuario.id,
+        nombre: nuevoUsuario.nombre,
+        correo: nuevoUsuario.correo,
+        rol: nuevoUsuario.rol
+      }
     })
 
   } catch (err) {
@@ -403,8 +432,8 @@ export const loginGoogle = async (req, res) => {
     if (resultado.rows.length === 0) {
 
       const insert = await pool.query(
-        `INSERT INTO usuarios (nombre, correo, password_hash, rol)
-         VALUES ($1, $2, $3, 'cliente')
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado)
+         VALUES ($1, $2, $3, 'cliente', TRUE)
          RETURNING id, nombre, correo, rol, activo`,
         [
           name || correoLimpio.split('@')[0],
@@ -469,6 +498,8 @@ export const loginGoogle = async (req, res) => {
     })
   }
 }
+
+
 // ============================================
 // LOGIN CON FACEBOOK
 // POST /api/auth/facebook
@@ -579,8 +610,8 @@ export const loginFacebook = async (req, res) => {
 
     if (resultado.rows.length === 0) {
       const insert = await pool.query(
-        `INSERT INTO usuarios (nombre, correo, password_hash, rol)
-         VALUES ($1, $2, $3, 'cliente')
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado)
+         VALUES ($1, $2, $3, 'cliente', TRUE)
          RETURNING id, nombre, correo, rol, activo`,
         [
           name || correoLimpio.split('@')[0],
@@ -641,6 +672,92 @@ export const loginFacebook = async (req, res) => {
     res.status(500).json({
       ok: false,
       mensaje: 'Error del servidor al iniciar sesión con Facebook.'
+    })
+  }
+}
+
+
+// ============================================
+// VERIFICAR EMAIL
+// GET /api/auth/verificar-email?token=...
+// ============================================
+// El usuario hace clic en el enlace del correo.
+// Validamos el token, marcamos email_verificado=true
+// y borramos el token para que no se reutilice.
+// ============================================
+
+export const verificarEmail = async (req, res) => {
+  try {
+    const { token } = req.query
+
+    // Validar que venga el token
+    if (!token) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Token de verificación faltante.'
+      })
+    }
+
+    // Buscar usuario con ese token
+    const resultado = await pool.query(
+      `SELECT id, nombre, correo, email_verificado, verificacion_token_expira
+       FROM usuarios
+       WHERE verificacion_token = $1
+       LIMIT 1`,
+      [token]
+    )
+
+    if (resultado.rows.length === 0) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'Token inválido o ya usado.'
+      })
+    }
+
+    const usuario = resultado.rows[0]
+
+    // Verificar si ya estaba verificado (caso raro: token reutilizado)
+    if (usuario.email_verificado) {
+      return res.json({
+        ok: true,
+        mensaje: 'Tu correo ya estaba verificado. Puedes iniciar sesión.'
+      })
+    }
+
+    // Verificar expiración
+    if (
+      usuario.verificacion_token_expira &&
+      new Date(usuario.verificacion_token_expira) < new Date()
+    ) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'El enlace de verificación ha expirado. Solicita uno nuevo.'
+      })
+    }
+
+    // Marcar como verificado y borrar token
+    await pool.query(
+      `UPDATE usuarios
+       SET email_verificado = TRUE,
+           verificacion_token = NULL,
+           verificacion_token_expira = NULL,
+           actualizado_en = NOW()
+       WHERE id = $1`,
+      [usuario.id]
+    )
+
+    console.log('✅ Email verificado:', usuario.correo)
+
+    res.json({
+      ok: true,
+      mensaje: '¡Correo verificado correctamente! Ya puedes iniciar sesión.'
+    })
+
+  } catch (err) {
+    console.error('❌ Error en verificarEmail:', err.message)
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error del servidor al verificar el correo.'
     })
   }
 }

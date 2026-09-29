@@ -10,7 +10,8 @@ import {
   logout,
   perfil,
   loginGoogle,
-  loginFacebook
+  loginFacebook,
+  verificarEmail
 } from '../controllers/auth.controller.js'
 
 import {
@@ -51,6 +52,9 @@ router.post('/forgot-password', forgotPassword)
 
 // POST /api/auth/reset-password
 router.post('/reset-password', resetPassword)
+
+// GET /api/auth/verificar-email?token=...
+router.get('/verificar-email', verificarEmail)
 
 // ============================================
 // RUTAS PROTEGIDAS

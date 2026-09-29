@@ -8,6 +8,7 @@ import Login from '../views/Login.vue'
 import Registro from '../views/Registro.vue'
 import OlvidePassword from '../views/OlvidePassword.vue'
 import ResetPassword from '../views/ResetPassword.vue'
+import VerificarEmail from '../views/VerificarEmail.vue'   // ← NUEVO
 
 import Inicio from '../views/Inicio.vue'
 import Productos from '../views/Productos.vue'
@@ -29,7 +30,7 @@ import AdminProductos from '../views/admin/AdminProductos.vue'
 import AdminSucursales from '../views/admin/AdminSucursales.vue'
 import AdminRedes from '../views/admin/AdminRedes.vue'
 import AdminContacto from '../views/admin/AdminContacto.vue'
-import AdminUsuarios from '../views/AdminUsuarios.vue'   // ← NUEVO
+import AdminUsuarios from '../views/AdminUsuarios.vue'
 
 // ============================================
 // AUTENTICACIÓN
@@ -105,6 +106,20 @@ const router = createRouter({
       path: '/reset-password',
       name: 'reset-password',
       component: ResetPassword,
+
+      meta: {
+        ocultarNavegacion: true
+      }
+    },
+
+    // ========================================
+    // VERIFICACIÓN DE EMAIL
+    // ========================================
+
+    {
+      path: '/verificar-email',
+      name: 'verificar-email',
+      component: VerificarEmail,
 
       meta: {
         ocultarNavegacion: true
@@ -304,6 +319,14 @@ router.beforeEach((to) => {
   }
 
   if (to.path === '/reset-password') {
+    return true
+  }
+
+  // ==========================================
+  // VERIFICACIÓN DE EMAIL (pública)
+  // ==========================================
+
+  if (to.path === '/verificar-email') {
     return true
   }
 

@@ -341,7 +341,7 @@
             v-if="exito"
             class="mensaje-exito"
           >
-            ✅ {{ exito }}
+            {{ exito }}
           </div>
 
 
@@ -518,6 +518,9 @@ const correoValido = (correoIngresado) => {
 // ============================================
 // REGISTRAR
 // ============================================
+// NOTA: El backend ya no loguea automáticamente.
+// Envía un correo de verificación. Mostramos mensaje
+// de "revisa tu correo" y NO redirigimos al login.
 
 const registrar = async () => {
 
@@ -561,11 +564,23 @@ const registrar = async () => {
       password: password.value
     })
 
-    exito.value = 'Cuenta creada correctamente.'
+    // NO redirigimos: mostramos mensaje de "revisa tu correo"
+    exito.value =
+      '✅ Cuenta creada. Revisa tu correo electrónico y haz clic en el enlace para verificar tu cuenta antes de iniciar sesión.'
 
-    setTimeout(() => {
-      router.replace('/login')
-    }, 1200)
+    // Limpiar formulario
+    nombre.value = ''
+    apellidos.value = ''
+    correo.value = ''
+    password.value = ''
+    confirmarPassword.value = ''
+
+    // Resetear feedback
+    nombreFeedback.value = { valido: null, mensaje: '' }
+    apellidosFeedback.value = { valido: null, mensaje: '' }
+    correoFeedback.value = { valido: null, mensaje: '' }
+    passwordFeedback.value = { valido: null, mensaje: '' }
+    confirmarFeedback.value = { valido: null, mensaje: '' }
 
   } catch (err) {
 
@@ -894,6 +909,7 @@ const irLogin = () => {
 .mensaje-exito {
   background: #eaf8ef;
   color: #18794e;
+  line-height: 1.6;
 }
 
 

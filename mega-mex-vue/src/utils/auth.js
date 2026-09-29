@@ -57,6 +57,9 @@ export const iniciarSesion = async (correo, password) => {
 // =====================================================
 // REGISTRAR NUEVO USUARIO
 // =====================================================
+// NOTA: El backend ya NO loguea automáticamente.
+// Ahora envía un correo de verificación. No se guarda
+// usuario en localStorage hasta que verifique e inicie sesión.
 
 export const registrarUsuario = async ({ nombre, correo, password }) => {
   const nombreLimpio = nombre.trim()
@@ -78,9 +81,8 @@ export const registrarUsuario = async ({ nombre, correo, password }) => {
       throw new Error(datos.mensaje || 'No fue posible crear la cuenta.')
     }
 
-    if (datos.usuario) {
-      guardarUsuario(datos.usuario)
-    }
+    // NO guardamos usuario en localStorage:
+    // el usuario debe verificar su correo antes de iniciar sesión.
 
     return datos
 
@@ -252,6 +254,34 @@ export const resetPassword = async (token, password) => {
 
     if (!respuesta.ok) {
       throw new Error(datos.mensaje || 'No fue posible cambiar la contraseña.')
+    }
+
+    return datos
+
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
+    }
+    throw err
+  }
+}
+
+
+// =====================================================
+// VERIFICAR EMAIL (a partir del token del enlace)
+// =====================================================
+
+export const verificarEmail = async (token) => {
+  try {
+    const respuesta = await apiFetch(
+      `/auth/verificar-email?token=${encodeURIComponent(token)}`,
+      { method: 'GET' }
+    )
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje || 'No fue posible verificar el correo.')
     }
 
     return datos
