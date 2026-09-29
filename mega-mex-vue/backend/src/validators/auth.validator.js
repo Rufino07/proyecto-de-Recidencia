@@ -78,6 +78,21 @@ export const validarRegistro = [
 
 
 // ============================================
+// VALIDADOR: REENVIAR VERIFICACIÓN
+// ============================================
+
+export const validarReenviarVerificacion = [
+  body('correo')
+    .trim()
+    .notEmpty().withMessage('El correo es obligatorio.')
+    .isEmail().withMessage('Ingresa un correo electrónico válido.')
+    .isLength({ max: 150 }).withMessage('El correo es demasiado largo.'),
+
+  procesarErrores
+]
+
+
+// ============================================
 // VALIDADOR: CONTACTO
 // ============================================
 

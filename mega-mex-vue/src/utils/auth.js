@@ -36,7 +36,11 @@ export const iniciarSesion = async (correo, password) => {
     const datos = await respuesta.json()
 
     if (!respuesta.ok) {
-      throw new Error(datos.mensaje || 'No fue posible iniciar sesión.')
+      // Adjuntamos info extra al error (código + status)
+      const error = new Error(datos.mensaje || 'No fue posible iniciar sesión.')
+      error.codigo = datos.codigo || null
+      error.status = respuesta.status
+      throw error
     }
 
     if (datos.usuario) {
@@ -282,6 +286,39 @@ export const verificarEmail = async (token) => {
 
     if (!respuesta.ok) {
       throw new Error(datos.mensaje || 'No fue posible verificar el correo.')
+    }
+
+    return datos
+
+  } catch (err) {
+    if (err.esDeRed) {
+      throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.')
+    }
+    throw err
+  }
+}
+
+
+// =====================================================
+// REENVIAR EMAIL DE VERIFICACIÓN
+// =====================================================
+// El usuario perdió el correo original o el token expiró.
+// El backend responde SIEMPRE igual (por seguridad).
+// Rate limit en backend: 1 reenvío cada 5 minutos.
+
+export const reenviarVerificacion = async (correo) => {
+  const correoLimpio = correo.trim().toLowerCase()
+
+  try {
+    const respuesta = await apiFetch('/auth/reenviar-verificacion', {
+      method: 'POST',
+      body: JSON.stringify({ correo: correoLimpio })
+    })
+
+    const datos = await respuesta.json()
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje || 'No fue posible reenviar el correo.')
     }
 
     return datos

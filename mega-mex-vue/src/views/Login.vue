@@ -285,6 +285,58 @@
               </button>
             </div>
 
+            <!-- ============================================ -->
+            <!-- BLOQUE DE REENVÍO DE VERIFICACIÓN (NUEVO)   -->
+            <!-- Solo aparece cuando el login falla por      -->
+            <!-- correo no verificado                        -->
+            <!-- ============================================ -->
+
+            <Transition name="mensaje">
+              <div v-if="mostrarReenvio" class="reenvio-bloque">
+
+                <div class="reenvio-info">
+                  <span>📧</span>
+                  <div>
+                    <strong>¿No recibiste el correo?</strong>
+                    <p>Podemos enviarte uno nuevo para verificar tu cuenta.</p>
+                  </div>
+                </div>
+
+                <div v-if="!reenvioExitoso" class="reenvio-form">
+
+                  <div class="campo-reenvio">
+                    <label for="correo-reenvio">Correo electrónico</label>
+                    <input
+                      id="correo-reenvio"
+                      v-model="correoReenvio"
+                      type="email"
+                      placeholder="correo@ejemplo.com"
+                      autocomplete="off"
+                      :disabled="reenviando"
+                    >
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn-reenviar"
+                    :disabled="reenviando || !correoReenvioValido"
+                    @click="reenviar"
+                  >
+                    <span v-if="reenviando" class="loader loader-oscuro"></span>
+                    <span v-if="reenviando">Enviando...</span>
+                    <span v-else>Reenviar correo</span>
+                  </button>
+
+                </div>
+
+                <div v-else class="reenvio-ok">
+                  <span>✅</span>
+                  <p>{{ reenvioMensaje }}</p>
+                </div>
+
+              </div>
+            </Transition>
+
             <template v-if="tipoAcceso === 'usuario'">
 
               <div class="separador">
@@ -382,7 +434,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { iniciarSesion } from '../utils/auth'
+import { iniciarSesion, reenviarVerificacion } from '../utils/auth'
 import {
   validarCorreo,
   validarPasswordLogin,
@@ -411,6 +463,22 @@ const cargandoGoogle = ref(false)
 const cargandoFacebook = ref(false)
 const error = ref('')
 const mensaje = ref('')
+
+// ============================================
+// REENVÍO DE VERIFICACIÓN
+// ============================================
+
+const mostrarReenvio = ref(false)
+const correoReenvio = ref('')
+const reenviando = ref(false)
+const reenvioExitoso = ref(false)
+const reenvioMensaje = ref('')
+
+// Validación simple del correo de reenvío
+const correoReenvioValido = computed(() => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return regex.test(correoReenvio.value.trim())
+})
 
 // ============================================
 // VALIDACIÓN EN VIVO
@@ -516,6 +584,11 @@ const cambiarTipo = (tipo) => {
   mostrarPassword.value = false
   correoFeedback.value = { valido: null, mensaje: '' }
   passwordFeedback.value = { valido: null, mensaje: '' }
+
+  // Resetear bloque de reenvío
+  mostrarReenvio.value = false
+  reenvioExitoso.value = false
+  reenvioMensaje.value = ''
 }
 
 // ============================================
@@ -534,6 +607,11 @@ const correoValido = (correoIngresado) => {
 const login = async () => {
   error.value = ''
   mensaje.value = ''
+
+  // Ocultar bloque de reenvío en cada intento nuevo
+  mostrarReenvio.value = false
+  reenvioExitoso.value = false
+  reenvioMensaje.value = ''
 
   const correoLimpio = correo.value.trim()
 
@@ -573,9 +651,46 @@ const login = async () => {
     }
   } catch (err) {
     error.value = err.message || 'No fue posible iniciar sesión.'
+
+    // ============================================
+    // DETECTAR EMAIL NO VERIFICADO
+    // ============================================
+    // Si el backend devolvió el código EMAIL_NO_VERIFICADO,
+    // mostramos el bloque de reenvío y pre-llenamos el correo.
+
+    if (err.codigo === 'EMAIL_NO_VERIFICADO') {
+      mostrarReenvio.value = true
+      correoReenvio.value = correoLimpio
+    }
+
     password.value = ''
   } finally {
     cargando.value = false
+  }
+}
+
+// ============================================
+// REENVIAR CORREO DE VERIFICACIÓN
+// ============================================
+
+const reenviar = async () => {
+  if (!correoReenvioValido.value) return
+
+  reenviando.value = true
+  reenvioMensaje.value = ''
+
+  try {
+    const datos = await reenviarVerificacion(correoReenvio.value)
+
+    reenvioExitoso.value = true
+    reenvioMensaje.value = datos.mensaje ||
+      'Si el correo está registrado y sin verificar, te enviamos un nuevo enlace. Revisa tu bandeja (y spam).'
+
+  } catch (err) {
+    // Mostrar el error en el bloque de error general
+    error.value = err.message || 'No fue posible reenviar el correo.'
+  } finally {
+    reenviando.value = false
   }
 }
 
@@ -1357,6 +1472,145 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .mensaje-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* ========================================== */
+/* BLOQUE DE REENVÍO (NUEVO)                  */
+/* ========================================== */
+
+.reenvio-bloque {
+  margin: 15px 0 5px;
+  padding: 16px;
+  border: 1px solid #ffe0a3;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fffbf0, #fff8e6);
+  animation: aparecerBloque 0.35s ease;
+}
+
+@keyframes aparecerBloque {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reenvio-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-bottom: 14px;
+}
+
+.reenvio-info span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.reenvio-info strong {
+  display: block;
+  color: #7a4a00;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.reenvio-info p {
+  margin: 0;
+  color: #8c6a2a;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.reenvio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.campo-reenvio label {
+  display: block;
+  margin-bottom: 6px;
+  color: #7a4a00;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.campo-reenvio input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e6c97a;
+  border-radius: 11px;
+  outline: none;
+  background: white;
+  color: #4a3a13;
+  font-size: 13px;
+  transition: all 0.25s ease;
+}
+
+.campo-reenvio input:focus {
+  border-color: #d4a017;
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+}
+
+.campo-reenvio input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-reenviar {
+  height: 44px;
+  border: none;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #d4a017, #e8b83a);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 5px 14px rgba(212, 160, 23, 0.28);
+  transition: all 0.25s ease;
+}
+
+.btn-reenviar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(212, 160, 23, 0.38);
+}
+
+.btn-reenviar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.loader-oscuro {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+.reenvio-ok {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #b8e6c4;
+  border-radius: 11px;
+  background: #f0fdf4;
+}
+
+.reenvio-ok span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.reenvio-ok p {
+  margin: 0;
+  color: #166534;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .separador {

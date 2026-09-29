@@ -111,7 +111,8 @@ export const login = async (req, res) => {
       return res.status(403).json({
         ok: false,
         mensaje:
-          'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.'
+          'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+        codigo: 'EMAIL_NO_VERIFICADO'
       })
     }
 
@@ -173,7 +174,7 @@ export const login = async (req, res) => {
 //   1. Valida datos
 //   2. Crea usuario con email_verificado = false
 //   3. Genera token de verificación (32 bytes hex)
-//   4. Guarda token + expiración (24h) en la BD
+//   4. Guarda token + expiración (24h) + fecha de creación
 //   5. Envía email con enlace de verificación
 //   6. NO loguea al usuario automáticamente
 // ============================================
@@ -240,13 +241,16 @@ export const registro = async (req, res) => {
     // Expiración: 24 horas desde ahora
     const expiracion = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
+    // Fecha de creación del token (para rate limit del reenvío)
+    const tokenCreadoEn = new Date()
+
     // Insertar usuario con email_verificado = false
     const resultado = await pool.query(
       `INSERT INTO usuarios 
-         (nombre, correo, password_hash, rol, email_verificado, verificacion_token, verificacion_token_expira)
-       VALUES ($1, $2, $3, 'cliente', FALSE, $4, $5)
+         (nombre, correo, password_hash, rol, email_verificado, verificacion_token, verificacion_token_expira, verificacion_token_creado_en)
+       VALUES ($1, $2, $3, 'cliente', FALSE, $4, $5, $6)
        RETURNING id, nombre, correo, rol`,
-      [nombreLimpio, correoLimpio, hash, verificacionToken, expiracion]
+      [nombreLimpio, correoLimpio, hash, verificacionToken, expiracion, tokenCreadoEn]
     )
 
     const nuevoUsuario = resultado.rows[0]
@@ -741,6 +745,7 @@ export const verificarEmail = async (req, res) => {
        SET email_verificado = TRUE,
            verificacion_token = NULL,
            verificacion_token_expira = NULL,
+           verificacion_token_creado_en = NULL,
            actualizado_en = NOW()
        WHERE id = $1`,
       [usuario.id]
@@ -758,6 +763,130 @@ export const verificarEmail = async (req, res) => {
     res.status(500).json({
       ok: false,
       mensaje: 'Error del servidor al verificar el correo.'
+    })
+  }
+}
+
+
+// ============================================
+// REENVIAR EMAIL DE VERIFICACIÓN
+// POST /api/auth/reenviar-verificacion
+// ============================================
+// El usuario perdió el correo original o el token expiró.
+// Por seguridad, SIEMPRE respondemos igual (no revelamos
+// si el correo existe o no).
+//
+// Rate limit: 1 reenvío cada 5 minutos por correo.
+// ============================================
+
+export const reenviarVerificacion = async (req, res) => {
+  try {
+    const { correo } = req.body
+
+    // Validar que venga el correo
+    if (!correo) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'El correo es obligatorio.'
+      })
+    }
+
+    const correoLimpio = correo.trim().toLowerCase()
+
+    // Respuesta genérica (siempre la misma, exista o no el correo)
+    const RESPUESTA_GENERICA = {
+      ok: true,
+      mensaje:
+        'Si el correo está registrado y sin verificar, te enviamos un nuevo enlace. Revisa tu bandeja de entrada (y spam).'
+    }
+
+    // Buscar usuario
+    const resultado = await pool.query(
+      `SELECT id, nombre, correo, email_verificado,
+              verificacion_token_creado_en
+       FROM usuarios
+       WHERE LOWER(correo) = $1
+       LIMIT 1`,
+      [correoLimpio]
+    )
+
+    // Si no existe → responder igual (no revelamos nada)
+    if (resultado.rows.length === 0) {
+      return res.json(RESPUESTA_GENERICA)
+    }
+
+    const usuario = resultado.rows[0]
+
+    // Si ya está verificado → responder igual (no revelamos nada)
+    if (usuario.email_verificado) {
+      return res.json(RESPUESTA_GENERICA)
+    }
+
+    // ============================================
+    // RATE LIMIT: 1 reenvío cada 5 minutos
+    // ============================================
+
+    if (usuario.verificacion_token_creado_en) {
+      const ahora = Date.now()
+      const creadoEn = new Date(usuario.verificacion_token_creado_en).getTime()
+      const minutosTranscurridos = (ahora - creadoEn) / 1000 / 60
+
+      if (minutosTranscurridos < 5) {
+        // Aún no pasan 5 min → no reenviamos, pero respondemos igual
+        console.log(
+          `⏳ Reenvío bloqueado por rate limit: ${usuario.correo} ` +
+          `(${minutosTranscurridos.toFixed(1)} min)`
+        )
+        return res.json(RESPUESTA_GENERICA)
+      }
+    }
+
+    // ============================================
+    // GENERAR NUEVO TOKEN Y EXPIRACIÓN
+    // ============================================
+
+    const nuevoToken = crypto.randomBytes(32).toString('hex')
+    const nuevaExpiracion = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const nuevoCreadoEn = new Date()
+
+    // Guardar en BD
+    await pool.query(
+      `UPDATE usuarios
+       SET verificacion_token = $1,
+           verificacion_token_expira = $2,
+           verificacion_token_creado_en = $3,
+           actualizado_en = NOW()
+       WHERE id = $4`,
+      [nuevoToken, nuevaExpiracion, nuevoCreadoEn, usuario.id]
+    )
+
+    // ============================================
+    // ENVIAR EMAIL
+    // ============================================
+
+    try {
+      await enviarEmailVerificacion(
+        usuario.correo,
+        usuario.nombre,
+        nuevoToken
+      )
+      console.log('✅ Email de verificación reenviado:', usuario.correo)
+    } catch (emailErr) {
+      console.error(
+        '❌ Error reenviando email de verificación:',
+        emailErr.message
+      )
+      // No abortamos: el token ya quedó guardado en BD
+    }
+
+    // Respuesta genérica (igual que los demás casos)
+    res.json(RESPUESTA_GENERICA)
+
+  } catch (err) {
+    console.error('❌ Error en reenviarVerificacion:', err.message)
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error del servidor al reenviar el correo.'
     })
   }
 }

@@ -11,7 +11,8 @@ import {
   perfil,
   loginGoogle,
   loginFacebook,
-  verificarEmail
+  verificarEmail,
+  reenviarVerificacion
 } from '../controllers/auth.controller.js'
 
 import {
@@ -21,7 +22,8 @@ import {
 
 import {
   validarLogin,
-  validarRegistro
+  validarRegistro,
+  validarReenviarVerificacion
 } from '../validators/auth.validator.js'
 
 import { verificarToken } from '../middlewares/auth.middleware.js'
@@ -55,6 +57,13 @@ router.post('/reset-password', resetPassword)
 
 // GET /api/auth/verificar-email?token=...
 router.get('/verificar-email', verificarEmail)
+
+// POST /api/auth/reenviar-verificacion
+router.post(
+  '/reenviar-verificacion',
+  validarReenviarVerificacion,
+  reenviarVerificacion
+)
 
 // ============================================
 // RUTAS PROTEGIDAS
