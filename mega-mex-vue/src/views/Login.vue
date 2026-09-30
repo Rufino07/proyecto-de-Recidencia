@@ -15,53 +15,7 @@
 
     <section class="login-card">
 
-      <aside class="presentacion">
-
-        <div class="circulo circulo-a"></div>
-        <div class="circulo circulo-b"></div>
-
-        <div class="contenido-presentacion">
-
-          <div class="logo-login">
-            🛒
-          </div>
-
-          <h1>
-            MEGA-<span>MEX</span>
-          </h1>
-
-          <h2>
-            ¡Bienvenido!
-          </h2>
-
-          <p class="descripcion">
-            Accede al sitio para consultar productos,
-            promociones, volantes y todas las novedades
-            que Mega-Mex tiene para ti.
-          </p>
-
-          <div class="ventajas">
-
-            <div class="ventaja" style="--delay: 0.2s">
-              <span class="check">✓</span>
-              <p>Consulta nuestros productos</p>
-            </div>
-
-            <div class="ventaja" style="--delay: 0.4s">
-              <span class="check">✓</span>
-              <p>Descubre promociones</p>
-            </div>
-
-            <div class="ventaja" style="--delay: 0.6s">
-              <span class="check">✓</span>
-              <p>Conoce las novedades de Mega-Mex</p>
-            </div>
-
-          </div>
-
-        </div>
-
-      </aside>
+     
 
       <section class="formulario">
 
@@ -950,12 +904,19 @@ const manejarRespuestaFacebook = async (accessToken) => {
 }
 </script>
 
-
 <style scoped>
+
+/* ============================================ */
+/* RESET */
+/* ============================================ */
 
 * {
   box-sizing: border-box;
 }
+
+/* ============================================ */
+/* PÁGINA PRINCIPAL */
+/* ============================================ */
 
 .pagina-login {
   position: fixed;
@@ -969,67 +930,86 @@ const manejarRespuestaFacebook = async (accessToken) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(-45deg, #003d78, #0059ad, #006bc5, #0b91db, #00a7e9);
-  background-size: 400% 400%;
-  animation: fondoAnimado 13s ease infinite;
-  font-family: Arial, Helvetica, sans-serif;
+  background: #050f28;
+  font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
 }
 
-@keyframes fondoAnimado {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.fondo-luz {
+/* Fondo: imagen de la tienda Mega-Mex */
+.pagina-login::before {
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.09);
-  pointer-events: none;
+  inset: 0;
+  background-image: url('../assets/fondo-login-neon.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.55) saturate(1.2);
+  z-index: -2;
 }
 
-.luz-1 {
-  width: 430px;
-  height: 430px;
-  top: -180px;
-  left: -100px;
-  animation: flotar1 9s ease-in-out infinite;
+/* Capa oscura para contraste */
+.pagina-login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(10, 30, 80, 0.5), transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(10, 30, 80, 0.6), transparent 50%),
+    linear-gradient(180deg, rgba(5, 15, 40, 0.55) 0%, rgba(5, 15, 40, 0.75) 100%);
+  z-index: -1;
 }
 
-.luz-2 {
-  width: 330px;
-  height: 330px;
-  right: -100px;
-  bottom: -100px;
-  animation: flotar2 11s ease-in-out infinite;
+/* Líneas neón superior e inferior */
+.pagina-login .fondo-luz.luz-1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, #00d4ff, #0091ff, #00d4ff, transparent);
+  box-shadow: 0 0 20px #00d4ff, 0 0 40px #0091ff;
+  animation: pulsoNeonLinea 3s ease-in-out infinite;
 }
 
-.luz-3 {
-  width: 190px;
-  height: 190px;
-  top: 20%;
-  right: 6%;
-  opacity: 0.4;
-  animation: flotar1 13s ease-in-out infinite reverse;
+.pagina-login .fondo-luz.luz-2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  top: auto;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, #00d4ff, #0091ff, #00d4ff, transparent);
+  box-shadow: 0 0 20px #00d4ff, 0 0 40px #0091ff;
+  animation: pulsoNeonLinea 3s ease-in-out infinite 1.5s;
 }
 
-@keyframes flotar1 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(40px, 45px); }
+/* Tercera luz: la ocultamos para no romper el layout */
+.pagina-login .fondo-luz.luz-3 {
+  display: none;
 }
 
-@keyframes flotar2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-35px, -45px) scale(1.12); }
+@keyframes pulsoNeonLinea {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
+
+/* ============================================ */
+/* PARTÍCULAS FLOTANTES */
+/* ============================================ */
 
 .particula {
   position: absolute;
-  width: 7px;
-  height: 7px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  animation: subir 9s linear infinite;
+  background: #00d4ff;
+  box-shadow: 0 0 8px #00d4ff, 0 0 16px #0091ff;
+  animation: subirParticula 12s linear infinite;
+  z-index: 1;
 }
 
 .particula-1 { left: 5%; bottom: -20px; animation-delay: 0s; }
@@ -1045,51 +1025,73 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .particula-11 { left: 94%; bottom: -20px; animation-delay: 7s; }
 .particula-12 { left: 50%; bottom: -20px; animation-delay: 9s; }
 
-@keyframes subir {
-  0% { transform: translateY(0) scale(0.4); opacity: 0; }
-  20% { opacity: 0.8; }
-  100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+@keyframes subirParticula {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
 }
+
+/* ============================================ */
+/* CARD PRINCIPAL (EFECTO GLASSMORPHISM) */
+/* ============================================ */
 
 .login-card {
   position: relative;
   z-index: 5;
-  width: min(1150px, 100%);
-  min-height: 670px;
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  width: min(480px, 92%);
+  min-height: auto;
+  display: block;
+  padding: 45px 40px;
+  margin: 0 auto;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 32px;
-  background: white;
-  box-shadow: 0 35px 90px rgba(0, 30, 70, 0.38);
-  animation: aparecerCard 0.8s ease;
+  border-radius: 28px;
+
+  background: rgba(5, 18, 45, 0.75);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+
+  border: 1px solid rgba(0, 180, 255, 0.5);
+
+  box-shadow:
+    0 0 0 1px rgba(0, 180, 255, 0.15),
+    0 0 60px rgba(0, 150, 255, 0.45),
+    0 0 120px rgba(0, 100, 255, 0.3),
+    inset 0 0 80px rgba(0, 150, 255, 0.08),
+    0 35px 90px rgba(0, 0, 0, 0.5);
+
+  animation: aparecerCard 0.9s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 @keyframes aparecerCard {
-  from { opacity: 0; transform: translateY(35px) scale(0.96); }
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ============================================ */
+/* PANEL IZQUIERDO: PRESENTACIÓN */
+/* ============================================ */
 .presentacion {
   position: relative;
   overflow: hidden;
-  padding: 65px 55px;
+  padding: 30px 25px;
   display: flex;
   align-items: center;
-  color: white;
-  background: linear-gradient(145deg, #00498e, #006bc5, #008de0);
+  background: linear-gradient(145deg, rgba(0, 30, 75, 0.35), rgba(0, 60, 130, 0.25));
+  border-right: 1px solid rgba(0, 180, 255, 0.15);
 }
 
 .contenido-presentacion {
   position: relative;
   z-index: 4;
+  color: #ffffff;
 }
 
+/* Círculos decorativos (ahora son sutiles) */
 .circulo {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.12), transparent 70%);
+  pointer-events: none;
 }
 
 .circulo-a {
@@ -1106,17 +1108,20 @@ const manejarRespuestaFacebook = async (accessToken) => {
   right: -80px;
 }
 
+/* Logo */
 .logo-login {
-  width: 82px;
-  height: 82px;
+  width: 90px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 25px;
-  background: rgba(255, 255, 255, 0.13);
-  font-size: 42px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #0080ff, #00c8ff);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, 0.6),
+    0 0 40px rgba(0, 150, 255, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.2);
+  font-size: 46px;
   animation: logoFlotar 3.5s ease-in-out infinite;
 }
 
@@ -1125,30 +1130,44 @@ const manejarRespuestaFacebook = async (accessToken) => {
   50% { transform: translateY(-10px); }
 }
 
+/* Título */
 .presentacion h1 {
   margin: 28px 0 4px;
-  font-size: clamp(38px, 4vw, 50px);
-  letter-spacing: 1px;
+  font-size: clamp(38px, 4vw, 52px);
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow:
+    0 0 15px rgba(0, 180, 255, 0.7),
+    0 0 30px rgba(0, 150, 255, 0.4);
 }
 
 .presentacion h1 span {
-  color: #e7f7ff;
+  color: #00d4ff;
+  text-shadow:
+    0 0 15px rgba(0, 200, 255, 1),
+    0 0 30px rgba(0, 180, 255, 0.8),
+    0 0 50px rgba(0, 150, 255, 0.6);
 }
 
+/* Subtítulo */
 .presentacion h2 {
   margin: 0;
-  font-size: 30px;
+  font-size: 32px;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(0, 180, 255, 0.5);
 }
 
 .descripcion {
   max-width: 410px;
-  margin-top: 25px;
+  margin-top: 22px;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(200, 230, 255, 0.85);
+  font-size: 14px;
 }
 
+/* Ventajas */
 .ventajas {
-  margin-top: 37px;
+  margin-top: 35px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1157,7 +1176,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .ventaja {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 14px;
   opacity: 0;
   transform: translateX(-20px);
   animation: aparecerVentaja 0.6s ease forwards;
@@ -1171,50 +1190,62 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .ventaja p {
   margin: 0;
   font-size: 14px;
+  color: rgba(220, 240, 255, 0.9);
 }
 
 .check {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.3), rgba(0, 200, 255, 0.15));
+  border: 1px solid rgba(0, 200, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 180, 255, 0.4);
+  font-size: 15px;
+  font-weight: bold;
+  color: #00d4ff;
 }
 
+/* ============================================ */
+/* PANEL DERECHO: FORMULARIO */
+/* ============================================ */
+
 .formulario {
-  padding: 42px 60px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  background: transparent;
 }
-
 .encabezado {
   text-align: center;
 }
 
 .icono-usuario {
-  width: 70px;
-  height: 70px;
-  margin: 0 auto 15px;
+  width: 58px;                /* ← era 72px */
+  height: 58px;               /* ← era 72px */
+  margin: 0 auto 10px;        /* ← era 15px */
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 22px;
-  background: linear-gradient(135deg, #e4f3ff, #f0f8ff);
-  box-shadow: 0 9px 20px rgba(0, 107, 197, 0.10);
+  background: linear-gradient(135deg, rgba(0, 130, 255, 0.25), rgba(0, 200, 255, 0.15));
+  border: 1px solid rgba(0, 180, 255, 0.4);
+  box-shadow: 0 0 25px rgba(0, 150, 255, 0.35);
 }
 
 .icono-usuario.admin {
-  background: linear-gradient(135deg, #eae7ff, #f7f5ff);
+  background: linear-gradient(135deg, rgba(140, 100, 255, 0.25), rgba(180, 130, 255, 0.15));
+  border-color: rgba(180, 130, 255, 0.5);
+  box-shadow: 0 0 25px rgba(150, 100, 255, 0.4);
 }
 
 .icono-cambio {
   display: block;
-  font-size: 31px;
+  font-size: 26px;            /* ← era 32px */
   animation: iconoEntrada 0.4s ease;
 }
 
@@ -1225,14 +1256,20 @@ const manejarRespuestaFacebook = async (accessToken) => {
 
 .encabezado h2 {
   margin: 0;
-  color: #172033;
-  font-size: 31px;
+  color: #ffffff;
+  font-size: 30px;
+  text-shadow: 0 0 20px rgba(0, 180, 255, 0.5);
 }
 
 .encabezado p {
   margin: 7px 0 23px;
-  color: #7c8798;
+  color: rgba(180, 210, 240, 0.75);
+  font-size: 13px;
 }
+
+/* ============================================ */
+/* SELECTOR USUARIO / ADMIN */
+/* ============================================ */
 
 .selector {
   position: relative;
@@ -1240,7 +1277,8 @@ const manejarRespuestaFacebook = async (accessToken) => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-radius: 15px;
-  background: #edf2f8;
+  background: rgba(5, 20, 45, 0.6);
+  border: 1px solid rgba(0, 150, 255, 0.2);
 }
 
 .selector-fondo {
@@ -1250,8 +1288,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
   width: calc(50% - 7.5px);
   height: calc(100% - 10px);
   border-radius: 11px;
-  background: white;
-  box-shadow: 0 6px 16px rgba(0, 36, 80, 0.1);
+  background: linear-gradient(135deg, #0080ff, #00c8ff);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, 0.6),
+    inset 0 0 15px rgba(255, 255, 255, 0.15);
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1262,10 +1302,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .selector button {
   position: relative;
   z-index: 2;
-  height: 52px;
+  height: 50px;
   border: none;
   background: transparent;
-  color: #68758a;
+  color: rgba(180, 210, 240, 0.7);
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
@@ -1277,24 +1317,33 @@ const manejarRespuestaFacebook = async (accessToken) => {
 }
 
 .selector button.activo {
-  color: #006bc5;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
+/* ============================================ */
+/* INFO DEL TIPO DE ACCESO */
+/* ============================================ */
+
 .tipo-info {
-  margin: 24px 0 20px;
+  margin: 22px 0 18px;
 }
 
 .tipo-info h3 {
   margin: 0 0 6px;
-  color: #202b3c;
-  font-size: 17px;
+  color: #ffffff;
+  font-size: 16px;
 }
 
 .tipo-info p {
   margin: 0;
-  color: #8993a2;
+  color: rgba(180, 210, 240, 0.7);
   font-size: 13px;
 }
+
+/* ============================================ */
+/* TRANSICIONES DE CAMBIO */
+/* ============================================ */
 
 .cambio-enter-active,
 .cambio-leave-active {
@@ -1311,14 +1360,18 @@ const manejarRespuestaFacebook = async (accessToken) => {
   transform: translateX(-20px);
 }
 
+/* ============================================ */
+/* CAMPOS DEL FORMULARIO */
+/* ============================================ */
+
 .campo {
-  margin-bottom: 19px;
+  margin-bottom: 18px;
 }
 
 .campo label {
   display: block;
   margin-bottom: 8px;
-  color: #303b4c;
+  color: rgba(200, 225, 250, 0.9);
   font-size: 13px;
   font-weight: 700;
 }
@@ -1327,9 +1380,9 @@ const manejarRespuestaFacebook = async (accessToken) => {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid #d5dde7;
+  border: 1px solid rgba(0, 150, 255, 0.3);
   border-radius: 14px;
-  background: white;
+  background: rgba(5, 20, 45, 0.5);
   transition: all 0.3s ease;
 }
 
@@ -1337,7 +1390,8 @@ const manejarRespuestaFacebook = async (accessToken) => {
   position: absolute;
   left: 16px;
   z-index: 2;
-  opacity: 0.7;
+  opacity: 0.75;
+  filter: hue-rotate(180deg) brightness(1.3);
 }
 
 .input-contenedor input {
@@ -1348,18 +1402,24 @@ const manejarRespuestaFacebook = async (accessToken) => {
   border-radius: 14px;
   outline: none;
   background: transparent;
-  color: #273447;
+  color: #ffffff;
   font-size: 14px;
   transition: all 0.3s ease;
 }
 
+.input-contenedor input::placeholder {
+  color: rgba(150, 180, 220, 0.5);
+}
+
 .input-contenedor:hover {
-  border-color: #a8cce7;
+  border-color: rgba(0, 200, 255, 0.6);
 }
 
 .input-contenedor:focus-within {
-  border-color: #006bc5;
-  box-shadow: 0 0 0 4px rgba(0, 107, 197, 0.10);
+  border-color: #00d4ff;
+  box-shadow:
+    0 0 0 4px rgba(0, 180, 255, 0.15),
+    0 0 25px rgba(0, 180, 255, 0.4);
   transform: translateY(-1px);
 }
 
@@ -1370,12 +1430,17 @@ const manejarRespuestaFacebook = async (accessToken) => {
   background: transparent;
   cursor: pointer;
   font-size: 15px;
+  filter: hue-rotate(180deg) brightness(1.2);
 }
+
+/* ============================================ */
+/* BOTÓN LOGIN PRINCIPAL */
+/* ============================================ */
 
 .btn-login {
   position: relative;
   width: 100%;
-  height: 55px;
+  height: 56px;
   overflow: hidden;
   border: none;
   border-radius: 14px;
@@ -1383,22 +1448,29 @@ const manejarRespuestaFacebook = async (accessToken) => {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(90deg, #006bc5, #0796df);
+  background: linear-gradient(135deg, #7b2ff7, #00a3ff);
   color: white;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
-  box-shadow: 0 10px 24px rgba(0, 107, 197, 0.26);
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 0 25px rgba(120, 50, 255, 0.4),
+    0 0 50px rgba(0, 150, 255, 0.3),
+    0 10px 30px rgba(0, 100, 255, 0.3);
   transition: all 0.3s ease;
 }
 
 .btn-login:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(0, 107, 197, 0.35);
+  box-shadow:
+    0 0 35px rgba(120, 50, 255, 0.6),
+    0 0 70px rgba(0, 180, 255, 0.5),
+    0 15px 40px rgba(0, 100, 255, 0.4);
 }
 
 .btn-login:disabled {
-  opacity: 0.65;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -1409,7 +1481,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
   width: 70%;
   height: 100%;
   transform: skewX(-20deg);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
 
 .btn-login:hover .brillo {
@@ -1433,7 +1505,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .loader {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-top-color: white;
   border-radius: 50%;
   animation: girar 0.7s linear infinite;
@@ -1443,24 +1515,33 @@ const manejarRespuestaFacebook = async (accessToken) => {
   to { transform: rotate(360deg); }
 }
 
+/* ============================================ */
+/* MENSAJES DE ERROR / INFO */
+/* ============================================ */
+
 .mensaje-error,
 .mensaje-info {
   margin-bottom: 15px;
   padding: 12px 14px;
   border-radius: 11px;
   font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .mensaje-error {
-  border: 1px solid #ffcaca;
-  background: #fff0f0;
-  color: #c62828;
+  border: 1px solid rgba(255, 100, 100, 0.5);
+  background: rgba(255, 50, 50, 0.15);
+  color: #ffb3b3;
+  box-shadow: 0 0 15px rgba(255, 80, 80, 0.2);
 }
 
 .mensaje-info {
-  border: 1px solid #b8defa;
-  background: #eef8ff;
-  color: #1769aa;
+  border: 1px solid rgba(100, 200, 255, 0.5);
+  background: rgba(50, 150, 255, 0.15);
+  color: #b3e0ff;
+  box-shadow: 0 0 15px rgba(100, 200, 255, 0.2);
 }
 
 .mensaje-enter-active,
@@ -1474,22 +1555,17 @@ const manejarRespuestaFacebook = async (accessToken) => {
   transform: translateY(-8px);
 }
 
-/* ========================================== */
-/* BLOQUE DE REENVÍO (NUEVO)                  */
-/* ========================================== */
+/* ============================================ */
+/* BLOQUE DE REENVÍO DE VERIFICACIÓN */
+/* ============================================ */
 
 .reenvio-bloque {
   margin: 15px 0 5px;
   padding: 16px;
-  border: 1px solid #ffe0a3;
+  border: 1px solid rgba(255, 210, 80, 0.4);
   border-radius: 14px;
-  background: linear-gradient(135deg, #fffbf0, #fff8e6);
-  animation: aparecerBloque 0.35s ease;
-}
-
-@keyframes aparecerBloque {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  background: rgba(255, 200, 50, 0.08);
+  box-shadow: 0 0 20px rgba(255, 200, 50, 0.15);
 }
 
 .reenvio-info {
@@ -1502,18 +1578,20 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .reenvio-info span {
   font-size: 22px;
   line-height: 1;
+  filter: hue-rotate(180deg) brightness(1.3);
 }
 
 .reenvio-info strong {
   display: block;
-  color: #7a4a00;
+  color: #ffe066;
   font-size: 13px;
   margin-bottom: 2px;
+  text-shadow: 0 0 10px rgba(255, 220, 80, 0.5);
 }
 
 .reenvio-info p {
   margin: 0;
-  color: #8c6a2a;
+  color: rgba(255, 220, 150, 0.8);
   font-size: 11.5px;
   line-height: 1.5;
 }
@@ -1527,7 +1605,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .campo-reenvio label {
   display: block;
   margin-bottom: 6px;
-  color: #7a4a00;
+  color: #ffe066;
   font-size: 11.5px;
   font-weight: 700;
 }
@@ -1536,18 +1614,22 @@ const manejarRespuestaFacebook = async (accessToken) => {
   width: 100%;
   height: 44px;
   padding: 0 14px;
-  border: 1px solid #e6c97a;
+  border: 1px solid rgba(255, 210, 80, 0.4);
   border-radius: 11px;
   outline: none;
-  background: white;
-  color: #4a3a13;
+  background: rgba(5, 20, 45, 0.6);
+  color: #ffffff;
   font-size: 13px;
   transition: all 0.25s ease;
 }
 
+.campo-reenvio input::placeholder {
+  color: rgba(255, 220, 150, 0.4);
+}
+
 .campo-reenvio input:focus {
-  border-color: #d4a017;
-  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+  border-color: #ffd24d;
+  box-shadow: 0 0 20px rgba(255, 210, 80, 0.4);
 }
 
 .campo-reenvio input:disabled {
@@ -1563,18 +1645,22 @@ const manejarRespuestaFacebook = async (accessToken) => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(90deg, #d4a017, #e8b83a);
+  background: linear-gradient(135deg, #d4a017, #ffd24d);
   color: white;
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 5px 14px rgba(212, 160, 23, 0.28);
+  box-shadow:
+    0 0 20px rgba(255, 210, 80, 0.4),
+    0 5px 14px rgba(212, 160, 23, 0.3);
   transition: all 0.25s ease;
 }
 
 .btn-reenviar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(212, 160, 23, 0.38);
+  box-shadow:
+    0 0 30px rgba(255, 210, 80, 0.6),
+    0 8px 18px rgba(212, 160, 23, 0.4);
 }
 
 .btn-reenviar:disabled {
@@ -1585,7 +1671,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .loader-oscuro {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-top-color: white;
   border-radius: 50%;
   animation: girar 0.7s linear infinite;
@@ -1596,9 +1682,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
   align-items: flex-start;
   gap: 10px;
   padding: 10px 12px;
-  border: 1px solid #b8e6c4;
+  border: 1px solid rgba(100, 255, 150, 0.4);
   border-radius: 11px;
-  background: #f0fdf4;
+  background: rgba(50, 255, 100, 0.08);
+  box-shadow: 0 0 15px rgba(100, 255, 150, 0.2);
 }
 
 .reenvio-ok span {
@@ -1608,13 +1695,17 @@ const manejarRespuestaFacebook = async (accessToken) => {
 
 .reenvio-ok p {
   margin: 0;
-  color: #166534;
+  color: #b3ffcc;
   font-size: 12px;
   line-height: 1.5;
 }
 
+/* ============================================ */
+/* SEPARADOR "O CONTINUAR CON" */
+/* ============================================ */
+
 .separador {
-  margin: 23px 0 18px;
+  margin: 22px 0 18px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1623,15 +1714,19 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .separador span {
   flex: 1;
   height: 1px;
-  background: #dfe5ec;
+  background: linear-gradient(90deg, transparent, rgba(0, 180, 255, 0.4), transparent);
 }
 
 .separador p {
   margin: 0;
-  color: #959eaa;
+  color: rgba(150, 180, 220, 0.6);
   font-size: 11px;
   white-space: nowrap;
 }
+
+/* ============================================ */
+/* BOTONES SOCIALES (GOOGLE / FACEBOOK) */
+/* ============================================ */
 
 .login-social {
   min-height: 68px;
@@ -1650,12 +1745,13 @@ const manejarRespuestaFacebook = async (accessToken) => {
   justify-content: flex-start;
   gap: 10px;
   overflow: hidden;
-  border: 1px solid #d9e0e8;
+  border: 1px solid rgba(0, 180, 255, 0.35);
   border-radius: 18px;
-  background: white;
+  background: rgba(5, 20, 45, 0.5);
   cursor: pointer;
-  box-shadow: 0 5px 15px rgba(0, 30, 60, 0.05);
-  transition: width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
+  box-shadow: 0 0 15px rgba(0, 150, 255, 0.2);
+  transition:
+    width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
     transform 0.25s ease,
     box-shadow 0.25s ease,
     border-color 0.25s ease,
@@ -1668,7 +1764,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
   width: 165px;
   transform: translateY(-4px);
   outline: none;
-  box-shadow: 0 13px 28px rgba(0, 30, 60, 0.14);
+  box-shadow: 0 0 30px rgba(0, 180, 255, 0.5);
 }
 
 .social-btn:disabled {
@@ -1707,8 +1803,8 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .google-btn:hover,
 .google-btn:focus,
 .google-btn:focus-visible {
-  border-color: #4285f4;
-  background: linear-gradient(135deg, #ffffff, #f3f7ff);
+  border-color: rgba(100, 180, 255, 0.8);
+  background: rgba(10, 40, 80, 0.7);
 }
 
 .facebook-icon {
@@ -1719,13 +1815,14 @@ const manejarRespuestaFacebook = async (accessToken) => {
   font-size: 23px;
   font-weight: 800;
   line-height: 1;
+  box-shadow: 0 0 15px rgba(24, 119, 242, 0.6);
 }
 
 .facebook-btn:hover,
 .facebook-btn:focus,
 .facebook-btn:focus-visible {
-  border-color: #1877f2;
-  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  border-color: rgba(100, 180, 255, 0.8);
+  background: rgba(10, 40, 80, 0.7);
 }
 
 .social-nombre {
@@ -1734,7 +1831,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
   overflow: hidden;
   transform: translateX(-8px);
   white-space: nowrap;
-  color: #253044;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 700;
   transition: opacity 0.25s ease, max-width 0.35s ease, transform 0.35s ease;
@@ -1748,6 +1845,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
   transform: translateX(0);
 }
 
+/* ============================================ */
+/* LINK OLVIDÉ CONTRASEÑA */
+/* ============================================ */
+
 .olvide-link {
   margin-top: 15px;
   text-align: center;
@@ -1756,18 +1857,23 @@ const manejarRespuestaFacebook = async (accessToken) => {
 .olvide-link button {
   border: none;
   background: transparent;
-  color: #006bc5;
+  color: #00d4ff;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s ease;
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .olvide-link button:hover {
-  color: #00498e;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(0, 220, 255, 0.9);
   text-decoration: underline;
 }
+
+/* ============================================ */
+/* CREAR CUENTA */
+/* ============================================ */
 
 .crear-cuenta {
   margin-top: 22px;
@@ -1775,7 +1881,7 @@ const manejarRespuestaFacebook = async (accessToken) => {
   justify-content: center;
   align-items: center;
   gap: 7px;
-  color: #7e8997;
+  color: rgba(180, 210, 240, 0.75);
   font-size: 12px;
 }
 
@@ -1783,9 +1889,11 @@ const manejarRespuestaFacebook = async (accessToken) => {
   position: relative;
   border: none;
   background: transparent;
-  color: #006bc5;
+  color: #00d4ff;
   cursor: pointer;
   font-weight: 700;
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .crear-cuenta button::after {
@@ -1795,13 +1903,23 @@ const manejarRespuestaFacebook = async (accessToken) => {
   bottom: -3px;
   width: 0;
   height: 2px;
-  background: #006bc5;
+  background: #00d4ff;
+  box-shadow: 0 0 10px #00d4ff;
   transition: width 0.3s ease;
+}
+
+.crear-cuenta button:hover {
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(0, 220, 255, 1);
 }
 
 .crear-cuenta button:hover::after {
   width: 100%;
 }
+
+/* ============================================ */
+/* PANEL DE SEGURIDAD ADMIN */
+/* ============================================ */
 
 .seguridad-admin {
   margin-top: 22px;
@@ -1809,49 +1927,51 @@ const manejarRespuestaFacebook = async (accessToken) => {
   display: flex;
   align-items: center;
   gap: 13px;
-  border: 1px solid #e2e7ed;
+  border: 1px solid rgba(180, 130, 255, 0.35);
   border-radius: 13px;
-  background: linear-gradient(135deg, #f7f9fc, #f1f5f9);
+  background: rgba(100, 50, 200, 0.1);
+  box-shadow: 0 0 20px rgba(150, 100, 255, 0.2);
 }
 
 .escudo {
   font-size: 25px;
+  filter: hue-rotate(-30deg) brightness(1.3);
 }
 
 .seguridad-admin strong {
-  color: #354052;
+  color: #d4b3ff;
   font-size: 12px;
+  text-shadow: 0 0 10px rgba(180, 130, 255, 0.5);
 }
 
 .seguridad-admin p {
   margin: 4px 0 0;
-  color: #8a94a2;
+  color: rgba(200, 180, 255, 0.7);
   font-size: 11px;
 }
 
-
-/* ========================================== */
+/* ============================================ */
 /* VALIDACIÓN EN VIVO */
-/* ========================================== */
+/* ============================================ */
 
 .input-contenedor.input-valido {
-  border-color: #22c55e;
-  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
 }
 
 .input-contenedor.input-invalido {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, #fef2f2, #ffffff);
+  border-color: #ff4466;
+  box-shadow: 0 0 20px rgba(255, 68, 102, 0.3);
 }
 
 .input-contenedor.input-valido:focus-within {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+  border-color: #00ff88;
+  box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.15), 0 0 25px rgba(0, 255, 136, 0.4);
 }
 
 .input-contenedor.input-invalido:focus-within {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+  border-color: #ff4466;
+  box-shadow: 0 0 0 4px rgba(255, 68, 102, 0.15), 0 0 25px rgba(255, 68, 102, 0.4);
 }
 
 .feedback-icono {
@@ -1870,13 +1990,14 @@ const manejarRespuestaFacebook = async (accessToken) => {
 }
 
 .feedback-ok {
-  background: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+  background: #00ff88;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+  color: #003d1f;
 }
 
 .feedback-error {
-  background: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  background: #ff4466;
+  box-shadow: 0 0 15px rgba(255, 68, 102, 0.8);
 }
 
 .feedback-mensaje {
@@ -1888,22 +2009,18 @@ const manejarRespuestaFacebook = async (accessToken) => {
 }
 
 .texto-ok {
-  color: #16a34a;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
 }
 
 .texto-error {
-  color: #dc2626;
+  color: #ff6688;
+  text-shadow: 0 0 10px rgba(255, 68, 102, 0.5);
 }
 
 @keyframes aparecerFeedback {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .feedback-enter-active,
@@ -1917,6 +2034,9 @@ const manejarRespuestaFacebook = async (accessToken) => {
   transform: translateY(-4px);
 }
 
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
 
 @media (max-width: 900px) {
   .pagina-login {
@@ -1925,16 +2045,12 @@ const manejarRespuestaFacebook = async (accessToken) => {
   }
 
   .login-card {
-    grid-template-columns: 1fr;
-  }
-
-  .presentacion {
-    min-height: 420px;
-    padding: 45px 40px;
+    width: min(480px, 92%);
+    padding: 35px 28px;
   }
 
   .formulario {
-    padding: 45px 40px;
+    padding: 0;
   }
 }
 
@@ -1944,22 +2060,23 @@ const manejarRespuestaFacebook = async (accessToken) => {
   }
 
   .login-card {
-    border-radius: 23px;
+    border-radius: 22px;
   }
 
   .presentacion {
+    padding: 32px 24px;
     min-height: auto;
-    padding: 35px 25px;
   }
 
-  .logo-login {
-    width: 65px;
-    height: 65px;
-    font-size: 32px;
+ .logo-login {
+  width: 72px;                /* ← era 90px */
+  height: 72px;               /* ← era 90px */
+    border-radius: 18px;
+    font-size: 38px;            /* ← era 46px */
   }
 
   .presentacion h1 {
-    font-size: 35px;
+    font-size: 34px;
   }
 
   .presentacion h2 {
@@ -1967,11 +2084,11 @@ const manejarRespuestaFacebook = async (accessToken) => {
   }
 
   .formulario {
-    padding: 35px 20px;
+    padding: 32px 20px;
   }
 
   .encabezado h2 {
-    font-size: 27px;
+    font-size: 26px;
   }
 
   .selector button {
