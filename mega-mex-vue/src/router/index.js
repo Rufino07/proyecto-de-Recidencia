@@ -8,7 +8,7 @@ import Login from '../views/Login.vue'
 import Registro from '../views/Registro.vue'
 import OlvidePassword from '../views/OlvidePassword.vue'
 import ResetPassword from '../views/ResetPassword.vue'
-import VerificarEmail from '../views/VerificarEmail.vue'   // ← NUEVO
+import VerificarEmail from '../views/VerificarEmail.vue'
 
 import Inicio from '../views/Inicio.vue'
 import Productos from '../views/Productos.vue'
@@ -40,6 +40,12 @@ import {
   obtenerUsuario,
   cerrarSesion
 } from '../utils/auth'
+
+// ============================================
+// SEO
+// ============================================
+
+import { aplicarSeo } from '../composables/useSeo'
 
 // ============================================
 // CREAR ROUTER
@@ -293,11 +299,8 @@ router.beforeEach((to) => {
   // ==========================================
 
   if (to.path === '/login') {
-
     cerrarSesion()
-
     return true
-
   }
 
   // ==========================================
@@ -305,9 +308,7 @@ router.beforeEach((to) => {
   // ==========================================
 
   if (to.path === '/registro') {
-
     return true
-
   }
 
   // ==========================================
@@ -344,9 +345,7 @@ router.beforeEach((to) => {
     to.meta.requiereLogin &&
     !usuario
   ) {
-
     return '/login'
-
   }
 
   // ==========================================
@@ -356,15 +355,11 @@ router.beforeEach((to) => {
   if (to.meta.rol === 'admin') {
 
     if (!usuario) {
-
       return '/login'
-
     }
 
     if (usuario.rol !== 'admin') {
-
       return '/inicio'
-
     }
 
   }
@@ -376,27 +371,32 @@ router.beforeEach((to) => {
   if (to.meta.rol === 'cliente') {
 
     if (!usuario) {
-
       return '/login'
-
     }
 
     if (usuario.rol === 'admin') {
-
       return '/admin'
-
     }
 
     if (usuario.rol !== 'cliente') {
-
       return '/login'
-
     }
 
   }
 
   return true
 
+})
+
+// ============================================
+// SEO AUTOMÁTICO
+// ============================================
+// Cada vez que el usuario navega a una nueva ruta,
+// se aplican los meta tags correspondientes según
+// el "name" definido en la ruta.
+
+router.afterEach((to) => {
+  aplicarSeo(to.name, to.path)
 })
 
 export default router

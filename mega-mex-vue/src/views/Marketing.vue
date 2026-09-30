@@ -144,6 +144,7 @@
               v-if="flyer.imagen"
               :src="flyer.imagen"
               :alt="flyer.titulo"
+              loading="lazy"
             >
 
             <div v-else class="sin-imagen">
@@ -348,7 +349,6 @@ onMounted(() => {
 })
 
 </script>
-
 
 <style scoped>
 

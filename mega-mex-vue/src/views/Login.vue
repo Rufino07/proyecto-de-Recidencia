@@ -389,6 +389,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { iniciarSesion, reenviarVerificacion } from '../utils/auth'
+
 import {
   validarCorreo,
   validarPasswordLogin,
@@ -397,6 +398,7 @@ import {
 
 const router = useRouter()
 const route = useRoute()
+
 
 // ============================================
 // GOOGLE CLIENT ID

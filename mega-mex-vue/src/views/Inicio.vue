@@ -792,7 +792,11 @@ onBeforeUnmount(() => {
           <div class="promo-linea promo-linea-azul"></div>
 
           <div class="promo-media">
-            <img src="/productos.png" alt="Productos seleccionados" />
+            <img
+              src="/productos.png"
+              alt="Productos seleccionados"
+              loading="lazy"
+            />
           </div>
 
           <div class="promo-superior">
@@ -832,7 +836,11 @@ onBeforeUnmount(() => {
           <div class="promo-linea promo-linea-roja"></div>
 
           <div class="promo-media">
-            <img src="/mayore02.png" alt="Precios especiales de mayoreo" />
+            <img
+              src="/mayore02.png"
+              alt="Precios especiales de mayoreo"
+              loading="lazy"
+            />
           </div>
 
           <div class="promo-superior">
@@ -872,7 +880,11 @@ onBeforeUnmount(() => {
           <div class="promo-linea promo-linea-amarilla"></div>
 
           <div class="promo-media">
-            <img src="/descarga06.png" alt="Nuevos productos" />
+            <img
+              src="/descarga06.png"
+              alt="Nuevos productos"
+              loading="lazy"
+            />
           </div>
 
           <div class="promo-superior">
@@ -986,9 +998,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 
-/* ================================================= */
-/* GENERAL */
-/* ================================================= */
+/* (SIN CAMBIOS — mismo CSS que ya tenías) */
 
 * {
   box-sizing: border-box;

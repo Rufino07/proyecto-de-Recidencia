@@ -1,0 +1,27 @@
+# ============================================
+# ROBOTS.TXT - Mega-Mex
+# ============================================
+# Le dice a los buscadores que pueden indexar
+# y que no.
+# ============================================
+
+# Permitir a todos los bots
+User-agent: *
+Allow: /
+
+# No indexar rutas privadas
+Disallow: /admin
+Disallow: /admin/
+Disallow: /inicio
+Disallow: /productos
+Disallow: /promociones
+Disallow: /empresa
+Disallow: /marketing
+Disallow: /contacto
+Disallow: /redes
+Disallow: /olvide-password
+Disallow: /reset-password
+Disallow: /verificar-email
+
+# Sitemap (se actualizara con dominio real en produccion)
+Sitemap: https://localhost:5173/sitemap.xml

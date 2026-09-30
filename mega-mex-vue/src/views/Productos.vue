@@ -119,12 +119,12 @@ const cambiarTipo = nuevoTipo => {
 
 const abrirModal = (producto) => {
   productoSeleccionado.value = producto
-  document.body.style.overflow = 'hidden'  // bloquear scroll del fondo
+  document.body.style.overflow = 'hidden'
 }
 
 const cerrarModal = () => {
   productoSeleccionado.value = null
-  document.body.style.overflow = ''  // reactivar scroll
+  document.body.style.overflow = ''
 }
 
 
@@ -394,6 +394,7 @@ onMounted(() => {
                 :src="producto.imagen"
                 :alt="producto.nombre"
                 class="producto-imagen"
+                loading="lazy"
               >
 
               <div
