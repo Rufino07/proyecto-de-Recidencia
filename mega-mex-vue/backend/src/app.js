@@ -17,6 +17,7 @@ import volantesRoutes from './routes/volantes.routes.js'
 import sucursalesRoutes from './routes/sucursales.routes.js'
 import redesRoutes from './routes/redes.routes.js'
 import contactoRoutes from './routes/contacto.routes.js'
+import categoriasRoutes from './routes/categorias.routes.js'   // ← NUEVO
 import usuariosRoutes from './routes/usuarios.routes.js'   // ← NUEVO
 
 dotenv.config()
@@ -133,7 +134,7 @@ app.use('/api/sucursales', sucursalesRoutes)
 app.use('/api/redes', redesRoutes)
 app.use('/api/contacto', contactoRoutes)
 app.use('/api/usuarios', usuariosRoutes)   // ← NUEVO
-
+app.use('/api/categorias', categoriasRoutes)   // ← NUEVO
 // ============================================
 // RUTA NO ENCONTRADA
 // ============================================

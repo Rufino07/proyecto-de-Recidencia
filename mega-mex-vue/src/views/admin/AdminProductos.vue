@@ -400,6 +400,33 @@
           </div>
 
 
+          <!-- CATEGORÍA -->
+
+          <div class="campo">
+
+            <label>
+              Categoría
+            </label>
+
+            <select v-model="formulario.categoria_id">
+
+              <option :value="null">
+                Sin categoría
+              </option>
+
+              <option
+                v-for="cat in categorias"
+                :key="cat.id"
+                :value="cat.id"
+              >
+                {{ cat.nombre }}
+              </option>
+
+            </select>
+
+          </div>
+
+
           <!-- DESCRIPCIÓN -->
 
           <div class="campo">
@@ -639,6 +666,8 @@ const API_URL = '/api'
 
 const productos = ref([])
 
+const categorias = ref([])   // ← NUEVA
+
 const mostrarModal = ref(false)
 
 const editando = ref(false)
@@ -659,6 +688,8 @@ const formulario = ref({
   nombre: '',
 
   tipo: '',
+
+  categoria_id: null,   // ← NUEVA
 
   descripcion: '',
 
@@ -727,12 +758,50 @@ const cargarProductos = async () => {
 
 
 // ============================================
+// CARGAR CATEGORÍAS DEL BACKEND
+// ============================================
+
+const cargarCategorias = async () => {
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_URL}/categorias`
+    )
+
+    const datos = await respuesta.json()
+
+
+    if (!datos.ok) {
+
+      console.error('Error al cargar categorías:', datos.mensaje)
+
+      return
+
+    }
+
+    categorias.value = datos.categorias
+
+  }
+
+  catch (err) {
+
+    console.error('Error cargando categorías:', err)
+
+  }
+
+}
+
+
+// ============================================
 // AL MONTAR
 // ============================================
 
 onMounted(() => {
 
   cargarProductos()
+
+  cargarCategorias()   // ← NUEVA
 
 })
 
@@ -753,6 +822,8 @@ const abrirNuevoProducto = () => {
     nombre: '',
 
     tipo: '',
+
+    categoria_id: null,   // ← NUEVA
 
     descripcion: '',
 
@@ -872,6 +943,8 @@ const guardarProducto = async () => {
 
         tipo: formulario.value.tipo,
 
+        categoria_id: formulario.value.categoria_id,   // ← NUEVA
+
         descripcion: formulario.value.descripcion.trim(),
 
         imagen: formulario.value.imagen || null,
@@ -959,6 +1032,8 @@ const editarProducto = (producto) => {
     nombre: producto.nombre || '',
 
     tipo: producto.tipo || '',
+
+    categoria_id: producto.categoria_id ?? null,   // ← NUEVA
 
     descripcion: producto.descripcion || '',
 
