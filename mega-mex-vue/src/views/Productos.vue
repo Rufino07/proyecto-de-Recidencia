@@ -17,6 +17,18 @@ const API_URL = '/api'
 
 
 // ============================================
+// NORMALIZAR TEXTO (ignorar acentos y mayúsculas)
+// ============================================
+
+const normalizar = (texto) => {
+  return (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+
+// ============================================
 // CARGAR PRODUCTOS DEL BACKEND
 // ============================================
 
@@ -78,11 +90,11 @@ const categorias = computed(() => {
 
 
 // ============================================
-// FILTRAR PRODUCTOS
+// FILTRAR PRODUCTOS (ignora acentos en la búsqueda)
 // ============================================
 
 const productosFiltrados = computed(() => {
-  const texto = busqueda.value.toLowerCase()
+  const texto = normalizar(busqueda.value)
 
   return productos.value.filter(producto => {
     const coincideTipo =
@@ -94,9 +106,9 @@ const productosFiltrados = computed(() => {
       producto.categoria === categoria.value
 
     const coincideBusqueda =
-      producto.nombre.toLowerCase().includes(texto) ||
-      producto.categoria.toLowerCase().includes(texto) ||
-      producto.descripcion.toLowerCase().includes(texto)
+      normalizar(producto.nombre).includes(texto) ||
+      normalizar(producto.categoria).includes(texto) ||
+      normalizar(producto.descripcion).includes(texto)
 
     return coincideTipo && coincideCategoria && coincideBusqueda
   })
