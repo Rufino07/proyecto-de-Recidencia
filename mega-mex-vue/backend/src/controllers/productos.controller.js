@@ -294,7 +294,7 @@ export const editarProducto = async (req, res) => {
          nombre       = COALESCE($1, nombre),
          tipo         = COALESCE($2, tipo),
          descripcion  = COALESCE($3, descripcion),
-         imagen       = COALESCE($4, imagen),
+                 imagen       = $4,
          categoria_id = COALESCE($5, categoria_id),
          activo       = COALESCE($6, activo)
        WHERE id = $7
