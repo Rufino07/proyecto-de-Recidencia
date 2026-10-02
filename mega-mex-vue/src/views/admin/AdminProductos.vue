@@ -359,6 +359,8 @@
               type="text"
               placeholder="Ejemplo: Arroz 1 kg"
               required
+              minlength="2"
+              maxlength="200"
             >
 
           </div>
@@ -410,6 +412,7 @@
               v-model="formulario.descripcion"
               rows="4"
               placeholder="Descripción del producto..."
+              maxlength="1000"
             ></textarea>
 
           </div>
@@ -572,9 +575,12 @@
       <div
         v-if="mensaje"
         class="mensaje"
+        :class="tipoMensaje"
       >
 
+        <!-- Ícono según tipo -->
         <svg
+          v-if="tipoMensaje === 'exito'"
           viewBox="0 0 24 24"
           width="18"
           height="18"
@@ -586,6 +592,22 @@
         >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+
+        <svg
+          v-else
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
 
         <span>{{ mensaje }}</span>
@@ -625,6 +647,8 @@ const productoEditandoId = ref(null)
 
 const mensaje = ref('')
 
+const tipoMensaje = ref('exito')   // 'exito' | 'error'
+
 const cargando = ref(false)
 
 const cargandoLista = ref(false)
@@ -659,7 +683,7 @@ const cargarProductos = async () => {
       `${API_URL}/productos`,
       {
 
-        credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+        credentials: 'include'   // ← envía cookie httpOnly
 
       }
     )
@@ -670,7 +694,8 @@ const cargarProductos = async () => {
     if (!datos.ok) {
 
       mostrarMensaje(
-        datos.mensaje || 'Error al cargar productos'
+        datos.mensaje || 'Error al cargar productos',
+        'error'
       )
 
       return
@@ -686,7 +711,8 @@ const cargarProductos = async () => {
     console.error('Error cargando productos:', err)
 
     mostrarMensaje(
-      'No se pudo conectar con el servidor.'
+      'No se pudo conectar con el servidor.',
+      'error'
     )
 
   }
@@ -768,7 +794,8 @@ const seleccionarImagen = (event) => {
   if (!archivo.type.startsWith('image/')) {
 
     mostrarMensaje(
-      'Selecciona un archivo de imagen válido.'
+      'Selecciona un archivo de imagen válido.',
+      'error'
     )
 
     return
@@ -803,7 +830,8 @@ const guardarProducto = async () => {
   ) {
 
     mostrarMensaje(
-      'Completa los campos obligatorios.'
+      'Completa los campos obligatorios.',
+      'error'
     )
 
     return
@@ -836,7 +864,7 @@ const guardarProducto = async () => {
 
       },
 
-      credentials: 'include',   // ← NUEVO: envía cookie httpOnly
+      credentials: 'include',   // ← envía cookie httpOnly
 
       body: JSON.stringify({
 
@@ -859,11 +887,9 @@ const guardarProducto = async () => {
     if (respuesta.status === 401) {
 
       mostrarMensaje(
-        'Tu sesión expiró. Inicia sesión de nuevo.'
+        'Tu sesión expiró. Inicia sesión de nuevo.',
+        'error'
       )
-
-      // Opcional: redirigir al login
-      // window.location.href = '/login'
 
       return
 
@@ -891,7 +917,8 @@ const guardarProducto = async () => {
     mostrarMensaje(
       editando.value
         ? 'Producto actualizado correctamente.'
-        : 'Producto agregado correctamente.'
+        : 'Producto agregado correctamente.',
+      'exito'
     )
 
   }
@@ -901,7 +928,8 @@ const guardarProducto = async () => {
     console.error('Error guardando producto:', err)
 
     mostrarMensaje(
-      err.message || 'Error al guardar el producto.'
+      err.message || 'Error al guardar el producto.',
+      'error'
     )
 
   }
@@ -976,7 +1004,7 @@ const eliminarProducto = async (id) => {
 
         method: 'DELETE',
 
-        credentials: 'include'   // ← NUEVO: envía cookie httpOnly
+        credentials: 'include'   // ← envía cookie httpOnly
 
       }
     )
@@ -986,7 +1014,8 @@ const eliminarProducto = async (id) => {
     if (respuesta.status === 401) {
 
       mostrarMensaje(
-        'Tu sesión expiró. Inicia sesión de nuevo.'
+        'Tu sesión expiró. Inicia sesión de nuevo.',
+        'error'
       )
 
       return
@@ -1010,7 +1039,8 @@ const eliminarProducto = async (id) => {
 
 
     mostrarMensaje(
-      'Producto eliminado correctamente.'
+      'Producto eliminado correctamente.',
+      'exito'
     )
 
   }
@@ -1020,7 +1050,8 @@ const eliminarProducto = async (id) => {
     console.error('Error eliminando producto:', err)
 
     mostrarMensaje(
-      err.message || 'Error al eliminar el producto.'
+      err.message || 'Error al eliminar el producto.',
+      'error'
     )
 
   }
@@ -1032,9 +1063,11 @@ const eliminarProducto = async (id) => {
 // MENSAJE
 // ============================================
 
-const mostrarMensaje = (texto) => {
+const mostrarMensaje = (texto, tipo = 'exito') => {
 
   mensaje.value = texto
+
+  tipoMensaje.value = tipo
 
 
   setTimeout(() => {
@@ -2073,7 +2106,7 @@ const mostrarMensaje = (texto) => {
 
 
 /* ========================================== */
-/* MENSAJE */
+/* MENSAJE (TOAST) */
 /* ========================================== */
 
 .mensaje {
@@ -2091,8 +2124,6 @@ const mostrarMensaje = (texto) => {
 
   border-radius: 12px;
 
-  background: #1e9d68;
-
   color: white;
 
   font-weight: bold;
@@ -2106,6 +2137,26 @@ const mostrarMensaje = (texto) => {
   box-shadow:
     0 10px 30px
     rgba(0, 0, 0, 0.20);
+
+  transition: background 0.25s;
+
+}
+
+
+/* Toast de éxito (verde) */
+
+.mensaje.exito {
+
+  background: #1e9d68;
+
+}
+
+
+/* Toast de error (rojo) */
+
+.mensaje.error {
+
+  background: #dc3f3f;
 
 }
 

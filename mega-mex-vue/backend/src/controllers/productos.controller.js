@@ -5,6 +5,15 @@
 import pool from '../config/db.js'
 
 // ============================================
+// CONSTANTES DE VALIDACIÓN
+// ============================================
+
+const TIPOS_VALIDOS = ['Mayoreo', 'Menudeo', 'Mayoreo y menudeo']
+const NOMBRE_MIN = 2
+const NOMBRE_MAX = 200
+const DESCRIPCION_MAX = 1000
+
+// ============================================
 // LISTAR TODOS LOS PRODUCTOS (público)
 // GET /api/productos
 // ============================================
@@ -105,7 +114,11 @@ export const crearProducto = async (req, res) => {
       activo
     } = req.body
 
-    // Validaciones
+    // --------------------------------------------
+    // VALIDACIONES
+    // --------------------------------------------
+
+    // 1. Campos obligatorios
     if (!nombre || !tipo) {
       return res.status(400).json({
         ok: false,
@@ -113,14 +126,52 @@ export const crearProducto = async (req, res) => {
       })
     }
 
-    const tiposValidos = ['Mayoreo', 'Menudeo', 'Mayoreo y menudeo']
+    // 2. Nombre debe ser string
+    if (typeof nombre !== 'string') {
+      return res.status(400).json({
+        ok: false,
+        mensaje: 'El nombre debe ser texto.'
+      })
+    }
 
-    if (!tiposValidos.includes(tipo)) {
+    // 3. Limpiar nombre
+    const nombreLimpio = nombre.trim()
+
+    // 4. Longitud mínima del nombre
+    if (nombreLimpio.length < NOMBRE_MIN) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: `El nombre debe tener al menos ${NOMBRE_MIN} caracteres.`
+      })
+    }
+
+    // 5. Longitud máxima del nombre
+    if (nombreLimpio.length > NOMBRE_MAX) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: `El nombre no puede superar los ${NOMBRE_MAX} caracteres.`
+      })
+    }
+
+    // 6. Tipo válido
+    if (!TIPOS_VALIDOS.includes(tipo)) {
       return res.status(400).json({
         ok: false,
         mensaje: 'El tipo debe ser: Mayoreo, Menudeo o Mayoreo y menudeo.'
       })
     }
+
+    // 7. Longitud máxima de descripción
+    if (descripcion && descripcion.length > DESCRIPCION_MAX) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: `La descripción no puede superar los ${DESCRIPCION_MAX} caracteres.`
+      })
+    }
+
+    // --------------------------------------------
+    // INSERT
+    // --------------------------------------------
 
     const resultado = await pool.query(
       `INSERT INTO productos 
@@ -128,7 +179,7 @@ export const crearProducto = async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, nombre, tipo, descripcion, imagen, categoria_id, activo`,
       [
-        nombre.trim(),
+        nombreLimpio,
         tipo,
         descripcion?.trim() || null,
         imagen || null,
@@ -170,7 +221,11 @@ export const editarProducto = async (req, res) => {
       activo
     } = req.body
 
-    // Verificar que existe
+    // --------------------------------------------
+    // VALIDACIONES
+    // --------------------------------------------
+
+    // 1. Verificar que el producto existe
     const existe = await pool.query(
       'SELECT id FROM productos WHERE id = $1',
       [id]
@@ -183,17 +238,55 @@ export const editarProducto = async (req, res) => {
       })
     }
 
-    // Validar tipo si viene
-    if (tipo) {
-      const tiposValidos = ['Mayoreo', 'Menudeo', 'Mayoreo y menudeo']
+    // 2. Si viene nombre, validar
+    let nombreLimpio = null
 
-      if (!tiposValidos.includes(tipo)) {
+    if (nombre !== undefined) {
+      if (typeof nombre !== 'string') {
+        return res.status(400).json({
+          ok: false,
+          mensaje: 'El nombre debe ser texto.'
+        })
+      }
+
+      nombreLimpio = nombre.trim()
+
+      if (nombreLimpio.length < NOMBRE_MIN) {
+        return res.status(400).json({
+          ok: false,
+          mensaje: `El nombre debe tener al menos ${NOMBRE_MIN} caracteres.`
+        })
+      }
+
+      if (nombreLimpio.length > NOMBRE_MAX) {
+        return res.status(400).json({
+          ok: false,
+          mensaje: `El nombre no puede superar los ${NOMBRE_MAX} caracteres.`
+        })
+      }
+    }
+
+    // 3. Si viene tipo, validar
+    if (tipo) {
+      if (!TIPOS_VALIDOS.includes(tipo)) {
         return res.status(400).json({
           ok: false,
           mensaje: 'El tipo debe ser: Mayoreo, Menudeo o Mayoreo y menudeo.'
         })
       }
     }
+
+    // 4. Si viene descripción, validar longitud
+    if (descripcion && descripcion.length > DESCRIPCION_MAX) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: `La descripción no puede superar los ${DESCRIPCION_MAX} caracteres.`
+      })
+    }
+
+    // --------------------------------------------
+    // UPDATE
+    // --------------------------------------------
 
     const resultado = await pool.query(
       `UPDATE productos
@@ -207,7 +300,7 @@ export const editarProducto = async (req, res) => {
        WHERE id = $7
        RETURNING id, nombre, tipo, descripcion, imagen, categoria_id, activo`,
       [
-        nombre?.trim() || null,
+        nombreLimpio,
         tipo || null,
         descripcion?.trim() || null,
         imagen || null,
