@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // URL del backend
-const API_URL = 'http://localhost:3000/api'
+const API_URL = '/api'
 
 // Estado
 const promocionActiva = ref(0)

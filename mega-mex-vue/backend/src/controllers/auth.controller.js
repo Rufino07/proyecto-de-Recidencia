@@ -12,19 +12,27 @@ import { enviarEmailVerificacion } from '../services/email.service.js'
 // ============================================
 // CONFIGURACIÓN DE COOKIES
 // ============================================
+// Los valores se leen del .env para poder cambiarlos
+// sin tocar código (útil entre desarrollo y producción).
+// JWT_EXPIRES: formato jsonwebtoken ('7d', '2h', '30m')
+// COOKIE_MAX_AGE: milisegundos (7d = 604800000)
+// ============================================
+
+const COOKIE_MAX_AGE = Number(process.env.COOKIE_MAX_AGE) || 2 * 60 * 60 * 1000
+const JWT_EXPIRES = process.env.JWT_EXPIRES || '2h'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
-  maxAge: 2 * 60 * 60 * 1000  // 2 horas
+  maxAge: COOKIE_MAX_AGE
 }
 
 const COOKIE_USUARIO_OPTIONS = {
   httpOnly: false,            // El frontend puede leerlo
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
-  maxAge: 2 * 60 * 60 * 1000  // 2 horas
+  maxAge: COOKIE_MAX_AGE
 }
 
 
@@ -56,7 +64,7 @@ const generarToken = (usuario) => {
       rol: usuario.rol
     },
     process.env.JWT_SECRET,
-    { expiresIn: '2h' }
+    { expiresIn: JWT_EXPIRES }
   )
 }
 

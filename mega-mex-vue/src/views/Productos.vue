@@ -13,7 +13,7 @@ const error = ref('')
 const productoSeleccionado = ref(null)
 
 // URL del backend
-const API_URL = 'http://localhost:3000/api'
+const API_URL = '/api'
 
 
 // ============================================

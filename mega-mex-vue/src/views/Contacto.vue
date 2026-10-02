@@ -5,7 +5,7 @@ import { reactive, ref } from 'vue'
 // CONFIGURACIÓN API
 // ============================================
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = '/api'
 
 
 // ============================================

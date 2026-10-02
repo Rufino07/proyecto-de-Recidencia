@@ -151,7 +151,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = '/api'
 
 const mensajes = ref([])
 const filtro = ref('todos')
