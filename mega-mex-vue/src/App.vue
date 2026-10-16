@@ -40,7 +40,7 @@ import Navbar from './components/Navbar.vue'
 
           <div class="footer-logo-icono">
             <img
-              src="/logo-mega-mex.png"
+              src="/logo-mega-mex.webp"
               alt="Mega-Mex"
             >
           </div>

@@ -70,8 +70,7 @@
           <div>
             <h3>Misión</h3>
             <p>
-              Facilitar el acceso a productos de abarrotes con una atención
-              honesta, ágil y cercana para nuestra comunidad.
+              Somos la mejor tienda comercializadora de mayoreo y menudeo, con una gran variedad de productos a buen precio, brindando un servicio de excelencia para cubrir las necesidades de cada una de las familias en nuestra región mixteca.
             </p>
           </div>
         </div>
@@ -81,14 +80,23 @@
           <div>
             <h3>Visión</h3>
             <p>
-              Ser una tienda de referencia en la región por la confianza de
-              nuestros clientes y la calidad de nuestro servicio.
+              Ser una empresa líder a nivel regional en la comercialización de abarrotes en general, brindando un buen servicio, productos de calidad y precios accesibles a nuestros clientes actuales, así como potenciales.
+            </p>
+          </div>
+        </div>
+
+        <div class="empresa-bloque">
+          <span class="empresa-bloque-numero">04</span>
+          <div>
+            <h3>Propósito</h3>
+            <p>
+              Fortalecer la presencia digital de ABAJUX S. A. de C. V. mediante un sitio web que facilite la consulta de productos, promociones y medios de contacto, contribuyendo a mejorar la comunicación con las familias de la región mixteca.
             </p>
           </div>
         </div>
 
         <div class="empresa-valores">
-          <span class="empresa-ficha-etiqueta">04 · NUESTROS VALORES</span>
+          <span class="empresa-ficha-etiqueta">05 · NUESTROS VALORES</span>
 
           <h3>
             Lo que nos define
@@ -129,7 +137,7 @@
       class="contenedor empresa-sucursales"
     >
       <div class="empresa-sucursales-encabezado">
-        <span class="empresa-ficha-etiqueta">05 · NUESTRAS SUCURSALES</span>
+        <span class="empresa-ficha-etiqueta">06 · NUESTRAS SUCURSALES</span>
 
         <h2>
           Encuéntranos cerca de ti

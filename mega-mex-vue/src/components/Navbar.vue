@@ -61,7 +61,7 @@ const salir = () => {
       >
 
         <img
-          src="/logo-mega-mex.png"
+          src="/logo-mega-mex.webp"
           alt="Logo Mega-Mex"
         >
 

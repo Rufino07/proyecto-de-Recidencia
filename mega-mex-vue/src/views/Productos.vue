@@ -200,7 +200,7 @@ onMounted(() => {
           <div class="hero-circulo">
 
             <img
-              src="/productos.png"
+              src="/productos.webp"
               alt="Productos de Mega-Mex"
             />
 

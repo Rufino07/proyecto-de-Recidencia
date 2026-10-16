@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import img22 from '../assets/img22.png'
+import img22 from '../assets/img22.webp'
 
 const mostrarPresentacion = ref(false)
 const abrirCortina = ref(false)
@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
 
 
           <img
-            src="/logo-mega-mex.png"
+            src="/logo-mega-mex.webp"
             alt="Abarrotes Mega-Mex"
           />
 
@@ -793,12 +793,11 @@ onBeforeUnmount(() => {
 
           <div class="promo-media">
             <img
-              src="/productos.png"
+              src="/productos.webp"
               alt="Productos seleccionados"
               loading="lazy"
             />
           </div>
-
           <div class="promo-superior">
 
             <div class="promo-icono promo-azul">
@@ -881,7 +880,7 @@ onBeforeUnmount(() => {
 
           <div class="promo-media">
             <img
-              src="/descarga06.png"
+              src="/descarga06.webp"
               alt="Nuevos productos"
               loading="lazy"
             />
@@ -1473,7 +1472,7 @@ onBeforeUnmount(() => {
 
   overflow: hidden;
 
-  background: url('/menu09.jpeg') center/cover no-repeat;
+  background: url('/menu09.webp') center/cover no-repeat;
 }
 
 .hero-contenido {
@@ -2163,7 +2162,7 @@ onBeforeUnmount(() => {
       rgba(255, 255, 255, 0.2),
       rgba(255, 255, 255, 0.2)
     ),
-    url('/productos.png') center/contain no-repeat;
+    url('/productos.webp') center/contain no-repeat;
 
   color: inherit;
 
@@ -2187,7 +2186,7 @@ onBeforeUnmount(() => {
       rgba(255, 255, 255, 0.2),
       rgba(255, 255, 255, 0.2)
     ),
-    url('/promociones.PNG') center/contain no-repeat;
+    url('/promociones.webp') center/contain no-repeat;
 }
 
 .tarjeta-nosotros {
@@ -2196,7 +2195,7 @@ onBeforeUnmount(() => {
       rgba(255, 255, 255, 0.2),
       rgba(255, 255, 255, 0.2)
     ),
-    url('/super.png') center/contain no-repeat;
+    url('/super.webp') center/contain no-repeat;
 }
 
 .tarjeta:hover {

@@ -64,7 +64,7 @@
           <div class="facebook-logo-perfil">
 
             <img
-              src="/logo-mega-mex.png"
+              src="/logo-mega-mex.webp"
               alt="Logo Mega-Mex"
             />
 
