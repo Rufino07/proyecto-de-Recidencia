@@ -1,5 +1,15 @@
 <script setup>
+import { onMounted } from 'vue'
 import Navbar from './components/Navbar.vue'
+import { useAuthStore } from './stores/auth'
+
+const auth = useAuthStore()
+
+// 🔥 CAMBIO: al iniciar la app, cargamos el usuario
+// (esto hace que el avatar persista al recargar la página)
+onMounted(() => {
+  auth.cargarUsuario()
+})
 </script>
 
 

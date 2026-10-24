@@ -34,9 +34,9 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-// ═════════════════════════════════════════════
+
 // listarCategorias()
-// ═════════════════════════════════════════════
+
 
 describe('listarCategorias()', () => {
   it('devuelve las categorías activas cuando la BD responde bien', async () => {

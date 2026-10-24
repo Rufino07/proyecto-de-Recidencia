@@ -15,8 +15,6 @@
 
     <section class="login-card">
 
-     
-
       <section class="formulario">
 
         <div class="encabezado">
@@ -241,8 +239,6 @@
 
             <!-- ============================================ -->
             <!-- BLOQUE DE REENVÍO DE VERIFICACIÓN (NUEVO)   -->
-            <!-- Solo aparece cuando el login falla por      -->
-            <!-- correo no verificado                        -->
             <!-- ============================================ -->
 
             <Transition name="mensaje">
@@ -332,21 +328,21 @@
                 </button>
 
                <button
-  type="button"
-  class="social-btn facebook-btn"
-  title="Continuar con Facebook"
-  aria-label="Continuar con Facebook"
-  :disabled="cargandoFacebook"
-  @click="loginSocial('Facebook')"
->
+                  type="button"
+                  class="social-btn facebook-btn"
+                  title="Continuar con Facebook"
+                  aria-label="Continuar con Facebook"
+                  :disabled="cargandoFacebook"
+                  @click="loginSocial('Facebook')"
+                >
 
-  <span class="social-icon facebook-icon">f</span>
+                  <span class="social-icon facebook-icon">f</span>
 
-  <span class="social-nombre">
-    {{ cargandoFacebook ? 'Conectando...' : 'Facebook' }}
-  </span>
+                  <span class="social-nombre">
+                    {{ cargandoFacebook ? 'Conectando...' : 'Facebook' }}
+                  </span>
 
-</button>
+                </button>
 
               </div>
 
@@ -389,6 +385,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { iniciarSesion, reenviarVerificacion } from '../utils/auth'
+import { useAuthStore } from '../stores/auth' // 🔥 IMPORTAMOS EL STORE
 
 import {
   validarCorreo,
@@ -398,6 +395,7 @@ import {
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore() // 🔥 INICIALIZAMOS EL STORE
 
 
 // ============================================
@@ -590,6 +588,9 @@ const login = async () => {
     if (!usuario) {
       throw new Error('No se pudo obtener la información del usuario.')
     }
+
+    // 🔥 Guardamos en el store también para el login tradicional
+    authStore.setUsuario(usuario)
 
     if (tipoAcceso.value === 'admin') {
       if (usuario.rol !== 'admin') {
@@ -798,7 +799,10 @@ const manejarRespuestaGoogle = async (response) => {
     // ⚠️⚠️⚠️ LÍNEA CLAVE: GUARDAR USUARIO PARA EL ROUTER ⚠️⚠️⚠️
     localStorage.setItem('usuarioMegaMex', JSON.stringify(usuario))
 
-    console.log('💾 Usuario guardado en localStorage')
+    // 🔥 ACTUALIZAMOS EL ESTADO GLOBAL (PINIA) PARA EVITAR PARPADEO
+    authStore.setUsuario(usuario)
+
+    console.log('💾 Usuario guardado en localStorage y Pinia')
 
     // Redirigir según rol
     if (usuario.rol === 'admin') {
@@ -813,6 +817,7 @@ const manejarRespuestaGoogle = async (response) => {
     cargandoGoogle.value = false
   }
 }
+
 // ============================================
 // INICIAR LOGIN CON FACEBOOK
 // ============================================
@@ -888,7 +893,10 @@ const manejarRespuestaFacebook = async (accessToken) => {
     // ⚠️ GUARDAR USUARIO PARA EL ROUTER
     localStorage.setItem('usuarioMegaMex', JSON.stringify(usuario))
 
-    console.log('💾 Usuario guardado en localStorage')
+    // 🔥 ACTUALIZAMOS EL ESTADO GLOBAL (PINIA) PARA EVITAR PARPADEO
+    authStore.setUsuario(usuario)
+
+    console.log('💾 Usuario guardado en localStorage y Pinia')
 
     // Redirigir según rol
     if (usuario.rol === 'admin') {

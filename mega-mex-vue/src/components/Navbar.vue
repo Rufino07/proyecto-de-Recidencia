@@ -1,13 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import {
-  cerrarSesion
-} from '../utils/auth'
+import { useAuthStore } from '../stores/auth'
 
 
 const router = useRouter()
+const auth = useAuthStore()
 
 const menuAbierto = ref(false)
 
@@ -25,7 +23,7 @@ const cerrarMenu = () => {
 // CERRAR SESIÓN
 // ============================================
 
-const salir = () => {
+const salir = async () => {
 
   const confirmar = window.confirm(
     '¿Deseas cerrar tu sesión?'
@@ -37,7 +35,7 @@ const salir = () => {
 
   cerrarMenu()
 
-  cerrarSesion()
+  await auth.cerrarSesion()
 
   router.replace('/login')
 }
@@ -227,24 +225,50 @@ const salir = () => {
 
 
         <!-- ================================= -->
-        <!-- CERRAR SESIÓN -->
+        <!-- ZONA USUARIO (avatar + logout) -->
         <!-- ================================= -->
 
-        <button
-          type="button"
-          class="btn-salir"
-          @click="salir"
+        <div v-if="auth.cargando" class="zona-usuario">
+          <!-- Placeholder mientras carga (evita el parpadeo) -->
+          <div class="usuario-cargando"></div>
+        </div>
+
+        <RouterLink
+          v-else-if="!auth.estaLogueado"
+          to="/login"
+          class="btn-login"
+          @click="cerrarMenu"
         >
+          <span class="icono-login">👤</span>
+          <span>Iniciar sesión</span>
+        </RouterLink>
 
-          <span class="icono-salir">
-            🚪
-          </span>
+        <div v-else class="zona-usuario">
+          <div class="usuario-info">
+            <img
+              v-if="auth.usuario.avatar"
+              :src="auth.usuario.avatar"
+              :alt="auth.usuario.nombre"
+              class="avatar"
+              referrerpolicy="no-referrer"
+            />
+            <div v-else class="avatar avatar-iniciales">
+              {{ auth.iniciales }}
+            </div>
+            <span class="usuario-nombre">
+              {{ auth.nombreCorto }}
+            </span>
+          </div>
 
-          <span class="texto-salir">
-            Cerrar sesión
-          </span>
-
-        </button>
+          <button
+            type="button"
+            class="btn-salir"
+            @click="salir"
+          >
+            <span class="icono-salir">🚪</span>
+            <span class="texto-salir">Salir</span>
+          </button>
+        </div>
 
       </nav>
 
@@ -530,6 +554,199 @@ nav {
 
 
 /* ========================================== */
+/* ZONA USUARIO */
+/* ========================================== */
+
+.zona-usuario {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-left: 10px;
+
+}
+
+
+/* Placeholder mientras carga */
+.usuario-cargando {
+
+  width: 45px;
+
+  height: 45px;
+
+  border-radius: 12px;
+
+  background: #edf7ff;
+
+  animation: pulso 1.2s ease-in-out infinite;
+
+}
+
+
+@keyframes pulso {
+
+  0%, 100% { opacity: 0.5; }
+
+  50%      { opacity: 1; }
+
+}
+
+
+/* ========================================== */
+/* INFO USUARIO (avatar + nombre) */
+/* ========================================== */
+
+.usuario-info {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+}
+
+
+.avatar {
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  border:
+    2px solid #e3f1ff;
+
+  background: #edf7ff;
+
+  box-shadow:
+    0 3px 10px
+    rgba(0, 107, 197, 0.15);
+
+  flex-shrink: 0;
+
+}
+
+
+/* Fallback: iniciales cuando no hay foto */
+.avatar-iniciales {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: white;
+
+  font-weight: 800;
+
+  font-size: 15px;
+
+  letter-spacing: 0.5px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #006bc5,
+      #129ce1
+    );
+
+}
+
+
+.usuario-nombre {
+
+  color: #364152;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  max-width: 100px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+
+/* ========================================== */
+/* BOTÓN LOGIN */
+/* ========================================== */
+
+.btn-login {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin-left: 10px;
+
+  padding:
+    10px 16px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #006bc5,
+      #129ce1
+    );
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  box-shadow:
+    0 6px 15px
+    rgba(0, 107, 197, 0.25);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+}
+
+
+.btn-login:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 9px 20px
+    rgba(0, 107, 197, 0.35);
+
+}
+
+
+.icono-login {
+
+  font-size: 15px;
+
+}
+
+
+/* ========================================== */
 /* BOTÓN CERRAR SESIÓN */
 /* ========================================== */
 
@@ -538,8 +755,6 @@ nav {
   width: 45px;
 
   height: 45px;
-
-  margin-left: 7px;
 
   padding:
     0 12px;
@@ -581,8 +796,6 @@ nav {
 }
 
 
-/* ICONO */
-
 .icono-salir {
 
   width: 20px;
@@ -598,8 +811,6 @@ nav {
 }
 
 
-/* TEXTO OCULTO */
-
 .texto-salir {
 
   opacity: 0;
@@ -614,11 +825,9 @@ nav {
 }
 
 
-/* MOSTRAR BOTÓN COMPLETO */
-
 .btn-salir:hover {
 
-  width: 145px;
+  width: 110px;
 
   background: #dc4141;
 
@@ -836,14 +1045,45 @@ nav {
   }
 
 
+  /* Zona usuario en móvil: fila completa */
+  .zona-usuario {
+
+    margin: 8px 0 0;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+  }
+
+
+  .usuario-nombre {
+
+    max-width: none;
+
+    font-size: 14px;
+
+  }
+
+
+  .btn-login {
+
+    width: 100%;
+
+    justify-content: center;
+
+    margin: 8px 0 0;
+
+  }
+
+
   .btn-salir {
 
     width: 100%;
 
     height: 48px;
 
-    margin:
-      8px 0 0;
+    margin: 0;
 
     justify-content: center;
 

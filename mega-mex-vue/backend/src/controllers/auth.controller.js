@@ -12,11 +12,6 @@ import { enviarEmailVerificacion } from '../services/email.service.js'
 // ============================================
 // CONFIGURACIÓN DE COOKIES
 // ============================================
-// Los valores se leen del .env para poder cambiarlos
-// sin tocar código (útil entre desarrollo y producción).
-// JWT_EXPIRES: formato jsonwebtoken ('7d', '2h', '30m')
-// COOKIE_MAX_AGE: milisegundos (7d = 604800000)
-// ============================================
 
 const COOKIE_MAX_AGE = Number(process.env.COOKIE_MAX_AGE) || 2 * 60 * 60 * 1000
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '2h'
@@ -88,9 +83,9 @@ export const login = async (req, res) => {
 
     const correoLimpio = correo.trim().toLowerCase()
 
-    // Buscar usuario (incluye email_verificado)
+    // 🔥 CAMBIO 4: se agrega avatar_url al SELECT
     const resultado = await pool.query(
-      `SELECT id, nombre, correo, password_hash, rol, activo, email_verificado
+      `SELECT id, nombre, correo, password_hash, rol, activo, email_verificado, avatar_url
        FROM usuarios
        WHERE LOWER(correo) = $1
        LIMIT 1`,
@@ -140,17 +135,14 @@ export const login = async (req, res) => {
     // Generar token
     const token = generarToken(usuario)
 
-    // Datos seguros del usuario (sin password_hash)
+    // 🔥 CAMBIO 4: se agrega avatar (null si no tiene)
     const usuarioSeguro = {
       id: usuario.id,
       nombre: usuario.nombre,
       correo: usuario.correo,
-      rol: usuario.rol
+      rol: usuario.rol,
+      avatar: usuario.avatar_url || null
     }
-
-    // ============================================
-    // GUARDAR EN COOKIES
-    // ============================================
 
     res.cookie('token', token, COOKIE_OPTIONS)
     res.cookie(
@@ -177,14 +169,6 @@ export const login = async (req, res) => {
 // ============================================
 // REGISTRO (solo clientes)
 // POST /api/auth/registro
-// ============================================
-// Flujo nuevo:
-//   1. Valida datos
-//   2. Crea usuario con email_verificado = false
-//   3. Genera token de verificación (32 bytes hex)
-//   4. Guarda token + expiración (24h) + fecha de creación
-//   5. Envía email con enlace de verificación
-//   6. NO loguea al usuario automáticamente
 // ============================================
 
 export const registro = async (req, res) => {
@@ -243,13 +227,9 @@ export const registro = async (req, res) => {
     // Hashear contraseña
     const hash = await bcrypt.hash(password, 10)
 
-    // Generar token de verificación (32 bytes = 64 caracteres hex)
+    // Generar token de verificación
     const verificacionToken = crypto.randomBytes(32).toString('hex')
-
-    // Expiración: 24 horas desde ahora
     const expiracion = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
-    // Fecha de creación del token (para rate limit del reenvío)
     const tokenCreadoEn = new Date()
 
     // Insertar usuario con email_verificado = false
@@ -263,10 +243,7 @@ export const registro = async (req, res) => {
 
     const nuevoUsuario = resultado.rows[0]
 
-    // ============================================
-    // ENVIAR EMAIL DE VERIFICACIÓN
-    // ============================================
-
+    // Enviar email de verificación
     try {
       await enviarEmailVerificacion(
         correoLimpio,
@@ -275,10 +252,7 @@ export const registro = async (req, res) => {
       )
     } catch (emailErr) {
       console.error('❌ Error enviando email de verificación:', emailErr.message)
-      // No abortamos el registro; el usuario puede pedir reenvío luego.
     }
-
-    // NO generamos JWT ni cookies: el usuario debe verificar primero
 
     res.status(201).json({
       ok: true,
@@ -309,7 +283,6 @@ export const registro = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    // Borrar ambas cookies
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -344,8 +317,9 @@ export const logout = (req, res) => {
 
 export const perfil = async (req, res) => {
   try {
+    // 🔥 CAMBIO 3: se agrega avatar_url al SELECT
     const resultado = await pool.query(
-      `SELECT id, nombre, correo, rol, activo, creado_en
+      `SELECT id, nombre, correo, rol, activo, creado_en, avatar_url
        FROM usuarios
        WHERE id = $1`,
       [req.usuario.id]
@@ -358,9 +332,20 @@ export const perfil = async (req, res) => {
       })
     }
 
+    const u = resultado.rows[0]
+
+    // 🔥 CAMBIO 3: se devuelve como "avatar" (consistente con login)
     res.json({
       ok: true,
-      usuario: resultado.rows[0]
+      usuario: {
+        id: u.id,
+        nombre: u.nombre,
+        correo: u.correo,
+        rol: u.rol,
+        activo: u.activo,
+        creado_en: u.creado_en,
+        avatar: u.avatar_url || null
+      }
     })
 
   } catch (err) {
@@ -382,7 +367,6 @@ export const loginGoogle = async (req, res) => {
   try {
     const { credential } = req.body
 
-    // Validar que venga el token de Google
     if (!credential) {
       return res.status(400).json({
         ok: false,
@@ -422,13 +406,15 @@ export const loginGoogle = async (req, res) => {
     }
 
     const correoLimpio = email.trim().toLowerCase()
+    const avatarUrl = picture || null
 
     // ==========================================
     // 2. BUSCAR USUARIO EN LA BD
+    // 🔥 CAMBIO 1: se agrega avatar_url al SELECT
     // ==========================================
 
     const resultado = await pool.query(
-      `SELECT id, nombre, correo, rol, activo
+      `SELECT id, nombre, correo, rol, activo, avatar_url
        FROM usuarios
        WHERE LOWER(correo) = $1
        LIMIT 1`,
@@ -438,19 +424,21 @@ export const loginGoogle = async (req, res) => {
     let usuario
 
     // ==========================================
-    // 3. SI NO EXISTE → CREAR COMO CLIENTE
+    // 3. SI NO EXISTE → CREAR CON avatar_url
+    // 🔥 CAMBIO 1: se guarda avatar_url en el INSERT
     // ==========================================
 
     if (resultado.rows.length === 0) {
 
       const insert = await pool.query(
-        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado)
-         VALUES ($1, $2, $3, 'cliente', TRUE)
-         RETURNING id, nombre, correo, rol, activo`,
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado, avatar_url)
+         VALUES ($1, $2, $3, 'cliente', TRUE, $4)
+         RETURNING id, nombre, correo, rol, activo, avatar_url`,
         [
           name || correoLimpio.split('@')[0],
           correoLimpio,
-          'GOOGLE_OAUTH_NO_PASSWORD'
+          'GOOGLE_OAUTH_NO_PASSWORD',
+          avatarUrl
         ]
       )
 
@@ -458,6 +446,18 @@ export const loginGoogle = async (req, res) => {
 
     } else {
       usuario = resultado.rows[0]
+
+      // 🔥 CAMBIO 1: si ya existía, actualizamos el avatar
+      // (Google cambia las URLs de las fotos con el tiempo)
+      if (avatarUrl && avatarUrl !== usuario.avatar_url) {
+        await pool.query(
+          `UPDATE usuarios
+           SET avatar_url = $1, actualizado_en = NOW()
+           WHERE id = $2`,
+          [avatarUrl, usuario.id]
+        )
+        usuario.avatar_url = avatarUrl
+      }
     }
 
     // ==========================================
@@ -473,6 +473,7 @@ export const loginGoogle = async (req, res) => {
 
     // ==========================================
     // 5. GENERAR TOKEN Y GUARDAR COOKIES
+    // 🔥 CAMBIO 1: usamos avatar_url de la BD (fuente de verdad)
     // ==========================================
 
     const token = generarToken(usuario)
@@ -482,7 +483,7 @@ export const loginGoogle = async (req, res) => {
       nombre: usuario.nombre,
       correo: usuario.correo,
       rol: usuario.rol,
-      avatar: picture || null
+      avatar: usuario.avatar_url || null
     }
 
     res.cookie('token', token, COOKIE_OPTIONS)
@@ -491,10 +492,6 @@ export const loginGoogle = async (req, res) => {
       JSON.stringify(usuarioSeguro),
       COOKIE_USUARIO_OPTIONS
     )
-
-    // ==========================================
-    // 6. RESPONDER
-    // ==========================================
 
     res.json({
       ok: true,
@@ -520,10 +517,6 @@ export const loginGoogle = async (req, res) => {
 export const loginFacebook = async (req, res) => {
   try {
     const { accessToken } = req.body
-
-    // ==========================================
-    // 1. VALIDAR QUE VENGA EL TOKEN
-    // ==========================================
 
     if (!accessToken) {
       return res.status(400).json({
@@ -604,10 +597,11 @@ export const loginFacebook = async (req, res) => {
 
     // ==========================================
     // 4. BUSCAR USUARIO EN LA BD
+    // 🔥 CAMBIO 2: se agrega avatar_url al SELECT
     // ==========================================
 
     const resultado = await pool.query(
-      `SELECT id, nombre, correo, rol, activo
+      `SELECT id, nombre, correo, rol, activo, avatar_url
        FROM usuarios
        WHERE LOWER(correo) = $1
        LIMIT 1`,
@@ -617,24 +611,38 @@ export const loginFacebook = async (req, res) => {
     let usuario
 
     // ==========================================
-    // 5. SI NO EXISTE → CREAR COMO CLIENTE
+    // 5. SI NO EXISTE → CREAR CON avatar_url
+    // 🔥 CAMBIO 2: se guarda avatar_url en el INSERT
     // ==========================================
 
     if (resultado.rows.length === 0) {
       const insert = await pool.query(
-        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado)
-         VALUES ($1, $2, $3, 'cliente', TRUE)
-         RETURNING id, nombre, correo, rol, activo`,
+        `INSERT INTO usuarios (nombre, correo, password_hash, rol, email_verificado, avatar_url)
+         VALUES ($1, $2, $3, 'cliente', TRUE, $4)
+         RETURNING id, nombre, correo, rol, activo, avatar_url`,
         [
           name || correoLimpio.split('@')[0],
           correoLimpio,
-          'FACEBOOK_OAUTH_NO_PASSWORD'
+          'FACEBOOK_OAUTH_NO_PASSWORD',
+          avatarUrl
         ]
       )
 
       usuario = insert.rows[0]
     } else {
       usuario = resultado.rows[0]
+
+      // 🔥 CAMBIO 2: si ya existía, actualizamos el avatar
+      // (Facebook expira las URLs de sus fotos, hay que refrescarlas)
+      if (avatarUrl && avatarUrl !== usuario.avatar_url) {
+        await pool.query(
+          `UPDATE usuarios
+           SET avatar_url = $1, actualizado_en = NOW()
+           WHERE id = $2`,
+          [avatarUrl, usuario.id]
+        )
+        usuario.avatar_url = avatarUrl
+      }
     }
 
     // ==========================================
@@ -650,6 +658,7 @@ export const loginFacebook = async (req, res) => {
 
     // ==========================================
     // 7. GENERAR TOKEN Y GUARDAR COOKIES
+    // 🔥 CAMBIO 2: usamos avatar_url de la BD
     // ==========================================
 
     const token = generarToken(usuario)
@@ -659,7 +668,7 @@ export const loginFacebook = async (req, res) => {
       nombre: usuario.nombre,
       correo: usuario.correo,
       rol: usuario.rol,
-      avatar: avatarUrl
+      avatar: usuario.avatar_url || null
     }
 
     res.cookie('token', token, COOKIE_OPTIONS)
@@ -668,10 +677,6 @@ export const loginFacebook = async (req, res) => {
       JSON.stringify(usuarioSeguro),
       COOKIE_USUARIO_OPTIONS
     )
-
-    // ==========================================
-    // 8. RESPONDER
-    // ==========================================
 
     res.json({
       ok: true,
@@ -693,16 +698,11 @@ export const loginFacebook = async (req, res) => {
 // VERIFICAR EMAIL
 // GET /api/auth/verificar-email?token=...
 // ============================================
-// El usuario hace clic en el enlace del correo.
-// Validamos el token, marcamos email_verificado=true
-// y borramos el token para que no se reutilice.
-// ============================================
 
 export const verificarEmail = async (req, res) => {
   try {
     const { token } = req.query
 
-    // Validar que venga el token
     if (!token) {
       return res.status(400).json({
         ok: false,
@@ -710,7 +710,6 @@ export const verificarEmail = async (req, res) => {
       })
     }
 
-    // Buscar usuario con ese token
     const resultado = await pool.query(
       `SELECT id, nombre, correo, email_verificado, verificacion_token_expira
        FROM usuarios
@@ -728,7 +727,6 @@ export const verificarEmail = async (req, res) => {
 
     const usuario = resultado.rows[0]
 
-    // Verificar si ya estaba verificado (caso raro: token reutilizado)
     if (usuario.email_verificado) {
       return res.json({
         ok: true,
@@ -736,7 +734,6 @@ export const verificarEmail = async (req, res) => {
       })
     }
 
-    // Verificar expiración
     if (
       usuario.verificacion_token_expira &&
       new Date(usuario.verificacion_token_expira) < new Date()
@@ -747,7 +744,6 @@ export const verificarEmail = async (req, res) => {
       })
     }
 
-    // Marcar como verificado y borrar token
     await pool.query(
       `UPDATE usuarios
        SET email_verificado = TRUE,
@@ -780,18 +776,11 @@ export const verificarEmail = async (req, res) => {
 // REENVIAR EMAIL DE VERIFICACIÓN
 // POST /api/auth/reenviar-verificacion
 // ============================================
-// El usuario perdió el correo original o el token expiró.
-// Por seguridad, SIEMPRE respondemos igual (no revelamos
-// si el correo existe o no).
-//
-// Rate limit: 1 reenvío cada 5 minutos por correo.
-// ============================================
 
 export const reenviarVerificacion = async (req, res) => {
   try {
     const { correo } = req.body
 
-    // Validar que venga el correo
     if (!correo) {
       return res.status(400).json({
         ok: false,
@@ -801,14 +790,12 @@ export const reenviarVerificacion = async (req, res) => {
 
     const correoLimpio = correo.trim().toLowerCase()
 
-    // Respuesta genérica (siempre la misma, exista o no el correo)
     const RESPUESTA_GENERICA = {
       ok: true,
       mensaje:
         'Si el correo está registrado y sin verificar, te enviamos un nuevo enlace. Revisa tu bandeja de entrada (y spam).'
     }
 
-    // Buscar usuario
     const resultado = await pool.query(
       `SELECT id, nombre, correo, email_verificado,
               verificacion_token_creado_en
@@ -818,29 +805,23 @@ export const reenviarVerificacion = async (req, res) => {
       [correoLimpio]
     )
 
-    // Si no existe → responder igual (no revelamos nada)
     if (resultado.rows.length === 0) {
       return res.json(RESPUESTA_GENERICA)
     }
 
     const usuario = resultado.rows[0]
 
-    // Si ya está verificado → responder igual (no revelamos nada)
     if (usuario.email_verificado) {
       return res.json(RESPUESTA_GENERICA)
     }
 
-    // ============================================
     // RATE LIMIT: 1 reenvío cada 5 minutos
-    // ============================================
-
     if (usuario.verificacion_token_creado_en) {
       const ahora = Date.now()
       const creadoEn = new Date(usuario.verificacion_token_creado_en).getTime()
       const minutosTranscurridos = (ahora - creadoEn) / 1000 / 60
 
       if (minutosTranscurridos < 5) {
-        // Aún no pasan 5 min → no reenviamos, pero respondemos igual
         console.log(
           `⏳ Reenvío bloqueado por rate limit: ${usuario.correo} ` +
           `(${minutosTranscurridos.toFixed(1)} min)`
@@ -849,15 +830,10 @@ export const reenviarVerificacion = async (req, res) => {
       }
     }
 
-    // ============================================
-    // GENERAR NUEVO TOKEN Y EXPIRACIÓN
-    // ============================================
-
     const nuevoToken = crypto.randomBytes(32).toString('hex')
     const nuevaExpiracion = new Date(Date.now() + 24 * 60 * 60 * 1000)
     const nuevoCreadoEn = new Date()
 
-    // Guardar en BD
     await pool.query(
       `UPDATE usuarios
        SET verificacion_token = $1,
@@ -867,10 +843,6 @@ export const reenviarVerificacion = async (req, res) => {
        WHERE id = $4`,
       [nuevoToken, nuevaExpiracion, nuevoCreadoEn, usuario.id]
     )
-
-    // ============================================
-    // ENVIAR EMAIL
-    // ============================================
 
     try {
       await enviarEmailVerificacion(
@@ -884,10 +856,8 @@ export const reenviarVerificacion = async (req, res) => {
         '❌ Error reenviando email de verificación:',
         emailErr.message
       )
-      // No abortamos: el token ya quedó guardado en BD
     }
 
-    // Respuesta genérica (igual que los demás casos)
     res.json(RESPUESTA_GENERICA)
 
   } catch (err) {
