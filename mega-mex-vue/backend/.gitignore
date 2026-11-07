@@ -1,10 +1,10 @@
 # Dependencias
 node_modules/
 
-# Variables de entorno (¡NUNCA subir!)
+# Variables de entorno privadas
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Logs
 *.log
@@ -24,4 +24,5 @@ dist/
 build/
 
 # Uploads
-uploads/
+uploads/coverage/
+coverage/
