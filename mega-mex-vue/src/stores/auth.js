@@ -1,14 +1,18 @@
-// ============================================
-// STORE DE AUTENTICACIÓN
-// ============================================
-// Maneja el estado global del usuario logueado:
-// - usuario (objeto con id, nombre, correo, rol, avatar)
-// - cargando (para no parpadear el navbar al inicio)
-// - inicializado (para no llamar /perfil más de una vez)
-// ============================================
+
+ // ============================================
+ // STORE DE AUTENTICACIÓN
+ // ============================================
+ // Maneja el estado global del usuario logueado:
+ // - usuario (objeto con id, nombre, correo, rol, avatar)
+ // - cargando (para no parpadear el navbar al inicio)
+ // - inicializado (para no llamar /perfil más de una vez)
+ // ============================================
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+
+// URL de la API para desarrollo y producción
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 export const useAuthStore = defineStore('auth', () => {
   // ============================================
@@ -29,15 +33,19 @@ export const useAuthStore = defineStore('auth', () => {
 
   const nombreCorto = computed(() => {
     if (!usuario.value?.nombre) return ''
-    // Toma el primer nombre (antes del primer espacio)
     return usuario.value.nombre.split(' ')[0]
   })
 
   const iniciales = computed(() => {
     if (!usuario.value?.nombre) return '?'
     const partes = usuario.value.nombre.trim().split(' ')
-    if (partes.length === 1) return partes[0].charAt(0).toUpperCase()
-    return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase()
+    if (partes.length === 1) {
+      return partes[0].charAt(0).toUpperCase()
+    }
+    return (
+      partes[0].charAt(0) +
+      partes[partes.length - 1].charAt(0)
+    ).toUpperCase()
   })
 
   // ============================================
@@ -45,14 +53,15 @@ export const useAuthStore = defineStore('auth', () => {
   // ============================================
 
   /**
-   * Carga el usuario desde /api/auth/perfil.
-   * Se llama al iniciar la app (App.vue) y después del login.
+   * Carga el usuario desde la API REST.
+   * Se llama al iniciar la app y después del login.
    * Si no hay sesión, deja usuario = null.
    */
   const cargarUsuario = async () => {
     cargando.value = true
+
     try {
-      const res = await fetch('/api/auth/perfil', {
+      const res = await fetch(`${API_URL}/auth/perfil`, {
         credentials: 'include'
       })
 
@@ -72,8 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Setea el usuario manualmente (después de un login exitoso).
-   * Evita una llamada extra al backend.
+   * Establece el usuario después de un login exitoso.
    */
   const setUsuario = (u) => {
     usuario.value = u
@@ -81,11 +89,12 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Cierra sesión: llama al backend y limpia el estado.
+   * Cierra sesión en el backend
+   * y limpia el estado del usuario.
    */
   const cerrarSesion = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -97,16 +106,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    // estado
     usuario,
     cargando,
     inicializado,
-    // getters
     estaLogueado,
     esAdmin,
     nombreCorto,
     iniciales,
-    // acciones
     cargarUsuario,
     setUsuario,
     cerrarSesion
