@@ -43,6 +43,7 @@ app.use(helmet({
 // SEGURIDAD: CORS (LISTA BLANCA)
 // ============================================
 
+
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
@@ -55,8 +56,11 @@ const allowedOrigins = [
   'https://127.0.0.1:5173',
   'https://127.0.0.1:5174',
   'https://192.168.1.82:5173',
-  'https://eloquence-vagabond-shortage.ngrok-free.dev'
-]
+  'https://eloquence-vagabond-shortage.ngrok-free.dev',
+  process.env.FRONTEND_URL
+].filter(Boolean)
+
+
 
 app.use(cors({
   origin: function (origin, callback) {
