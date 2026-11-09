@@ -4,7 +4,7 @@
 // Maneja todas las peticiones al backend.
 // Si detecta 401 (sesión expirada), limpia y redirige al login.
 
-const API_URL = '/api'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 // =====================================================
 // MANEJAR SESIÓN EXPIRADA

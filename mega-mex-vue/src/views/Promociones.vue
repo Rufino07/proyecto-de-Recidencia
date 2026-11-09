@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // URL del backend
-const API_URL = '/api'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 // Estado
 const promocionActiva = ref(0)

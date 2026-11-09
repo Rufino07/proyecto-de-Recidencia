@@ -13,7 +13,7 @@ const error = ref('')
 const productoSeleccionado = ref(null)
 
 // URL del backend
-const API_URL = '/api'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 
 // ============================================
