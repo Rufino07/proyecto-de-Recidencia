@@ -9,24 +9,27 @@ import pool from '../config/db.js'
 import { OAuth2Client } from 'google-auth-library'
 import { enviarEmailVerificacion } from '../services/email.service.js'
 
-// ============================================
-// CONFIGURACIÓN DE COOKIES
-// ============================================
+
+ // ============================================
+ // CONFIGURACIÓN DE COOKIES
+ // ============================================
 
 const COOKIE_MAX_AGE = Number(process.env.COOKIE_MAX_AGE) || 2 * 60 * 60 * 1000
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '2h'
 
+const esProduccion = process.env.NODE_ENV === 'production'
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  secure: esProduccion,
+  sameSite: esProduccion ? 'none' : 'lax',
   maxAge: COOKIE_MAX_AGE
 }
 
 const COOKIE_USUARIO_OPTIONS = {
-  httpOnly: false,            // El frontend puede leerlo
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  httpOnly: false,
+  secure: esProduccion,
+  sameSite: esProduccion ? 'none' : 'lax',
   maxAge: COOKIE_MAX_AGE
 }
 
@@ -276,38 +279,45 @@ export const registro = async (req, res) => {
 }
 
 
-// ============================================
-// LOGOUT
-// POST /api/auth/logout
-// ============================================
+ // ============================================
+ // LOGOUT
+ // POST /api/auth/logout
+ // ============================================
 
 export const logout = (req, res) => {
   try {
+    const esProduccion = process.env.NODE_ENV === 'production'
+
+    // Eliminar la cookie del token JWT
     res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      secure: esProduccion,
+      sameSite: esProduccion ? 'none' : 'lax'
     })
 
+    // Eliminar la cookie de información del usuario
     res.clearCookie('usuario', {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      secure: esProduccion,
+      sameSite: esProduccion ? 'none' : 'lax'
     })
 
-    res.json({
+    // Confirmar que la sesión se cerró
+    return res.json({
       ok: true,
       mensaje: 'Sesión cerrada correctamente.'
     })
 
   } catch (err) {
     console.error('❌ Error en logout:', err.message)
-    res.status(500).json({
+
+    return res.status(500).json({
       ok: false,
       mensaje: 'Error del servidor al cerrar sesión.'
     })
   }
 }
+
 
 
 // ============================================
